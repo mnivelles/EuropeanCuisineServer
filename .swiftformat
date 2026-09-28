@@ -1,0 +1,21 @@
+# format options
+--allman false
+--indent 4
+--max-width 100
+--self init-only
+--strip-unused-args unnamed-only
+--wrap-arguments after-first
+--wrap-parameters after-first
+--wrap-collections before-first
+--xcode-indentation disabled
+--no-space-operators
+
+# file options
+--exclude Pods
+--swift-version 6.3
+
+# rules
+#--disable ...
+--enable isEmpty
+--disable redundantFileprivate
+--disable wrapMultilineStatementBraces
