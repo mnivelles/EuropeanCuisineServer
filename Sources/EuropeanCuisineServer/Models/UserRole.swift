@@ -1,0 +1,15 @@
+//
+//  UserRole.swift
+//  EuropeanCuisineServer
+//
+//  Created by Aesmond on 01/10/2026.
+//  Copyright © 2026 Aesmond. All rights reserved.
+//  
+
+extension User {
+    enum Role: String, Codable, CaseIterable {
+        case admin
+        case staff
+        case festivalGoer = "festival_goer"
+    }
+}
