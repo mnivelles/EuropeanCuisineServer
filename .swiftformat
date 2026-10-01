@@ -11,7 +11,7 @@
 --no-space-operators
 
 # file options
---exclude Pods
+--exclude .build,DerivedData,Public,Resources,Pods
 --swift-version 6.3
 
 # rules
