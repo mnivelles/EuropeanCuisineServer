@@ -11,7 +11,7 @@ import Vapor
 
 struct CreateCategoryMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
-        try await database.schema("categories")
+      try await database.schema(Category.schema)
             .id()
             .field("name", .string, .required)
             .create()

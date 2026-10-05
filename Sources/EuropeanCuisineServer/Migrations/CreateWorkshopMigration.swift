@@ -18,7 +18,7 @@ struct CreateWorkshopMigration: AsyncMigration {
         }
         let status = try await builder.create()
 
-        try await database.schema("workshops")
+      try await database.schema(Workshop.schema)
             .id()
             .field("name", .string, .required)
             .field("start_time", .datetime, .required)

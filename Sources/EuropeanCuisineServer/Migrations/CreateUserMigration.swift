@@ -23,7 +23,7 @@ struct CreateUserMigration: AsyncMigration {
         }
         let status = try await builderS.create()
 
-        try await database.schema("users")
+      try await database.schema(User.schema)
             .id()
             .field("name", .string, .required)
             .field("email", .string, .required)

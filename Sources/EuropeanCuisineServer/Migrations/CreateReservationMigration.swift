@@ -17,7 +17,7 @@ struct CreateReservationMigration: AsyncMigration {
         }
         let status = try await builder.create()
 
-        try await database.schema("reservations")
+      try await database.schema(Reservation.schema)
             .id()
             .field("status", status, .required)
             .field("created_at", .datetime)
