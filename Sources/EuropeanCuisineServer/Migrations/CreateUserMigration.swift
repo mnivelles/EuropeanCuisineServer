@@ -39,5 +39,8 @@ struct CreateUserMigration: AsyncMigration {
     func revert(on database: any Database) async throws {
         try await database.schema("users")
             .delete()
+        
+        try await database.enum("user_status").delete()
+        try await database.enum("user_role").delete()
     }
 }

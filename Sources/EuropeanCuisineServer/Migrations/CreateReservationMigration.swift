@@ -25,11 +25,11 @@ struct CreateReservationMigration: AsyncMigration {
             .field("workshop_id",
                    .uuid,
                    .required,
-                   .references("workshops", "id", onDelete: .cascade))
+                   .references(Workshop.schema, "id", onDelete: .cascade))
             .field("user_id",
                    .uuid,
                    .required,
-                   .references("users", "id", onDelete: .cascade))
+                   .references(User.schema, "id", onDelete: .cascade))
             .unique(on: "workshop_id", "user_id")
             .create()
     }
@@ -37,5 +37,7 @@ struct CreateReservationMigration: AsyncMigration {
     func revert(on database: any Database) async throws {
         try await database.schema("reservations")
             .delete()
+      
+        try await database.enum("reservation_status").delete()
     }
 }

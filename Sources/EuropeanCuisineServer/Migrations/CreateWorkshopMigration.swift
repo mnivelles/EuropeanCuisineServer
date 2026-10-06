@@ -42,5 +42,7 @@ struct CreateWorkshopMigration: AsyncMigration {
     func revert(on database: any Database) async throws {
         try await database.schema("workshops")
             .delete()
+        
+        try await database.enum("workshop_status").delete()
     }
 }
