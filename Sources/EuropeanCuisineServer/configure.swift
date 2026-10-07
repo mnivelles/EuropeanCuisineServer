@@ -27,10 +27,12 @@ func configure(_ app: Application) async throws {
 
     app.migrations.add(CreateCategoryMigration())
     app.migrations.add(CreateUserMigration())
+    app.migrations.add(CreateUserInfosMigration())
     app.migrations.add(CreateWorkshopMigration())
+    app.migrations.add(CreateWorkshopInfosMigration())
     app.migrations.add(CreateReservationMigration())
 
-    try await app.autoMigrate()
+//    try await app.autoMigrate()
 
     // register routes
     try routes(app)

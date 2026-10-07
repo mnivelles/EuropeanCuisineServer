@@ -18,12 +18,6 @@ final class Reservation: Model, @unchecked Sendable {
     @Enum(key: "status")
     var status: Reservation.Status
 
-    @Timestamp(key: "created_at", on: .create)
-    var createdAt: Date?
-
-    @Timestamp(key: "updated_at", on: .update)
-    var updatedAt: Date?
-
     @Parent(key: "workshop_id")
     var workshop: Workshop
 
@@ -38,7 +32,7 @@ final class Reservation: Model, @unchecked Sendable {
          userID: User.IDValue) {
         self.id = id
         self.status = status
-        $workshop.id = workshopID
-        $user.id = userID
+        self.$workshop.id = workshopID
+        self.$user.id = userID
     }
 }

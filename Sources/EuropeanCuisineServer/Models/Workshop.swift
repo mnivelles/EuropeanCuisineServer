@@ -30,12 +30,6 @@ final class Workshop: Model, @unchecked Sendable {
     @Field(key: "description")
     var description: String
 
-    @Field(key: "picture_url")
-    var pictureURL: String
-
-    @Enum(key: "status")
-    var status: Workshop.Status
-
     @Field(key: "is_vegan")
     var isVegan: Bool
 
@@ -45,17 +39,14 @@ final class Workshop: Model, @unchecked Sendable {
     @Field(key: "is_family_friendly")
     var isFamilyFriendly: Bool
 
-    @Timestamp(key: "created_at", on: .create)
-    var createdAt: Date?
-
-    @Timestamp(key: "updated_at", on: .update)
-    var updatedAt: Date?
-
     @Parent(key: "category_id")
     var category: Category
 
     @Children(for: \.$workshop)
     var reservations: [Reservation]
+    
+    @OptionalChild(for: \.$workshop)
+    var infos: WorkshopInfos?
 
     init() {}
 
@@ -65,8 +56,6 @@ final class Workshop: Model, @unchecked Sendable {
          endTime: Date,
          capacityMax: UInt16,
          description: String,
-         pictureURL: String,
-         status: Workshop.Status,
          isVegan: Bool,
          isPRM: Bool,
          isFamilyFriendly: Bool,
@@ -77,11 +66,9 @@ final class Workshop: Model, @unchecked Sendable {
         self.endTime = endTime
         self.capacityMax = capacityMax
         self.description = description
-        self.pictureURL = pictureURL
-        self.status = status
         self.isVegan = isVegan
         self.isPRM = isPRM
         self.isFamilyFriendly = isFamilyFriendly
-        $category.id = categoryID
+        self.$category.id = categoryID
     }
 }

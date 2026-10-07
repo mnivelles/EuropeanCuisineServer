@@ -12,37 +12,26 @@ import Vapor
 
 struct CreateWorkshopMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
-        var builder = database.enum("workshop_status")
-        for s in Workshop.Status.allCases {
-            builder = builder.case(s.rawValue)
-        }
-        let status = try await builder.create()
 
       try await database.schema(Workshop.schema)
             .id()
-            .field("name", .string, .required)
+            .field("name", .sql(unsafeRaw: "VARCHAR(100)"), .required)
             .field("start_time", .datetime, .required)
             .field("end_time", .datetime, .required)
             .field("capacity_max", .uint16, .required)
             .field("description", .sql(unsafeRaw: "TEXT"), .required)
-            .field("picture_url", .string, .required)
-            .field("status", status, .required)
             .field("is_vegan", .bool, .required)
             .field("is_prm", .bool, .required)
             .field("is_family_friendly", .bool, .required)
-            .field("created_at", .datetime)
-            .field("updated_at", .datetime)
             .field("category_id",
                    .uuid,
                    .required,
-                   .references("categories", "id", onDelete: .noAction))
+                   .references(Category.schema, "id", onDelete: .noAction))
             .create()
     }
 
     func revert(on database: any Database) async throws {
         try await database.schema("workshops")
             .delete()
-        
-        try await database.enum("workshop_status").delete()
     }
 }

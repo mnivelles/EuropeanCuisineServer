@@ -20,8 +20,6 @@ struct CreateReservationMigration: AsyncMigration {
       try await database.schema(Reservation.schema)
             .id()
             .field("status", status, .required)
-            .field("created_at", .datetime)
-            .field("updated_at", .datetime)
             .field("workshop_id",
                    .uuid,
                    .required,

@@ -7,32 +7,24 @@
 //
 
 import Fluent
+import FluentSQL
 import Vapor
 
 struct CreateUserMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
-        var builderR = database.enum("user_role")
+        var builder = database.enum("user_role")
         for r in User.Role.allCases {
-            builderR = builderR.case(r.rawValue)
+            builder = builder.case(r.rawValue)
         }
-        let role = try await builderR.create()
-
-        var builderS = database.enum("user_status")
-        for s in User.Status.allCases {
-            builderS = builderS.case(s.rawValue)
-        }
-        let status = try await builderS.create()
+        let role = try await builder.create()
 
       try await database.schema(User.schema)
             .id()
-            .field("name", .string, .required)
-            .field("email", .string, .required)
-            .field("password_hash", .string, .required)
-            .field("picture_url", .string)
+            .field("name", .sql(unsafeRaw: "VARCHAR(100)"), .required)
+            .field("email", .sql(unsafeRaw: "VARCHAR(254)"), .required)
+            .field("password_hash", .sql(unsafeRaw: "VARCHAR(100)"), .required)
             .field("role", role, .required)
-            .field("status", status, .required)
             .field("created_at", .datetime)
-            .field("updated_at", .datetime)
             .create()
     }
 
@@ -40,7 +32,6 @@ struct CreateUserMigration: AsyncMigration {
         try await database.schema("users")
             .delete()
         
-        try await database.enum("user_status").delete()
         try await database.enum("user_role").delete()
     }
 }

@@ -7,13 +7,14 @@
 //
 
 import Fluent
+import FluentSQL
 import Vapor
 
 struct CreateCategoryMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
       try await database.schema(Category.schema)
             .id()
-            .field("name", .string, .required)
+            .field("name", .sql(unsafeRaw: "VARCHAR(100)"), .required)
             .create()
     }
 
