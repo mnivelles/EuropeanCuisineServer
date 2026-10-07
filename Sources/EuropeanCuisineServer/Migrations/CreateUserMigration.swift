@@ -12,7 +12,7 @@ import Vapor
 
 struct CreateUserMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
-        var builder = database.enum("user_role")
+        var builder = database.enum(User.Role.schema)
         for r in User.Role.allCases {
             builder = builder.case(r.rawValue)
         }
@@ -29,9 +29,9 @@ struct CreateUserMigration: AsyncMigration {
     }
 
     func revert(on database: any Database) async throws {
-        try await database.schema("users")
+        try await database.schema(User.schema)
             .delete()
         
-        try await database.enum("user_role").delete()
+        try await database.enum(User.Role.schema).delete()
     }
 }

@@ -11,7 +11,7 @@ import Vapor
 
 struct CreateReservationMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
-        var builder = database.enum("reservation_status")
+        var builder = database.enum(Reservation.Status.schema)
         for s in Reservation.Status.allCases {
             builder = builder.case(s.rawValue)
         }
@@ -33,9 +33,9 @@ struct CreateReservationMigration: AsyncMigration {
     }
 
     func revert(on database: any Database) async throws {
-        try await database.schema("reservations")
+        try await database.schema(Reservation.schema)
             .delete()
       
-        try await database.enum("reservation_status").delete()
+        try await database.enum(Reservation.Status.schema).delete()
     }
 }

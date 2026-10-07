@@ -11,5 +11,7 @@ extension Reservation {
         case confirmed
         case pending
         case cancelled
+        
+        static let schema: String = "reservation_status"
     }
 }

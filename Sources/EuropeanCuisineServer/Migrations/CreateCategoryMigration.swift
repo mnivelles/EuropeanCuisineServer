@@ -19,7 +19,7 @@ struct CreateCategoryMigration: AsyncMigration {
     }
 
     func revert(on database: any Database) async throws {
-        try await database.schema("categories")
+        try await database.schema(Category.schema)
             .delete()
     }
 }

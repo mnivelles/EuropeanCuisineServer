@@ -11,5 +11,7 @@ extension User {
         case admin
         case staff
         case festivalGoer = "festival_goer"
+      
+        static let schema: String = "user_roles"
     }
 }
