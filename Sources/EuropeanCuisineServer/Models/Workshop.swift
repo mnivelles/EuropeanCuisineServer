@@ -30,15 +30,6 @@ final class Workshop: Model, @unchecked Sendable {
     @Field(key: "description")
     var description: String
 
-    @Field(key: "is_vegan")
-    var isVegan: Bool
-
-    @Field(key: "is_prm")
-    var isPRM: Bool
-
-    @Field(key: "is_family_friendly")
-    var isFamilyFriendly: Bool
-
     @Parent(key: "category_id")
     var category: Category
 
@@ -56,9 +47,6 @@ final class Workshop: Model, @unchecked Sendable {
          endTime: Date,
          capacityMax: UInt16,
          description: String,
-         isVegan: Bool,
-         isPRM: Bool,
-         isFamilyFriendly: Bool,
          categoryID: Category.IDValue) {
         self.id = id
         self.name = name
@@ -66,9 +54,6 @@ final class Workshop: Model, @unchecked Sendable {
         self.endTime = endTime
         self.capacityMax = capacityMax
         self.description = description
-        self.isVegan = isVegan
-        self.isPRM = isPRM
-        self.isFamilyFriendly = isFamilyFriendly
         self.$category.id = categoryID
     }
 }

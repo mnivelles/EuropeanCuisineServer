@@ -22,6 +22,9 @@ struct CreateWorkshopInfosMigration: AsyncMigration {
             .id()
             .field("status", status, .required)
             .field("picture_url", .sql(unsafeRaw: "VARCHAR(500)"), .required)
+            .field("is_vegan", .bool, .required)
+            .field("is_prm", .bool, .required)
+            .field("is_family_friendly", .bool, .required)
             .field(
                 "workshop_id",
                 .uuid,

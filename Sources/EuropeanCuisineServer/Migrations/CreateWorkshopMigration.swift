@@ -19,9 +19,6 @@ struct CreateWorkshopMigration: AsyncMigration {
             .field("end_time", .datetime, .required)
             .field("capacity_max", .uint16, .required)
             .field("description", .sql(unsafeRaw: "TEXT"), .required)
-            .field("is_vegan", .bool, .required)
-            .field("is_prm", .bool, .required)
-            .field("is_family_friendly", .bool, .required)
             .field("category_id",
                    .uuid,
                    .required,
