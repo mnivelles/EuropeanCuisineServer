@@ -17,7 +17,7 @@ struct CreateReservationMigration: AsyncMigration {
         }
         let status = try await builder.create()
 
-      try await database.schema(Reservation.schema)
+        try await database.schema(Reservation.schema)
             .id()
             .field("status", status, .required)
             .field("workshop_id",
@@ -35,7 +35,7 @@ struct CreateReservationMigration: AsyncMigration {
     func revert(on database: any Database) async throws {
         try await database.schema(Reservation.schema)
             .delete()
-      
+
         try await database.enum(Reservation.Status.schema).delete()
     }
 }

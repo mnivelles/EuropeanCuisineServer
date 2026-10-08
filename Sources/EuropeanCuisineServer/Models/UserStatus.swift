@@ -10,7 +10,7 @@ extension User {
     enum Status: String, Codable, CaseIterable {
         case active
         case disabled
-        
+
         static let schema: String = "user_status"
     }
 }

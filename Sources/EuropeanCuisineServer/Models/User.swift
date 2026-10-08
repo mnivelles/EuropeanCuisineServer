@@ -32,7 +32,7 @@ final class User: Model, @unchecked Sendable {
 
     @Children(for: \.$user)
     var reservations: [Reservation]
-    
+
     @OptionalChild(for: \.$user)
     var infos: UserInfos?
 
@@ -42,8 +42,7 @@ final class User: Model, @unchecked Sendable {
          name: String,
          email: String,
          passwordHash: String,
-         role: User.Role
-    ) {
+         role: User.Role) {
         self.id = id
         self.name = name
         self.email = email

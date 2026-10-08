@@ -4,7 +4,7 @@
 //
 //  Created by Aesmond on 08/10/2026.
 //  Copyright © 2026 Aesmond. All rights reserved.
-//  
+//
 
 import Fluent
 import Vapor
@@ -15,15 +15,13 @@ struct CategoryInput: Content {
 
 extension CategoryInput {
     func toModel() -> Category {
-        Category(
-            name: name
-        )
+        Category(name: name)
     }
 }
 
 extension CategoryInput: Validatable {
     static func validations(_ validations: inout Validations) {
-        validations.add("name", as: String.self, is: .count(1...100))
+        validations.add("name", as: String.self, is: .count(1 ... 100))
     }
 }
 

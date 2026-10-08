@@ -18,7 +18,7 @@ struct CreateUserMigration: AsyncMigration {
         }
         let role = try await builder.create()
 
-      try await database.schema(User.schema)
+        try await database.schema(User.schema)
             .id()
             .field("name", .sql(unsafeRaw: "VARCHAR(100)"), .required)
             .field("email", .sql(unsafeRaw: "VARCHAR(254)"), .required)
@@ -31,7 +31,7 @@ struct CreateUserMigration: AsyncMigration {
     func revert(on database: any Database) async throws {
         try await database.schema(User.schema)
             .delete()
-        
+
         try await database.enum(User.Role.schema).delete()
     }
 }

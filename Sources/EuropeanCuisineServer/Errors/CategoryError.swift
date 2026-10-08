@@ -4,23 +4,23 @@
 //
 //  Created by Aesmond on 08/10/2026.
 //  Copyright © 2026 Aesmond. All rights reserved.
-//  
+//
 
 import Vapor
 
 enum CategoryError: AbortError {
     case alreadyExists
     case notFound
-    
+
     var status: HTTPResponseStatus {
         switch self {
         case .alreadyExists:
-                .conflict
+            .conflict
         case .notFound:
-                .notFound
+            .notFound
         }
     }
-    
+
     var reason: String {
         switch self {
         case .alreadyExists:

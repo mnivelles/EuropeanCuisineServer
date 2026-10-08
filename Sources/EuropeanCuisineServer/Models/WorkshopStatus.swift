@@ -10,7 +10,7 @@ extension Workshop {
     enum Status: String, Codable, CaseIterable {
         case published
         case cancelled
-        
+
         static let schema: String = "workshop_status"
     }
 }

@@ -35,7 +35,7 @@ final class Workshop: Model, @unchecked Sendable {
 
     @Children(for: \.$workshop)
     var reservations: [Reservation]
-    
+
     @OptionalChild(for: \.$workshop)
     var infos: WorkshopInfos?
 
@@ -54,6 +54,6 @@ final class Workshop: Model, @unchecked Sendable {
         self.endTime = endTime
         self.capacityMax = capacityMax
         self.description = description
-        self.$category.id = categoryID
+        $category.id = categoryID
     }
 }

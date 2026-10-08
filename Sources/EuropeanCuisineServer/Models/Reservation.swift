@@ -32,7 +32,7 @@ final class Reservation: Model, @unchecked Sendable {
          userID: User.IDValue) {
         self.id = id
         self.status = status
-        self.$workshop.id = workshopID
-        self.$user.id = userID
+        $workshop.id = workshopID
+        $user.id = userID
     }
 }

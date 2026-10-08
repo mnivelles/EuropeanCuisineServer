@@ -4,7 +4,7 @@
 //
 //  Created by Aesmond on 08/10/2026.
 //  Copyright © 2026 Aesmond. All rights reserved.
-//  
+//
 
 import Fluent
 import Vapor
@@ -20,11 +20,11 @@ struct WorkshopInput: Content {
 
 extension WorkshopInput: Validatable {
     static func validations(_ validations: inout Validations) {
-        validations.add("name", as: String.self, is: .count(1...100))
-        validations.add("capacityMax", as: UInt16.self, is: .range(1...60_000))
-        validations.add("description", as: String.self, is: .count(1...1000))
+        validations.add("name", as: String.self, is: .count(1 ... 100))
+        validations.add("capacityMax", as: UInt16.self, is: .range(1 ... 60000))
+        validations.add("description", as: String.self, is: .count(1 ... 1000))
     }
-    
+
     func validateDateOrder() throws {
         guard endTime > startTime else {
             throw WorkshopError.invalidTimeOrder

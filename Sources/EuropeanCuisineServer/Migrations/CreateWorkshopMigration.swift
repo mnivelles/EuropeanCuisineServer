@@ -12,7 +12,7 @@ import Vapor
 
 struct CreateWorkshopMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
-      try await database.schema(Workshop.schema)
+        try await database.schema(Workshop.schema)
             .id()
             .field("name", .sql(unsafeRaw: "VARCHAR(100)"), .required)
             .field("start_time", .datetime, .required)
