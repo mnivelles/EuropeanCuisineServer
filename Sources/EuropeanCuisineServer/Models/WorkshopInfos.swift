@@ -20,6 +20,9 @@ final class WorkshopInfos: Model, @unchecked Sendable {
 
     @Field(key: "picture_url")
     var pictureURL: String
+  
+    @Field(key: "location")
+    var location: String
 
     @Field(key: "is_vegan")
     var isVegan: Bool
@@ -38,6 +41,7 @@ final class WorkshopInfos: Model, @unchecked Sendable {
     init(id: UUID? = nil,
          status: Workshop.Status,
          pictureURL: String,
+         location: String,
          isVegan: Bool,
          isPRM: Bool,
          isFamilyFriendly: Bool,
@@ -45,6 +49,7 @@ final class WorkshopInfos: Model, @unchecked Sendable {
         self.id = id
         self.status = status
         self.pictureURL = pictureURL
+        self.location = location
         self.isVegan = isVegan
         self.isPRM = isPRM
         self.isFamilyFriendly = isFamilyFriendly

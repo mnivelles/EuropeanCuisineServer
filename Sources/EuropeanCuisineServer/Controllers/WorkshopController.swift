@@ -41,12 +41,7 @@ struct WorkshopController: RouteCollection {
             throw CategoryError.notFound
         }
 
-        let workshop = Workshop(name: input.name,
-                                startTime: input.startTime,
-                                endTime: input.endTime,
-                                capacityMax: input.capacityMax,
-                                description: input.description,
-                                categoryID: input.categoryID)
+        let workshop = input.toModel()
 
         try await workshop.create(on: req.db)
 
