@@ -20,7 +20,7 @@ final class WorkshopInfos: Model, @unchecked Sendable {
 
     @Field(key: "picture_url")
     var pictureURL: String
-  
+
     @Field(key: "location")
     var location: String
 

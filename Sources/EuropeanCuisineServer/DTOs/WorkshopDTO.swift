@@ -19,17 +19,14 @@ struct WorkshopInput: Content {
 }
 
 extension WorkshopInput {
-    
     func toModel() -> Workshop {
-        let workshop = Workshop(
-            name: name,
-            startTime: startTime,
-            endTime: endTime,
-            capacityMax: capacityMax,
-            description: description
-        )
+        let workshop = Workshop(name: name,
+                                startTime: startTime,
+                                endTime: endTime,
+                                capacityMax: capacityMax,
+                                description: description)
         workshop.$category.id = categoryID
-        
+
         return workshop
     }
 }

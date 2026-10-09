@@ -13,8 +13,8 @@ import Vapor
 struct CreateWorkshopInfosMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
         var builder = database.enum(Workshop.Status.schema)
-        for s in Workshop.Status.allCases {
-            builder = builder.case(s.rawValue)
+        for currentStatus in Workshop.Status.allCases {
+            builder = builder.case(currentStatus.rawValue)
         }
         let status = try await builder.create()
 

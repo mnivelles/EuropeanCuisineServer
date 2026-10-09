@@ -13,8 +13,8 @@ import Vapor
 struct CreateUserMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
         var builder = database.enum(User.Role.schema)
-        for r in User.Role.allCases {
-            builder = builder.case(r.rawValue)
+        for currentRole in User.Role.allCases {
+            builder = builder.case(currentRole.rawValue)
         }
         let role = try await builder.create()
 

@@ -12,8 +12,8 @@ import Vapor
 struct CreateReservationMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
         var builder = database.enum(Reservation.Status.schema)
-        for s in Reservation.Status.allCases {
-            builder = builder.case(s.rawValue)
+        for currentStatus in Reservation.Status.allCases {
+            builder = builder.case(currentStatus.rawValue)
         }
         let status = try await builder.create()
 

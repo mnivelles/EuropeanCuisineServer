@@ -56,7 +56,7 @@ final class Workshop: Model, @unchecked Sendable {
         self.description = description
         $category.id = categoryID
     }
-    
+
     init(id: UUID? = nil,
          name: String,
          startTime: Date,
