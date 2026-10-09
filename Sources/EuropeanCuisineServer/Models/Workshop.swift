@@ -56,18 +56,4 @@ final class Workshop: Model, @unchecked Sendable {
         self.description = description
         $category.id = categoryID
     }
-
-    init(id: UUID? = nil,
-         name: String,
-         startTime: Date,
-         endTime: Date,
-         capacityMax: UInt16,
-         description: String) {
-        self.id = id
-        self.name = name
-        self.startTime = startTime
-        self.endTime = endTime
-        self.capacityMax = capacityMax
-        self.description = description
-    }
 }

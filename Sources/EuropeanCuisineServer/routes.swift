@@ -9,4 +9,5 @@ func routes(_ app: Application) throws {
     try app.register(collection: CategoryController())
     try app.register(collection: WorkshopController())
     try app.register(collection: BoothCountryController())
+    try app.register(collection: BoothCountryTranslationController())
 }

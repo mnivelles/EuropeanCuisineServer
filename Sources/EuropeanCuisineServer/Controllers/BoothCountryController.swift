@@ -94,7 +94,5 @@ struct BoothCountryController: RouteCollection {
     
     private func apply(input: BoothCountryInput, to country: BoothCountry) {
         country.code = input.code
-        country.nameEN = input.nameEN
-        country.nameFR = input.nameFR
     }
 }

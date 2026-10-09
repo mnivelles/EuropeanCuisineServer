@@ -32,6 +32,7 @@ func configure(_ app: Application) async throws {
     app.migrations.add(CreateWorkshopInfosMigration())
     app.migrations.add(CreateReservationMigration())
     app.migrations.add(CreateBoothCountryMigration())
+    app.migrations.add(CreateBoothCountryTranslationMigration())
     app.migrations.add(CreateBoothMigration())
 
 //    try await app.autoMigrate()

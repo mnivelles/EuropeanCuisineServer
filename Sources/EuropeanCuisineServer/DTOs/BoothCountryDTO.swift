@@ -11,8 +11,6 @@ import Vapor
 
 struct BoothCountryInput: Content {
     let code: String
-    let nameEN: String
-    let nameFR: String
 }
 
 extension BoothCountryInput: Validatable {
@@ -21,29 +19,19 @@ extension BoothCountryInput: Validatable {
         validations.add("code",
                         as: String.self,
                         is: .pattern("^[A-Z]{3}$"))
-        validations.add("nameEN",
-                        as: String.self,
-                        is: .count(1...100))
-        validations.add("nameFR",
-                        as: String.self,
-                        is: .count(1...100))
     }
 }
 
 extension BoothCountryInput {
     
     func toModel() -> BoothCountry {
-        BoothCountry(code: code,
-                     nameEN: nameEN,
-                     nameFR: nameFR)
+        BoothCountry(code: code)
     }
 }
 
 struct BoothCountryOutput: Content {
     let id: UUID
     let code: String
-    let nameEN: String
-    let nameFR: String
 }
 
 extension BoothCountryOutput {
@@ -51,7 +39,5 @@ extension BoothCountryOutput {
     init(_ country: BoothCountry) throws {
         self.id = try country.requireID()
         self.code = country.code
-        self.nameEN = country.nameEN
-        self.nameFR = country.nameFR
     }
 }

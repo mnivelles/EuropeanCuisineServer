@@ -17,12 +17,6 @@ struct CreateBoothCountryMigration: AsyncMigration {
             .field("code",
                    .sql(unsafeRaw: "VARCHAR(3)"),
                    .required)
-            .field("name_en",
-                   .sql(unsafeRaw: "VARCHAR(100)"),
-                   .required)
-            .field("name_fr",
-                   .sql(unsafeRaw: "VARCHAR(100)"),
-                   .required)
             .unique(on: "code")
             .create()
     }

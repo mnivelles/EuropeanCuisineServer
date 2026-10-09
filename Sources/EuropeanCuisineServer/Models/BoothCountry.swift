@@ -18,24 +18,17 @@ final class BoothCountry: Model, @unchecked Sendable {
     @Field(key: "code")
     var code: String
 
-    @Field(key: "name_en")
-    var nameEN: String
-    
-    @Field(key: "name_fr")
-    var nameFR: String
-
     @Children(for: \.$country)
     var booths: [Booth]
+    
+    @Children(for: \.$country)
+    var translations: [BoothCountryTranslation]
 
     init() {}
 
     init(id: UUID? = nil,
-         code: String,
-         nameEN: String,
-         nameFR: String) {
+         code: String) {
         self.id = id
         self.code = code
-        self.nameEN = nameEN
-        self.nameFR = nameFR
     }
 }
