@@ -69,6 +69,6 @@ final class Booth: Model, @unchecked Sendable {
         self.isPRM = isPRM
         self.isFamilyFriendly = isFamilyFriendly
         self.status = status
-        self.$country.id = countryID
+        $country.id = countryID
     }
 }

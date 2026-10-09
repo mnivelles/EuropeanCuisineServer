@@ -1,10 +1,10 @@
 //
 //  BoothCountryTranslationDTO.swift
 //  EuropeanCuisineServer
-//  
+//
 //  Created by Mathieu Nivelles on 09/10/2026.
 //  Copyright © 2026 Mathieu Nivelles. All rights reserved.
-//  
+//
 
 import Fluent
 import Vapor
@@ -16,19 +16,17 @@ struct BoothCountryTranslationInput: Content {
 }
 
 extension BoothCountryTranslationInput: Validatable {
-    
     static func validations(_ validations: inout Validations) {
         validations.add("locale",
                         as: String.self,
                         is: .pattern("^[a-z]{2}$"))
         validations.add("name",
                         as: String.self,
-                        is: .count(1...100))
+                        is: .count(1 ... 100))
     }
 }
 
 extension BoothCountryTranslationInput {
-    
     func toModel() -> BoothCountryTranslation {
         BoothCountryTranslation(locale: locale,
                                 name: name,
@@ -44,7 +42,6 @@ struct BoothCountryTranslationOutput: Content {
 }
 
 extension BoothCountryTranslationOutput {
-    
     init(_ translation: BoothCountryTranslation) throws {
         self.id = try translation.requireID()
         self.locale = translation.locale

@@ -48,7 +48,7 @@ struct CreateBoothMigration: AsyncMigration {
     func revert(on database: any Database) async throws {
         try await database.schema(Booth.schema)
             .delete()
-        
+
         try await database.enum(Booth.Status.schema).delete()
     }
 }

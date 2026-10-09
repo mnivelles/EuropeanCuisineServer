@@ -14,13 +14,13 @@ final class BoothCountry: Model, @unchecked Sendable {
 
     @ID(key: .id)
     var id: UUID?
-    
+
     @Field(key: "code")
     var code: String
 
     @Children(for: \.$country)
     var booths: [Booth]
-    
+
     @Children(for: \.$country)
     var translations: [BoothCountryTranslation]
 
