@@ -14,21 +14,28 @@ final class BoothCountry: Model, @unchecked Sendable {
 
     @ID(key: .id)
     var id: UUID?
-
-    @Field(key: "name")
-    var name: String
-
+    
     @Field(key: "code")
     var code: String
+
+    @Field(key: "name_en")
+    var nameEN: String
+    
+    @Field(key: "name_fr")
+    var nameFR: String
 
     @Children(for: \.$country)
     var booths: [Booth]
 
     init() {}
 
-    init(id: UUID? = nil, name: String, code: String) {
+    init(id: UUID? = nil,
+         code: String,
+         nameEN: String,
+         nameFR: String) {
         self.id = id
-        self.name = name
         self.code = code
+        self.nameEN = nameEN
+        self.nameFR = nameFR
     }
 }

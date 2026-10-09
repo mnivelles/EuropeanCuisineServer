@@ -14,11 +14,14 @@ struct CreateBoothCountryMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
         try await database.schema(BoothCountry.schema)
             .id()
-            .field("name",
-                   .sql(unsafeRaw: "VARCHAR(100)"),
-                   .required)
             .field("code",
                    .sql(unsafeRaw: "VARCHAR(3)"),
+                   .required)
+            .field("name_en",
+                   .sql(unsafeRaw: "VARCHAR(100)"),
+                   .required)
+            .field("name_fr",
+                   .sql(unsafeRaw: "VARCHAR(100)"),
                    .required)
             .unique(on: "code")
             .create()
