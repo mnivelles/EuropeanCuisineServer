@@ -1,0 +1,20 @@
+info:
+  name: Delete Country
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: "{{baseURL}}/:id"
+  params:
+    - name: id
+      value: 731A6E11-C3C5-49A7-AD2C-C1BA32053E1D
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

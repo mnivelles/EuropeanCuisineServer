@@ -1,0 +1,31 @@
+info:
+  name: Update Translation
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{baseURL}}/:id"
+  headers:
+    - name: Content-Type
+      value: application/json
+  params:
+    - name: id
+      value: FA9CA3AF-8EE4-419B-BE65-E0FECB77795C
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "locale": "ja",
+        "name": "SUPANIA",
+        "countryID": "CDB4279D-3184-4185-B7B9-2DC870BD57C5"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

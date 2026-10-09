@@ -1,0 +1,10 @@
+info:
+  name: BoothCountryTranslation
+  type: folder
+  seq: 3
+
+request:
+  auth: inherit
+  variables:
+    - name: baseURL
+      value: "{{apiBaseURL}}/booth-country-translations"

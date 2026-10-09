@@ -1,0 +1,28 @@
+opencollection: 1.0.0
+
+info:
+  name: EuropeanCuisine REST API
+config:
+  proxy:
+    inherit: true
+    config:
+      protocol: http
+      hostname: ""
+      port: ""
+      auth:
+        username: ""
+        password: ""
+      bypassProxy: ""
+
+request:
+  variables:
+    - name: apiBaseURL
+      value: "{{localhost}}/api/v0"
+    - name: localhost
+      value: http://127.0.0.1:8080
+bundled: false
+extensions:
+  bruno:
+    ignore:
+      - node_modules
+      - .git
