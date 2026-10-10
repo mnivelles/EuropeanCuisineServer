@@ -42,6 +42,7 @@ struct CreateBoothMigration: AsyncMigration {
                    .uuid,
                    .required,
                    .references(BoothCountry.schema, "id", onDelete: .noAction))
+            .unique(on: "name")
             .create()
     }
 
