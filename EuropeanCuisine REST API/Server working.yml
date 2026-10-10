@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: "{{localhost}}"
+  url: "{{localhost}}/hello"
   auth: inherit
 
 settings:
