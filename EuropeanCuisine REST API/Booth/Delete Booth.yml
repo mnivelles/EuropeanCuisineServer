@@ -1,0 +1,20 @@
+info:
+  name: Delete Booth
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: "{{baseURL}}/:id"
+  params:
+    - name: id
+      value: 50E46A84-42F0-423A-B1B6-7EF825FB58F2
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

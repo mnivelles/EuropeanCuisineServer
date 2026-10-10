@@ -1,0 +1,36 @@
+info:
+  name: Update Booth
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{baseURL}}/:id"
+  headers:
+    - name: Content-Type
+      value: application/json
+  params:
+    - name: id
+      value: 47883E01-93D5-4211-A55B-232FD62267C0
+      type: path
+  body:
+    type: json
+    data: |2-
+        {
+          "description": "Ipsam voluptatem est ut saepe qui ut inventore suscipit est odit accusamus.",
+          "isFamilyFriendly": false,
+          "name": "Repellat",
+          "location": "Central Place 22",
+          "isVegan": true,
+          "isPRM": false,
+          "countryID": "501D5102-05BB-4ADB-92D4-3AB6146470E0",
+          "pictureURL": "https://picsum.photos/700"
+        }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

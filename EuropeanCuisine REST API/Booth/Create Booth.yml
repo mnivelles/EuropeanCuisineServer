@@ -1,0 +1,32 @@
+info:
+  name: Create Booth
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseURL}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "To delete",
+        "description": "Inventore repellat et officia reprehenderit repudiandae ut sequi voluptas aperiam quasi quos illo porro.",
+        "pictureURL": "https://picsum.photos/400",
+        "location": "Central Place 20",
+        "isVegan": true,
+        "isPRM": false,
+        "isFamilyFriendly": true,
+        "countryID": "17D166AD-3CA6-4AB6-A8CC-A742F46E2512"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
