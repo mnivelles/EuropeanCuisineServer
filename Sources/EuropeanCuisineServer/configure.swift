@@ -35,7 +35,10 @@ func configure(_ app: Application) async throws {
     app.migrations.add(CreateBoothCountryTranslationMigration())
     app.migrations.add(CreateBoothMigration())
 
-//    try await app.autoMigrate()
+    // FIXME: remove add data
+    app.migrations.add(AddMockDataMigration())
+
+    try await app.autoMigrate()
 
     // register routes
     try routes(app)
