@@ -1,14 +1,14 @@
 info:
-  name: Supprimer Category
+  name: Delete Workshop
   type: http
   seq: 5
 
 http:
   method: DELETE
-  url: "{{localhost}}/categories/:id"
+  url: "{{localhost}}/workshops/:id"
   params:
     - name: id
-      value: 315A909E-D9E7-462C-A550-DB13E61D1BE9
+      value: ACD36BA1-4539-45F8-B415-6AD1866ABBA4
       type: path
   auth: inherit
 

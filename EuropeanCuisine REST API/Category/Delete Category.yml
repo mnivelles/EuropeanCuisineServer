@@ -1,14 +1,14 @@
 info:
-  name: Voir Workshop
+  name: Delete Category
   type: http
-  seq: 3
+  seq: 5
 
 http:
-  method: GET
-  url: "{{localhost}}/workshops/:id"
+  method: DELETE
+  url: "{{localhost}}/categories/:id"
   params:
     - name: id
-      value: 263F9C44-CD96-4486-A66E-3C3494C15888
+      value: 315A909E-D9E7-462C-A550-DB13E61D1BE9
       type: path
   auth: inherit
 
