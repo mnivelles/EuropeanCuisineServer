@@ -1,0 +1,27 @@
+info:
+  name: Créer Workshop
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{localhost}}/workshops"
+  body:
+    type: json
+    data: |-
+      {
+          "name" : "noodle",
+          "startTime" : "2020-06-03T18:20:14+00:00",
+          "endTime" : "2020-06-03T17:20:14+00:00",
+          "capacityMax" : 20,
+          "description" : "panzani",
+          "categoryID" : "CCBA8B10-BF9B-4745-A9B2-B8DF72AC7385"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

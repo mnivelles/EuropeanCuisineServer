@@ -1,0 +1,31 @@
+info:
+  name: Màj Workshop
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{localhost}}/workshops/:id"
+  params:
+    - name: id
+      value: 332CE658-2709-406C-9D0E-F0ADE1AD1752
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+              "name": "oui oui baguette",
+              "startTime": "2020-06-03T08:20:14Z",
+              "endTime": "2020-06-03T07:20:14Z",
+              "capacityMax": 120,
+              "description": "alleeeer",
+              "categoryID": "CCBA8B10-BF9B-4745-A9B2-B8DF72AC7385"
+          }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

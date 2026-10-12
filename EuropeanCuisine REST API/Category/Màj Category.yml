@@ -1,0 +1,26 @@
+info:
+  name: Màj Category
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{localhost}}/categories/:id"
+  params:
+    - name: id
+      value: 1494D14B-B05D-4EE5-B855-5D19F0FA4197
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+          "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaa"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
