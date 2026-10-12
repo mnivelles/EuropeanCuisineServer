@@ -20,7 +20,8 @@ http:
         "isVegan": true,
         "isPRM": false,
         "isFamilyFriendly": true,
-        "countryID": "17D166AD-3CA6-4AB6-A8CC-A742F46E2512"
+        "allergens": ["nuts", "fish", "sesame_seeds"],
+        "countryID": "8A3B1C3B-75A7-49E4-B318-272B18832171"
       }
   auth: inherit
 

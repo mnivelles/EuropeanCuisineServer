@@ -112,6 +112,7 @@ struct BoothController: RouteCollection {
         booth.isVegan = input.isVegan
         booth.isPRM = input.isPRM
         booth.isFamilyFriendly = input.isFamilyFriendly
+        booth.allergens = input.allergens
         booth.$country.id = input.countryID
     }
 }

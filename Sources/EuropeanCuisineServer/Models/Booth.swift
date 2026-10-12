@@ -36,6 +36,9 @@ final class Booth: Model, @unchecked Sendable {
     @Field(key: "is_family_friendly")
     var isFamilyFriendly: Bool
 
+    @Field(key: "allergens")
+    var allergens: Set<Allergen>
+
     @Enum(key: "status")
     var status: Booth.Status
 
@@ -58,6 +61,7 @@ final class Booth: Model, @unchecked Sendable {
          isVegan: Bool,
          isPRM: Bool,
          isFamilyFriendly: Bool,
+         allergens: Set<Allergen>,
          status: Booth.Status,
          countryID: BoothCountry.IDValue) {
         self.id = id
@@ -68,6 +72,7 @@ final class Booth: Model, @unchecked Sendable {
         self.isVegan = isVegan
         self.isPRM = isPRM
         self.isFamilyFriendly = isFamilyFriendly
+        self.allergens = allergens
         self.status = status
         $country.id = countryID
     }

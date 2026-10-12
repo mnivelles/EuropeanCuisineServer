@@ -17,6 +17,7 @@ struct BoothInput: Content {
     let isVegan: Bool
     let isPRM: Bool
     let isFamilyFriendly: Bool
+    let allergens: Set<Allergen>
     let countryID: UUID
 }
 
@@ -30,6 +31,7 @@ extension BoothInput: Validatable {
         validations.add("location",
                         as: String.self,
                         is: .count(1 ... 100))
+        validations.add("allergens", as: [String].self, is: .allergens)
     }
 }
 
@@ -42,6 +44,7 @@ extension BoothInput {
               isVegan: isVegan,
               isPRM: isPRM,
               isFamilyFriendly: isFamilyFriendly,
+              allergens: allergens,
               status: status,
               countryID: countryID)
     }
@@ -56,6 +59,7 @@ struct BoothOutput: Content {
     let isVegan: Bool
     let isPRM: Bool
     let isFamilyFriendly: Bool
+    let allergens: Set<Allergen>
     let countryID: UUID
 }
 
@@ -69,6 +73,37 @@ extension BoothOutput {
         self.isVegan = booth.isVegan
         self.isPRM = booth.isPRM
         self.isFamilyFriendly = booth.isFamilyFriendly
+        self.allergens = booth.allergens
         self.countryID = booth.$country.id
+    }
+}
+
+private struct AllergensValidatorResult: ValidatorResult {
+    let invalid: [String]
+    let hasDuplicates: Bool
+
+    var isFailure: Bool {
+        !invalid.isEmpty || hasDuplicates
+    }
+
+    var successDescription: String? {
+        "contains only valid allergens"
+    }
+
+    var failureDescription: String? {
+        if !invalid.isEmpty {
+            let valid = Allergen.allCases.map(\.rawValue).joined(separator: ", ")
+            return "contains invalid allergens: \(invalid.joined(separator: ", ")). Valid values: \(valid)"
+        }
+        return "contains duplicate allergens"
+    }
+}
+
+extension Validator where T == [String] {
+    static var allergens: Validator<T> {
+        .init { values in
+            AllergensValidatorResult(invalid: values.filter { Allergen(rawValue: $0) == nil },
+                                     hasDuplicates: Set(values).count != values.count)
+        }
     }
 }
