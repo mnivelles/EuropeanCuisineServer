@@ -36,6 +36,8 @@ struct CreateBoothMigration: AsyncMigration {
             .field("is_prm", .bool, .required)
             .field("is_family_friendly", .bool, .required)
             .field("allergens", .json, .required)
+            .field("start_time", .datetime, .required)
+            .field("end_time", .datetime, .required)
             .field("status", status, .required)
             .field("created_at", .datetime)
             .field("updated_at", .datetime)

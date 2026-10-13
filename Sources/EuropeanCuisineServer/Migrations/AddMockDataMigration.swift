@@ -50,6 +50,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [.cerealsContainingGluten, .milk, .eggs],
+                  startTime: .hourMinute(hour: 8, minute: 30),
+                  endTime: .hourMinute(hour: 16, minute: 45),
                   status: .active,
                   countryID: frCountryID),
 
@@ -61,6 +63,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [.milk],
+                  startTime: .hourMinute(hour: 9, minute: 30),
+                  endTime: .hourMinute(hour: 17, minute: 30),
                   status: .active,
                   countryID: frCountryID),
 
@@ -72,6 +76,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [],
+                  startTime: .hourMinute(hour: 8, minute: 0),
+                  endTime: .hourMinute(hour: 16, minute: 0),
                   status: .active,
                   countryID: frCountryID),
 
@@ -83,6 +89,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: false,
                   isFamilyFriendly: true,
                   allergens: [.nuts, .eggs, .milk],
+                  startTime: .hourMinute(hour: 10, minute: 0),
+                  endTime: .hourMinute(hour: 12, minute: 30),
                   status: .active,
                   countryID: frCountryID),
 
@@ -94,6 +102,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: false,
                   allergens: [.fish, .crustaceans, .cerealsContainingGluten, .eggs],
+                  startTime: .hourMinute(hour: 11, minute: 30),
+                  endTime: .hourMinute(hour: 15, minute: 30),
                   status: .active,
                   countryID: frCountryID),
 
@@ -105,6 +115,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [.cerealsContainingGluten, .milk, .eggs],
+                  startTime: .hourMinute(hour: 9, minute: 0),
+                  endTime: .hourMinute(hour: 17, minute: 0),
                   status: .active,
                   countryID: frCountryID),
         ]
@@ -122,6 +134,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [.eggs],
+                  startTime: .hourMinute(hour: 9, minute: 0),
+                  endTime: .hourMinute(hour: 16, minute: 15),
                   status: .active,
                   countryID: esCountryID),
 
@@ -133,6 +147,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [],
+                  startTime: .hourMinute(hour: 8, minute: 45),
+                  endTime: .hourMinute(hour: 15, minute: 0),
                   status: .active,
                   countryID: esCountryID),
 
@@ -144,6 +160,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [.cerealsContainingGluten, .milk],
+                  startTime: .hourMinute(hour: 12, minute: 0),
+                  endTime: .hourMinute(hour: 14, minute: 30),
                   status: .active,
                   countryID: esCountryID),
 
@@ -155,6 +173,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [.cerealsContainingGluten],
+                  startTime: .hourMinute(hour: 10, minute: 30),
+                  endTime: .hourMinute(hour: 15, minute: 30),
                   status: .active,
                   countryID: esCountryID),
 
@@ -166,17 +186,21 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: false,
                   isFamilyFriendly: false,
                   allergens: [.cerealsContainingGluten, .milk],
+                  startTime: .hourMinute(hour: 9, minute: 0),
+                  endTime: .hourMinute(hour: 11, minute: 30),
                   status: .active,
                   countryID: esCountryID),
 
             Booth(name: "Pulpo a la Gallega",
-                  description: "Galician-style octopus with boiled potatoes, smoked paprika and olive oil.",
+                  description: " ian-style octopus with boiled potatoes, smoked paprika and olive oil.",
                   pictureURL: "https://picsum.photos/seed/pulpo/800",
                   location: "Aisle E - Stand 6",
                   isVegan: false,
                   isPRM: true,
                   isFamilyFriendly: false,
                   allergens: [.molluscs],
+                  startTime: .hourMinute(hour: 10, minute: 30),
+                  endTime: .hourMinute(hour: 15, minute: 45),
                   status: .active,
                   countryID: esCountryID),
         ]

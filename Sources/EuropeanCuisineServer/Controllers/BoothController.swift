@@ -10,6 +10,8 @@ import Fluent
 import Vapor
 
 struct BoothController: RouteCollection {
+    private let defaultLocale: String = "en"
+
     func boot(routes: any RoutesBuilder) throws {
         let booths = routes.grouped("api", "v0", "booths")
 
@@ -24,10 +26,21 @@ struct BoothController: RouteCollection {
     }
 
     private func list(req: Request) async throws -> [BoothOutput] {
+        let locale = getLocale(req: req) ?? defaultLocale
+
         let booths = try await Booth.query(on: req.db)
+            .with(\.$country) { country in
+                country
+                    .with(\.$translations)
+            }
             .all()
 
-        return try booths.map(BoothOutput.init)
+        return try booths.map { booth in
+            let countryName = booth.country.translations.filter { $0.locale == locale }.first?
+                .name ?? "No country name"
+
+            return try BoothOutput(booth, countryName: countryName)
+        }
     }
 
     private func create(req: Request) async throws -> Response {
@@ -55,9 +68,13 @@ struct BoothController: RouteCollection {
     }
 
     private func show(req: Request) async throws -> BoothOutput {
+        let locale = getLocale(req: req) ?? defaultLocale
+
         let booth = try await findBooth(req: req)
 
-        return try BoothOutput(booth)
+        let countryName = booth.country.translations.filter { $0.locale == locale }.first?.name ?? "No country name"
+
+        return try BoothOutput(booth, countryName: countryName)
     }
 
     private func update(req: Request) async throws -> BoothOutput {
@@ -94,10 +111,28 @@ struct BoothController: RouteCollection {
         return .noContent
     }
 
+    private func getLocale(req: Request) -> String? {
+        guard let input = try? req.query.decode(LocaleInput.self),
+              let locale = input.locale else {
+            return nil
+        }
+
+        return locale
+    }
+
     private func findBooth(req: Request) async throws -> Booth {
         let id = try req.parameters.require("id", as: UUID.self)
 
-        guard let booth = try await Booth.find(id, on: req.db) else {
+        let booth = try await Booth
+            .query(on: req.db)
+            .filter(\.$id == id)
+            .with(\.$country) { country in
+                country
+                    .with(\.$translations)
+            }
+            .first()
+
+        guard let booth else {
             throw BoothError.notFound
         }
 
@@ -113,6 +148,8 @@ struct BoothController: RouteCollection {
         booth.isPRM = input.isPRM
         booth.isFamilyFriendly = input.isFamilyFriendly
         booth.allergens = input.allergens
+        booth.startTime = input.startTime
+        booth.endTime = input.endTime
         booth.$country.id = input.countryID
     }
 }

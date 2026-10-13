@@ -18,6 +18,8 @@ struct BoothInput: Content {
     let isPRM: Bool
     let isFamilyFriendly: Bool
     let allergens: Set<Allergen>
+    let startTime: Date
+    let endTime: Date
     let countryID: UUID
 }
 
@@ -45,6 +47,8 @@ extension BoothInput {
               isPRM: isPRM,
               isFamilyFriendly: isFamilyFriendly,
               allergens: allergens,
+              startTime: startTime,
+              endTime: endTime,
               status: status,
               countryID: countryID)
     }
@@ -60,11 +64,14 @@ struct BoothOutput: Content {
     let isPRM: Bool
     let isFamilyFriendly: Bool
     let allergens: Set<Allergen>
-    let countryID: UUID
+    let startTime: Date
+    let endTime: Date
+    let countryCode: String
+    let countryName: String
 }
 
 extension BoothOutput {
-    init(_ booth: Booth) throws {
+    init(_ booth: Booth, countryName: String = "No country name") throws {
         self.id = try booth.requireID()
         self.name = booth.name
         self.description = booth.description
@@ -74,8 +81,15 @@ extension BoothOutput {
         self.isPRM = booth.isPRM
         self.isFamilyFriendly = booth.isFamilyFriendly
         self.allergens = booth.allergens
-        self.countryID = booth.$country.id
+        self.startTime = booth.startTime
+        self.endTime = booth.endTime
+        self.countryCode = booth.country.code
+        self.countryName = countryName
     }
+}
+
+struct LocaleInput: Content {
+    var locale: String?
 }
 
 private struct AllergensValidatorResult: ValidatorResult {
