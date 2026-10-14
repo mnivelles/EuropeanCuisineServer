@@ -35,10 +35,29 @@ func configure(_ app: Application) async throws {
     app.migrations.add(CreateBoothCountryTranslationMigration())
     app.migrations.add(CreateBoothMigration())
 
-    // FIXME: remove add data
+    #warning("retirer ajout des mock data quand en production")
     app.migrations.add(AddMockDataMigration())
 
     try await app.autoMigrate()
+
+    let corsConfiguration = CORSMiddleware
+        .Configuration(allowedOrigin: .custom("http://localhost:8080"),
+                       allowedMethods: [
+                           .GET,
+                           .POST,
+                           .PUT,
+                           .DELETE,
+                           .OPTIONS,
+                       ],
+                       allowedHeaders: [
+                           .accept,
+                           .authorization,
+                           .contentType,
+                           .origin,
+                       ],
+                       cacheExpiration: 10)
+    let corsMiddleware = CORSMiddleware(configuration: corsConfiguration)
+    app.middleware.use(corsMiddleware)
 
     // register routes
     try routes(app)
