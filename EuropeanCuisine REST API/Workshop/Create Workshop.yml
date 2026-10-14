@@ -5,18 +5,23 @@ info:
 
 http:
   method: POST
-  url: "{{localhost}}/workshops"
+  url: "{{baseURL}}"
   body:
     type: json
     data: |-
       {
-          "name" : "noodle",
-          "startTime" : "2020-06-03T18:20:14+00:00",
-          "endTime" : "2020-06-03T17:20:14+00:00",
-          "capacityMax" : 20,
-          "description" : "panzani",
-          "categoryID" : "CCBA8B10-BF9B-4745-A9B2-B8DF72AC7385"
-      }
+          "name": "Enim Quo Impedit Aut",
+          "startTime": "2026-11-14T14:30:00Z",
+          "endTime": "2026-11-14T15:30:00Z",
+          "capacityMax": 25,
+          "description": "Discover the traditional preservation techniques of Northern Europe: cured salmon, pickled herring, rye bread and the rich flavors of the Nordic pantry.",
+          "pictureURL": "https://picsum.photos/seed/enim/800",
+          "location": "Tasting Room, Hall E",
+          "isVegan": false,
+          "isPRM": true,
+          "isFamilyFriendly": true,
+          "categoryID": "DA614D59-FC99-44C7-89B8-4EE7F1125E1B",
+        }
   auth: inherit
 
 settings:

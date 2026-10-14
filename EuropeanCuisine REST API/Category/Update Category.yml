@@ -5,16 +5,19 @@ info:
 
 http:
   method: PUT
-  url: "{{localhost}}/categories/:id"
+  url: "{{baseURL}}/:id"
+  headers:
+    - name: Content-Type
+      value: application/json
   params:
     - name: id
-      value: 1494D14B-B05D-4EE5-B855-5D19F0FA4197
+      value: 9B31D8DF-87F4-4B12-B4BC-5EEE8BFF48BB
       type: path
   body:
     type: json
     data: |-
       {
-          "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaaaaaaaaaa"
+          "name": "Femto"
       }
   auth: inherit
 

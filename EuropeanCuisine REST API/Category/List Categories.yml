@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: "{{localhost}}/categories"
+  url: "{{baseURL}}"
   auth: inherit
 
 settings:

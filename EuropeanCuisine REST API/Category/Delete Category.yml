@@ -5,10 +5,10 @@ info:
 
 http:
   method: DELETE
-  url: "{{localhost}}/categories/:id"
+  url: "{{baseURL}}/:id"
   params:
     - name: id
-      value: 315A909E-D9E7-462C-A550-DB13E61D1BE9
+      value: 9B31D8DF-87F4-4B12-B4BC-5EEE8BFF48BB
       type: path
   auth: inherit
 

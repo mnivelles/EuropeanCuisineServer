@@ -5,10 +5,13 @@ info:
 
 http:
   method: GET
-  url: "{{baseURL}}/:id"
+  url: "{{baseURL}}/:id?locale=fr"
   params:
+    - name: locale
+      value: fr
+      type: query
     - name: id
-      value: 9C8F0777-59B3-4935-8B56-EF1499295A55
+      value: 03014AAB-F246-4609-8C70-3695211B225C
       type: path
   auth: inherit
 

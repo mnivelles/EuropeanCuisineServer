@@ -5,27 +5,33 @@ info:
 
 http:
   method: PUT
-  url: "{{baseURL}}/:id"
+  url: "{{baseURL}}/:id?locale=fr"
   headers:
     - name: Content-Type
       value: application/json
   params:
+    - name: locale
+      value: fr
+      type: query
     - name: id
-      value: 9C8F0777-59B3-4935-8B56-EF1499295A55
+      value: 03014AAB-F246-4609-8C70-3695211B225C
       type: path
   body:
     type: json
     data: |-
       {
-        "name": "To delete",
-        "description": "Inventore repellat et officia reprehenderit repudiandae ut sequi voluptas aperiam quasi quos illo porro.",
+        "name": "To delete ABC",
+        "about": "Inventore repellat et officia reprehenderit repudiandae ut sequi voluptas aperiam quasi quos illo porro.",
         "pictureURL": "https://picsum.photos/400",
         "location": "Central Place 20",
         "isVegan": true,
         "isPRM": false,
         "isFamilyFriendly": true,
-        "allergens": ["nuts", "fish", "sesame_seeds", "molluscs"],
-        "countryID": "8A3B1C3B-75A7-49E4-B318-272B18832171"
+        "startTime": "2012-11-22T08:30:00Z",
+        "endTime": "2012-11-22T16:30:00Z",
+        "allergens": ["nuts", "fish", "sesame_seeds"],
+        
+        "countryID": "1517E4D5-A0E1-4DFB-9CE7-D9DD4EA28E3C"
       }
   auth: inherit
 

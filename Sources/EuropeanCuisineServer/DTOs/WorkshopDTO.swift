@@ -15,17 +15,32 @@ struct WorkshopInput: Content {
     let endTime: Date
     let capacityMax: UInt16
     let description: String
+    let pictureURL: String
+    let location: String
+    let isVegan: Bool
+    let isPRM: Bool
+    let isFamilyFriendly: Bool
     let categoryID: UUID
 }
 
 extension WorkshopInput {
     func toModel() -> Workshop {
-        Workshop(name: name,
+        Workshop(name: name.trimmed,
                  startTime: startTime,
                  endTime: endTime,
                  capacityMax: capacityMax,
                  description: description,
                  categoryID: categoryID)
+    }
+
+    func toInfos(workshopID: UUID) -> WorkshopInfos {
+        WorkshopInfos(status: .published,
+                      pictureURL: pictureURL,
+                      location: location,
+                      isVegan: isVegan,
+                      isPRM: isPRM,
+                      isFamilyFriendly: isFamilyFriendly,
+                      workshopID: workshopID)
     }
 }
 
@@ -56,21 +71,29 @@ struct WorkshopOutput: Content {
     let endTime: Date
     let capacityMax: UInt16
     let description: String
-//    let isVegan: Bool
-//    let isPRM: Bool
-//    let isFamilyFriendly: Bool
+    let pictureURL: String
+    let location: String
+    let isVegan: Bool
+    let isPRM: Bool
+    let isFamilyFriendly: Bool
+    let categoryID: UUID
+    let categoryName: String
 }
 
 extension WorkshopOutput {
-    init(_ workshop: Workshop) throws {
+    init(workshop: Workshop, infos: WorkshopInfos) throws {
         self.id = try workshop.requireID()
         self.name = workshop.name
         self.startTime = workshop.startTime
         self.endTime = workshop.endTime
         self.capacityMax = workshop.capacityMax
         self.description = workshop.description
-//        self.isVegan = workshop.isVegan
-//        self.isPRM = workshop.isPRM
-//        self.isFamilyFriendly = workshop.isFamilyFriendly
+        self.pictureURL = infos.pictureURL
+        self.location = infos.location
+        self.isVegan = infos.isVegan
+        self.isPRM = infos.isPRM
+        self.isFamilyFriendly = infos.isFamilyFriendly
+        self.categoryID = try workshop.category.requireID()
+        self.categoryName = workshop.category.name
     }
 }

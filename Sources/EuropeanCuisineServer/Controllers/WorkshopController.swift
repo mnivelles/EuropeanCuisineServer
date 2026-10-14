@@ -24,9 +24,20 @@ struct WorkshopController: RouteCollection {
     }
 
     private func list(req: Request) async throws -> [WorkshopOutput] {
-        let workshops = try await Workshop.query(on: req.db).all()
+        let workshops = try await Workshop
+            .query(on: req.db)
+            .with(\.$infos)
+            .with(\.$category)
+            .all()
 
-        return try workshops.map(WorkshopOutput.init)
+        return try workshops.compactMap { workshop -> WorkshopOutput? in
+            guard let infos = workshop.infos else {
+                return nil
+            }
+
+            return try WorkshopOutput(workshop: workshop,
+                                      infos: infos)
+        }
     }
 
     private func create(req: Request) async throws -> Response {
@@ -41,18 +52,32 @@ struct WorkshopController: RouteCollection {
             throw CategoryError.notFound
         }
 
-        let workshop = input.toModel()
+        return try await req.db.transaction { db in
+            let workshop = input.toModel()
 
-        try await workshop.create(on: req.db)
+            try await workshop.create(on: db)
 
-        return try await WorkshopOutput(workshop)
-            .encodeResponse(status: .created, for: req)
+            let infos = try input.toInfos(workshopID: workshop.requireID())
+
+            try await infos.create(on: db)
+
+            try await workshop.$category.load(on: db)
+
+            return try await WorkshopOutput(workshop: workshop,
+                                            infos: infos)
+                .encodeResponse(status: .created, for: req)
+        }
     }
 
     private func show(req: Request) async throws -> WorkshopOutput {
         let workshop = try await findWorkshop(req: req)
 
-        return try WorkshopOutput(workshop)
+        guard let infos = workshop.infos else {
+            throw WorkshopError.infosNotFound
+        }
+
+        return try WorkshopOutput(workshop: workshop,
+                                  infos: infos)
     }
 
     private func update(req: Request) async throws -> WorkshopOutput {
@@ -64,11 +89,20 @@ struct WorkshopController: RouteCollection {
 
         let workshop = try await findWorkshop(req: req)
 
+        guard let infos = workshop.infos else {
+            throw WorkshopError.infosNotFound
+        }
+
         apply(input: input, to: workshop)
+        apply(input: input, to: infos)
 
-        try await workshop.update(on: req.db)
+        return try await req.db.transaction { db in
+            try await workshop.update(on: db)
+            try await infos.update(on: db)
 
-        return try WorkshopOutput(workshop)
+            return try WorkshopOutput(workshop: workshop,
+                                      infos: infos)
+        }
     }
 
     private func delete(req: Request) async throws -> HTTPStatus {
@@ -82,7 +116,14 @@ struct WorkshopController: RouteCollection {
     private func findWorkshop(req: Request) async throws -> Workshop {
         let id = try req.parameters.require("id", as: UUID.self)
 
-        guard let workshop = try await Workshop.find(id, on: req.db) else {
+        let workshop = try await Workshop
+            .query(on: req.db)
+            .filter(\.$id == id)
+            .with(\.$infos)
+            .with(\.$category)
+            .first()
+
+        guard let workshop else {
             throw WorkshopError.notFound
         }
 
@@ -96,5 +137,14 @@ struct WorkshopController: RouteCollection {
         workshop.capacityMax = input.capacityMax
         workshop.description = input.description
         workshop.$category.id = input.categoryID
+    }
+
+    private func apply(input: WorkshopInput,
+                       to infos: WorkshopInfos) {
+        infos.pictureURL = input.pictureURL
+        infos.location = input.location
+        infos.isVegan = input.isVegan
+        infos.isPRM = input.isPRM
+        infos.isFamilyFriendly = input.isFamilyFriendly
     }
 }

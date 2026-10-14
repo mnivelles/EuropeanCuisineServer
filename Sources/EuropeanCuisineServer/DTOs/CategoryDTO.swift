@@ -15,7 +15,7 @@ struct CategoryInput: Content {
 
 extension CategoryInput {
     func toModel() -> Category {
-        Category(name: name)
+        Category(name: name.trimmed)
     }
 }
 

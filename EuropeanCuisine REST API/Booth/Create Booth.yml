@@ -5,23 +5,30 @@ info:
 
 http:
   method: POST
-  url: "{{baseURL}}"
+  url: "{{baseURL}}?locale=fr"
   headers:
     - name: Content-Type
       value: application/json
+  params:
+    - name: locale
+      value: fr
+      type: query
   body:
     type: json
     data: |-
       {
-        "name": "To delete",
-        "description": "Inventore repellat et officia reprehenderit repudiandae ut sequi voluptas aperiam quasi quos illo porro.",
-        "pictureURL": "https://picsum.photos/400",
+        "name": "To delete XYZ",
+        "about": "Inventore repellat et officia reprehenderit repudiandae ut sequi voluptas aperiam quasi quos illo porro.",
+        "pictureURL": "https://picsum.photos/seed/delete/400",
         "location": "Central Place 20",
         "isVegan": true,
         "isPRM": false,
         "isFamilyFriendly": true,
+        "startTime": "2012-11-22T08:30:00Z",
+        "endTime": "2012-11-22T16:30:00Z",
         "allergens": ["nuts", "fish", "sesame_seeds"],
-        "countryID": "8A3B1C3B-75A7-49E4-B318-272B18832171"
+        
+        "countryID": "1517E4D5-A0E1-4DFB-9CE7-D9DD4EA28E3C"
       }
   auth: inherit
 

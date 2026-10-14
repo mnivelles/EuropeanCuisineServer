@@ -5,10 +5,10 @@ info:
 
 http:
   method: DELETE
-  url: "{{localhost}}/workshops/:id"
+  url: "{{baseURL}}/:id"
   params:
     - name: id
-      value: ACD36BA1-4539-45F8-B415-6AD1866ABBA4
+      value: F6E462CB-FE9E-448D-9B00-C7A3A34F7EBA
       type: path
   auth: inherit
 

@@ -11,6 +11,7 @@ import Vapor
 enum WorkshopError: AbortError {
     case notFound
     case invalidTimeOrder
+    case infosNotFound
 
     var status: HTTPResponseStatus {
         switch self {
@@ -18,6 +19,8 @@ enum WorkshopError: AbortError {
             .notFound
         case .invalidTimeOrder:
             .unprocessableEntity
+        case .infosNotFound:
+            .notFound
         }
     }
 
@@ -27,6 +30,8 @@ enum WorkshopError: AbortError {
             "Workshop not found"
         case .invalidTimeOrder:
             "EndTime must be after StartTime"
+        case .infosNotFound:
+            "Workshop infos not found"
         }
     }
 }

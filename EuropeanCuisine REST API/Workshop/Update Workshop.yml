@@ -5,22 +5,27 @@ info:
 
 http:
   method: PUT
-  url: "{{localhost}}/workshops/:id"
+  url: "{{baseURL}}/:id"
   params:
     - name: id
-      value: 332CE658-2709-406C-9D0E-F0ADE1AD1752
+      value: F6E462CB-FE9E-448D-9B00-C7A3A34F7EBA
       type: path
   body:
     type: json
     data: |-
       {
-              "name": "oui oui baguette",
-              "startTime": "2020-06-03T08:20:14Z",
-              "endTime": "2020-06-03T07:20:14Z",
-              "capacityMax": 120,
-              "description": "alleeeer",
-              "categoryID": "CCBA8B10-BF9B-4745-A9B2-B8DF72AC7385"
-          }
+          "name": "Enim Quo Aut",
+          "startTime": "2026-11-14T14:30:00Z",
+          "endTime": "2026-11-14T15:30:00Z",
+          "capacityMax": 30,
+          "description": "Discover the traditional preservation techniques of Northern Europe: cured salmon, pickled herring, rye bread and the rich flavors of the Nordic pantry.",
+          "pictureURL": "https://picsum.photos/seed/quo/800",
+          "location": "Tasting Room, Hall F",
+          "isVegan": true,
+          "isPRM": true,
+          "isFamilyFriendly": false,
+          "categoryID": "DA614D59-FC99-44C7-89B8-4EE7F1125E1B",
+        }
   auth: inherit
 
 settings:

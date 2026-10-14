@@ -5,10 +5,10 @@ info:
 
 http:
   method: GET
-  url: "{{localhost}}/workshops/:id"
+  url: "{{baseURL}}/:id"
   params:
     - name: id
-      value: 263F9C44-CD96-4486-A66E-3C3494C15888
+      value: F6E462CB-FE9E-448D-9B00-C7A3A34F7EBA
       type: path
   auth: inherit
 
