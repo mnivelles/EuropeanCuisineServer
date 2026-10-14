@@ -14,7 +14,7 @@ enum Constants {
             static let validator: Validator<String> = .count(1 ... 100)
         }
 
-        enum Description {
+        enum About {
             static let validator: Validator<String> = .count(1 ... 1000)
         }
 

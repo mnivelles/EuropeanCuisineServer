@@ -29,7 +29,7 @@ extension BoothCountryTranslationInput: Validatable {
 extension BoothCountryTranslationInput {
     func toModel() -> BoothCountryTranslation {
         BoothCountryTranslation(locale: locale,
-                                name: name,
+                                name: name.trimmed,
                                 countryID: countryID)
     }
 }

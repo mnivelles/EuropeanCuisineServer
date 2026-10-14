@@ -18,8 +18,8 @@ final class Booth: Model, @unchecked Sendable {
     @Field(key: "name")
     var name: String
 
-    @Field(key: "description")
-    var description: String
+    @Field(key: "about")
+    var about: String
 
     @Field(key: "picture_url")
     var pictureURL: String
@@ -61,7 +61,7 @@ final class Booth: Model, @unchecked Sendable {
 
     init(id: UUID? = nil,
          name: String,
-         description: String,
+         about: String,
          pictureURL: String,
          location: String,
          isVegan: Bool,
@@ -74,7 +74,7 @@ final class Booth: Model, @unchecked Sendable {
          countryID: BoothCountry.IDValue) {
         self.id = id
         self.name = name
-        self.description = description
+        self.about = about
         self.pictureURL = pictureURL
         self.location = location
         self.isVegan = isVegan

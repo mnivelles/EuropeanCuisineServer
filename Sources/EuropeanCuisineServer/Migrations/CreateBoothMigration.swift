@@ -23,7 +23,7 @@ struct CreateBoothMigration: AsyncMigration {
             .field("name",
                    .sql(unsafeRaw: "VARCHAR(100)"),
                    .required)
-            .field("description",
+            .field("about",
                    .sql(unsafeRaw: "TEXT"),
                    .required)
             .field("picture_url",

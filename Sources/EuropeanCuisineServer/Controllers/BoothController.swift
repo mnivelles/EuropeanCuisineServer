@@ -152,10 +152,10 @@ struct BoothController: RouteCollection {
     }
 
     private func apply(input: BoothInput, to booth: Booth) {
-        booth.name = input.name
-        booth.description = input.description
-        booth.pictureURL = input.pictureURL
-        booth.location = input.location
+        booth.name = input.name.trimmed
+        booth.about = input.about.trimmed
+        booth.pictureURL = input.pictureURL.trimmed
+        booth.location = input.location.trimmed
         booth.isVegan = input.isVegan
         booth.isPRM = input.isPRM
         booth.isFamilyFriendly = input.isFamilyFriendly

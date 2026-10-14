@@ -43,7 +43,7 @@ struct AddMockDataMigration: AsyncMigration {
 
         let frenchBooths: [Booth] = [
             Booth(name: "La Crêperie Bretonne",
-                  description: "Crêpes and galettes made to order: ham and cheese, butter and sugar, salted caramel.",
+                  about: "Crêpes and galettes made to order: ham and cheese, butter and sugar, salted caramel.",
                   pictureURL: "https://picsum.photos/seed/creperie/800",
                   location: "Aisle A - Stand 1",
                   isVegan: false,
@@ -56,7 +56,7 @@ struct AddMockDataMigration: AsyncMigration {
                   countryID: frCountryID),
 
             Booth(name: "La Raclette Savoyarde",
-                  description: "Melted raclette cheese served over potatoes, with cured meats and gherkins.",
+                  about: "Melted raclette cheese served over potatoes, with cured meats and gherkins.",
                   pictureURL: "https://picsum.photos/seed/raclette/800",
                   location: "Aisle A - Stand 2",
                   isVegan: false,
@@ -69,7 +69,7 @@ struct AddMockDataMigration: AsyncMigration {
                   countryID: frCountryID),
 
             Booth(name: "Le Comptoir Provençal",
-                  description: "Ratatouille, vegetable tian and socca made with fresh Southern vegetables. 100% plant-based.",
+                  about: "Ratatouille, vegetable tian and socca made with fresh Southern vegetables. 100% plant-based.",
                   pictureURL: "https://picsum.photos/seed/ratatouille/800",
                   location: "Aisle B - Stand 3",
                   isVegan: true,
@@ -82,7 +82,7 @@ struct AddMockDataMigration: AsyncMigration {
                   countryID: frCountryID),
 
             Booth(name: "Maison Macaron",
-                  description: "Handmade macarons: raspberry, pistachio, dark chocolate, Madagascar vanilla and caramel.",
+                  about: "Handmade macarons: raspberry, pistachio, dark chocolate, Madagascar vanilla and caramel.",
                   pictureURL: "https://picsum.photos/seed/macaron/800",
                   location: "Aisle B - Stand 4",
                   isVegan: false,
@@ -95,7 +95,7 @@ struct AddMockDataMigration: AsyncMigration {
                   countryID: frCountryID),
 
             Booth(name: "La Bouillabaisse Marseillaise",
-                  description: "Traditional Provençal fish soup made with rockfish, served with croutons and homemade rouille.",
+                  about: "Traditional Provençal fish soup made with rockfish, served with croutons and homemade rouille.",
                   pictureURL: "https://picsum.photos/seed/bouillabaisse/800",
                   location: "Aisle C - Stand 5",
                   isVegan: false,
@@ -108,7 +108,7 @@ struct AddMockDataMigration: AsyncMigration {
                   countryID: frCountryID),
 
             Booth(name: "La Boulangerie Parisienne",
-                  description: "Traditional baguettes, all-butter croissants, pains au chocolat and éclairs fresh from the oven.",
+                  about: "Traditional baguettes, all-butter croissants, pains au chocolat and éclairs fresh from the oven.",
                   pictureURL: "https://picsum.photos/seed/boulangerie/800",
                   location: "Aisle C - Stand 6",
                   isVegan: false,
@@ -127,7 +127,7 @@ struct AddMockDataMigration: AsyncMigration {
 
         let spanishBooths: [Booth] = [
             Booth(name: "La Tortilla de Patatas",
-                  description: "Traditional Spanish omelette with potatoes and onions, served by the slice or as a pintxo.",
+                  about: "Traditional Spanish omelette with potatoes and onions, served by the slice or as a pintxo.",
                   pictureURL: "https://picsum.photos/seed/tortilla/800",
                   location: "Aisle D - Stand 1",
                   isVegan: false,
@@ -140,7 +140,7 @@ struct AddMockDataMigration: AsyncMigration {
                   countryID: esCountryID),
 
             Booth(name: "El Rincón de la Paella",
-                  description: "Valencian paella cooked over a wood fire with chicken, rabbit, green beans and saffron.",
+                  about: "Valencian paella cooked over a wood fire with chicken, rabbit, green beans and saffron.",
                   pictureURL: "https://picsum.photos/seed/paella/800",
                   location: "Aisle D - Stand 2",
                   isVegan: false,
@@ -153,7 +153,7 @@ struct AddMockDataMigration: AsyncMigration {
                   countryID: esCountryID),
 
             Booth(name: "Churros y Chocolate",
-                  description: "Crispy churros made to order, served with thick Spanish-style hot chocolate.",
+                  about: "Crispy churros made to order, served with thick Spanish-style hot chocolate.",
                   pictureURL: "https://picsum.photos/seed/churros/800",
                   location: "Aisle D - Stand 3",
                   isVegan: false,
@@ -166,7 +166,7 @@ struct AddMockDataMigration: AsyncMigration {
                   countryID: esCountryID),
 
             Booth(name: "Gazpacho y Salmorejo",
-                  description: "Andalusian cold soups made with ripe tomatoes, peppers and olive oil. 100% plant-based.",
+                  about: "Andalusian cold soups made with ripe tomatoes, peppers and olive oil. 100% plant-based.",
                   pictureURL: "https://picsum.photos/seed/gazpacho/800",
                   location: "Aisle E - Stand 4",
                   isVegan: true,
@@ -179,7 +179,7 @@ struct AddMockDataMigration: AsyncMigration {
                   countryID: esCountryID),
 
             Booth(name: "Jamón & Tapas",
-                  description: "Hand-carved Iberian ham, chorizo, Manchego cheese and pan con tomate.",
+                  about: "Hand-carved Iberian ham, chorizo, Manchego cheese and pan con tomate.",
                   pictureURL: "https://picsum.photos/seed/jamon/800",
                   location: "Aisle E - Stand 5",
                   isVegan: false,
@@ -192,7 +192,7 @@ struct AddMockDataMigration: AsyncMigration {
                   countryID: esCountryID),
 
             Booth(name: "Pulpo a la Gallega",
-                  description: " ian-style octopus with boiled potatoes, smoked paprika and olive oil.",
+                  about: "Galician-style octopus with boiled potatoes, smoked paprika and olive oil.",
                   pictureURL: "https://picsum.photos/seed/pulpo/800",
                   location: "Aisle E - Stand 6",
                   isVegan: false,

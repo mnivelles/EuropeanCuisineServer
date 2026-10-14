@@ -11,7 +11,7 @@ import Vapor
 
 struct BoothInput: Content {
     let name: String
-    let description: String
+    let about: String
     let pictureURL: String
     let location: String
     let isVegan: Bool
@@ -28,9 +28,9 @@ extension BoothInput: Validatable {
         validations.add("name",
                         as: String.self,
                         is: Constants.Booth.Name.validator)
-        validations.add("description",
+        validations.add("about",
                         as: String.self,
-                        is: Constants.Booth.Description.validator)
+                        is: Constants.Booth.About.validator)
         validations.add("pictureURL",
                         as: String.self,
                         is: Constants.Booth.PictureURL.validator)
@@ -43,10 +43,10 @@ extension BoothInput: Validatable {
 
 extension BoothInput {
     func toModel(status: Booth.Status) -> Booth {
-        Booth(name: name,
-              description: description,
-              pictureURL: pictureURL,
-              location: location,
+        Booth(name: name.trimmed,
+              about: about.trimmed,
+              pictureURL: pictureURL.trimmed,
+              location: location.trimmed,
               isVegan: isVegan,
               isPRM: isPRM,
               isFamilyFriendly: isFamilyFriendly,
@@ -61,7 +61,7 @@ extension BoothInput {
 struct BoothOutput: Content {
     let id: UUID
     let name: String
-    let description: String
+    let about: String
     let pictureURL: String
     let location: String
     let isVegan: Bool
@@ -78,7 +78,7 @@ extension BoothOutput {
     init(_ booth: Booth, countryName: String = "No country name") throws {
         self.id = try booth.requireID()
         self.name = booth.name
-        self.description = booth.description
+        self.about = booth.about
         self.pictureURL = booth.pictureURL
         self.location = booth.location
         self.isVegan = booth.isVegan
