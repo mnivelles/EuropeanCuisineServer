@@ -1,5 +1,5 @@
 {
-  "originHash" : "558bd6e83f25c485801df398ef47b51f28b2209216e435d81ba5b29afb8aa7a6",
+  "originHash" : "ef50974c8fed19f68bef0017634371c5defa735ba9ea0f0ebaa336bae131e952",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -53,6 +53,15 @@
       "state" : {
         "revision" : "4d8f31af2a84bdbb69fbf9f4acc12cbf2f47814b",
         "version" : "4.8.0"
+      }
+    },
+    {
+      "identity" : "gatekeeper",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nodes-vapor/gatekeeper.git",
+      "state" : {
+        "revision" : "9009cfb3eeca0087e0c946ff7a08d2486eb85194",
+        "version" : "4.2.0"
       }
     },
     {

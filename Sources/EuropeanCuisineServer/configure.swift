@@ -1,5 +1,6 @@
 import Fluent
 import FluentMySQLDriver
+import Gatekeeper
 import NIOSSL
 import Vapor
 
@@ -58,6 +59,10 @@ func configure(_ app: Application) async throws {
                        cacheExpiration: 10)
     let corsMiddleware = CORSMiddleware(configuration: corsConfiguration)
     app.middleware.use(corsMiddleware)
+
+    app.caches.use(.memory)
+    app.gatekeeper.config = .init(maxRequests: 100, per: .minute)
+    app.middleware.use(GatekeeperMiddleware())
 
     // register routes
     try routes(app)
