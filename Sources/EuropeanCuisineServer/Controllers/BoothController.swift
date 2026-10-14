@@ -33,17 +33,19 @@ struct BoothController: RouteCollection {
                 country
                     .with(\.$translations)
             }
+            .sort(\.$name, .ascending)
             .all()
 
         return try booths.map { booth in
-            let countryName = booth.country.translations.filter { $0.locale == locale }.first?
-                .name ?? "No country name"
+            let countryName = getCountryName(from: booth, locale: locale)
 
             return try BoothOutput(booth, countryName: countryName)
         }
     }
 
     private func create(req: Request) async throws -> Response {
+        let locale = getLocale(req: req) ?? defaultLocale
+
         try BoothInput.validate(content: req)
 
         let input = try req.content.decode(BoothInput.self)
@@ -53,7 +55,8 @@ struct BoothController: RouteCollection {
             throw BoothError.alreadyExists
         }
 
-        guard try await BoothCountry.query(on: req.db)
+        guard try await BoothCountry
+            .query(on: req.db)
             .filter(\.$id == input.countryID)
             .first() != nil else {
             throw BoothCountryError.notFound
@@ -63,7 +66,12 @@ struct BoothController: RouteCollection {
 
         try await booth.create(on: req.db)
 
-        return try await BoothOutput(booth)
+        try await booth.$country.load(on: req.db)
+        try await booth.country.$translations.load(on: req.db)
+
+        let countryName = getCountryName(from: booth, locale: locale)
+
+        return try await BoothOutput(booth, countryName: countryName)
             .encodeResponse(status: .created, for: req)
     }
 
@@ -72,12 +80,14 @@ struct BoothController: RouteCollection {
 
         let booth = try await findBooth(req: req)
 
-        let countryName = booth.country.translations.filter { $0.locale == locale }.first?.name ?? "No country name"
+        let countryName = getCountryName(from: booth, locale: locale)
 
         return try BoothOutput(booth, countryName: countryName)
     }
 
     private func update(req: Request) async throws -> BoothOutput {
+        let locale = getLocale(req: req) ?? defaultLocale
+
         try BoothInput.validate(content: req)
 
         let input = try req.content.decode(BoothInput.self)
@@ -100,7 +110,9 @@ struct BoothController: RouteCollection {
 
         try await booth.update(on: req.db)
 
-        return try BoothOutput(booth)
+        let countryName = getCountryName(from: booth, locale: locale)
+
+        return try BoothOutput(booth, countryName: countryName)
     }
 
     private func delete(req: Request) async throws -> HTTPStatus {
@@ -151,5 +163,13 @@ struct BoothController: RouteCollection {
         booth.startTime = input.startTime
         booth.endTime = input.endTime
         booth.$country.id = input.countryID
+    }
+
+    private func getCountryName(from booth: Booth, locale: String) -> String {
+        let translations = booth.country.translations
+
+        return (translations.first { $0.locale == locale }
+            ?? translations.first { $0.locale == defaultLocale })?
+            .name ?? "No country name"
     }
 }
