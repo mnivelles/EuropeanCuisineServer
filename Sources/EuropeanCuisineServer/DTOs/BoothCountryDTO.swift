@@ -17,7 +17,7 @@ extension BoothCountryInput: Validatable {
     static func validations(_ validations: inout Validations) {
         validations.add("code",
                         as: String.self,
-                        is: .pattern("^[A-Z]{3}$"))
+                        is: Constants.BoothCountry.Code.validator)
     }
 }
 

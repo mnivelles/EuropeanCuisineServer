@@ -25,14 +25,18 @@ struct BoothInput: Content {
 
 extension BoothInput: Validatable {
     static func validations(_ validations: inout Validations) {
-        validations.add("name", as: String.self, is: .count(1 ... 100))
-        validations.add("description", as: String.self, is: .count(1 ... 1000))
+        validations.add("name",
+                        as: String.self,
+                        is: Constants.Booth.Name.validator)
+        validations.add("description",
+                        as: String.self,
+                        is: Constants.Booth.Description.validator)
         validations.add("pictureURL",
                         as: String.self,
-                        is: .count(1 ... 500) && .url)
+                        is: Constants.Booth.PictureURL.validator)
         validations.add("location",
                         as: String.self,
-                        is: .count(1 ... 100))
+                        is: Constants.Booth.Location.validator)
         validations.add("allergens", as: [String].self, is: .allergens)
     }
 }

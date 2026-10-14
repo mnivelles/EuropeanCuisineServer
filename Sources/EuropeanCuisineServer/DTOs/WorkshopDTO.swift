@@ -31,9 +31,15 @@ extension WorkshopInput {
 
 extension WorkshopInput: Validatable {
     static func validations(_ validations: inout Validations) {
-        validations.add("name", as: String.self, is: .count(1 ... 100))
-        validations.add("capacityMax", as: UInt16.self, is: .range(1 ... 60000))
-        validations.add("description", as: String.self, is: .count(1 ... 1000))
+        validations.add("name",
+                        as: String.self,
+                        is: Constants.Workshop.Name.validator)
+        validations.add("capacityMax",
+                        as: UInt16.self,
+                        is: Constants.Workshop.CapacityMax.validator)
+        validations.add("description",
+                        as: String.self,
+                        is: Constants.Workshop.Description.validator)
     }
 
     func validateDateOrder() throws {

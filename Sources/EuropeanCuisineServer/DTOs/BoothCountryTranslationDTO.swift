@@ -19,10 +19,10 @@ extension BoothCountryTranslationInput: Validatable {
     static func validations(_ validations: inout Validations) {
         validations.add("locale",
                         as: String.self,
-                        is: .pattern("^[a-z]{2}$"))
+                        is: Constants.BoothCountryTranslation.Locale.validator)
         validations.add("name",
                         as: String.self,
-                        is: .count(1 ... 100))
+                        is: Constants.BoothCountryTranslation.Name.validator)
     }
 }
 
