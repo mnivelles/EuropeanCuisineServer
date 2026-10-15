@@ -68,7 +68,7 @@ func configure(_ app: Application) async throws {
     // register routes
     try routes(app)
 
-    await app.jwt.keys.add(hmac: "nFXkTdEmoKKAP3drns1oCh10BTYl1GcfVWC57NvoMHO7EAbY+xTvlWHbJWpol7ET",
+    await app.jwt.keys.add(hmac: .init(from: Environment.get("JWT_SECRET_KEY")!),
                            digestAlgorithm: .sha256,
                            kid: "basic")
 }
