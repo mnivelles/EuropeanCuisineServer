@@ -223,14 +223,11 @@ struct AddMockDataMigration: AsyncMigration {
     }
 
     private func removeBooths(on database: any Database) async throws {
-        try await database.schema(Booth.schema)
-            .delete()
+        try await Booth.query(on: database).delete()
 
-        try await database.schema(BoothCountryTranslation.schema)
-            .delete()
+        try await BoothCountryTranslation.query(on: database).delete()
 
-        try await database.schema(BoothCountry.schema)
-            .delete()
+        try await BoothCountry.query(on: database).delete()
     }
 
     private func addWorkshops(on database: any Database) async throws {
@@ -413,13 +410,10 @@ struct AddMockDataMigration: AsyncMigration {
     }
 
     private func removeWorkshops(on database: any Database) async throws {
-        try await database.schema(WorkshopInfos.schema)
-            .delete()
+        try await WorkshopInfos.query(on: database).delete()
 
-        try await database.schema(Workshop.schema)
-            .delete()
+        try await Workshop.query(on: database).delete()
 
-        try await database.schema(Category.schema)
-            .delete()
+        try await Category.query(on: database).delete()
     }
 }
