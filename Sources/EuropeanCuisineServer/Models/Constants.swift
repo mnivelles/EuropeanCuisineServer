@@ -63,4 +63,18 @@ enum Constants {
             static let validator: Validator<String> = .count(1 ... 1000)
         }
     }
+
+    enum User {
+        enum Name {
+            static let validator: Validator<String> = .count(1 ... 100)
+        }
+
+        enum Email {
+            static let validator: Validator<String> = .count(1 ... 254) && .email
+        }
+
+        enum Password {
+            static let validator: Validator<String> = .count(12 ... 100)
+        }
+    }
 }

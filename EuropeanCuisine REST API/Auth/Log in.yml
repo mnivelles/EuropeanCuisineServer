@@ -1,0 +1,16 @@
+info:
+  name: Log in
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseURL}}/log-in"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

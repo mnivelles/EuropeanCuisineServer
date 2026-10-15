@@ -19,6 +19,8 @@ let package = Package(name: "EuropeanCuisineServer",
 
                           .package(url: "https://github.com/nodes-vapor/gatekeeper.git",
                                    from: "4.0.0"),
+
+                          .package(url: "https://github.com/vapor/jwt.git", from: "5.1.2"),
                       ],
                       targets: [
                           .executableTarget(name: "EuropeanCuisineServer",
@@ -30,6 +32,7 @@ let package = Package(name: "EuropeanCuisineServer",
                                                 .product(name: "NIOCore", package: "swift-nio"),
                                                 .product(name: "NIOPosix", package: "swift-nio"),
                                                 .product(name: "Gatekeeper", package: "gatekeeper"),
+                                                .product(name: "JWT", package: "jwt"),
                                             ],
                                             swiftSettings: swiftSettings),
                           .testTarget(name: "EuropeanCuisineServerTests",

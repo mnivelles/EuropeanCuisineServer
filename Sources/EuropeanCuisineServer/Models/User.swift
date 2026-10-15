@@ -50,3 +50,17 @@ final class User: Model, @unchecked Sendable {
         self.role = role
     }
 }
+
+extension User: ModelAuthenticatable {
+    static var usernameKey: KeyPath<User, FluentKit.FieldProperty<User, String>> {
+        \User.$email
+    }
+
+    static var passwordHashKey: KeyPath<User, FluentKit.FieldProperty<User, String>> {
+        \User.$passwordHash
+    }
+
+    func verify(password: String) throws -> Bool {
+        try Bcrypt.verify(password, created: passwordHash)
+    }
+}

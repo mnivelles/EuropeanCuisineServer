@@ -1,0 +1,10 @@
+info:
+  name: Auth
+  type: folder
+  seq: 6
+
+request:
+  auth: inherit
+  variables:
+    - name: baseURL
+      value: "{{apiBaseURL}}/auth"

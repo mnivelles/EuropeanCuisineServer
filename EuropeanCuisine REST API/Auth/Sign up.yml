@@ -1,0 +1,27 @@
+info:
+  name: Sign up
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseURL}}/sign-up"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Sasha Smith",
+        "email": "sasha@smith.me",
+        "password": "Mot2Passe#12"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

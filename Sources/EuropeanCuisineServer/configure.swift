@@ -1,6 +1,7 @@
 import Fluent
 import FluentMySQLDriver
 import Gatekeeper
+import JWT
 import NIOSSL
 import Vapor
 
@@ -66,4 +67,8 @@ func configure(_ app: Application) async throws {
 
     // register routes
     try routes(app)
+
+    await app.jwt.keys.add(hmac: "nFXkTdEmoKKAP3drns1oCh10BTYl1GcfVWC57NvoMHO7EAbY+xTvlWHbJWpol7ET",
+                           digestAlgorithm: .sha256,
+                           kid: "basic")
 }
