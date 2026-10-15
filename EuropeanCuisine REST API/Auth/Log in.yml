@@ -6,6 +6,16 @@ info:
 http:
   method: POST
   url: "{{baseURL}}/log-in"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "email": "akira@adm.in",
+        "password": "Mot2Passe#12"
+      }
   auth: inherit
 
 settings:
