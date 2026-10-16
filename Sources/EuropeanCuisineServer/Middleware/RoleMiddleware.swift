@@ -28,12 +28,6 @@ struct RoleMiddleware: AsyncMiddleware {
     }
 }
 
-extension RoutesBuilder {
-    func requiring(_ roles: User.Role...) -> any RoutesBuilder {
-        grouped(RoleMiddleware(allowing: roles))
-    }
-}
-
 extension RoleMiddleware {
     init(allowing roles: [User.Role]) {
         self.allowedRoles = roles

@@ -11,16 +11,12 @@ import Vapor
 
 struct UserController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
-        // Protected routes - require authentication
-        let protected = routes.grouped(JWTAuthMiddleware(),
-                                       User.guardMiddleware())
-
         let users = routes.grouped("api", "v0", "users")
 
         users.get(use: list)
 
         #warning("teste une route qui nécessite d'être authentifié")
-        let protectedUsers = protected.grouped("api", "v0", "users")
+        let protectedUsers = routes.authenticated().grouped("api", "v0", "users")
         protectedUsers.get("me") { req -> UserOutput in
             let user = try req.auth.require(User.self)
 
@@ -35,7 +31,7 @@ struct UserController: RouteCollection {
         }
 
         #warning("teste une route qui nécessite d'être authentifié et admin")
-        let protectedForAdmin = protectedUsers.requiring(.admin)
+        let protectedForAdmin = routes.requiring(.admin).grouped("api", "v0", "users")
         protectedForAdmin.get("profile") { _ -> String in
             "You are an admin"
         }
