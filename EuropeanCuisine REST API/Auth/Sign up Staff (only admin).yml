@@ -4,9 +4,19 @@ info:
   seq: 3
 
 http:
-  method: GET
-  url: ""
-  auth: inherit
+  method: POST
+  url: "{{baseURL}}/admin/sign-up"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Sasuke Uchiwa",
+        "email": "sasuke@uchiwa.jp",
+        "password": "Mot2Passe#12"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoiNUNGOUFCRTgtRTlDQi00RDIxLUFCMUYtNjNERDJGREY2MzA3IiwiZXhwaXJhdGlvbiI6MTc5MjMzMzYwMC42ODM0NzR9.OAFAu6Wsatz2e74N2ka3oQzi6tVZzqMWjpqdE5bE-DE
 
 settings:
   encodeUrl: true

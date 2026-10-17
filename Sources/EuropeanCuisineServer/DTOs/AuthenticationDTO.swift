@@ -8,13 +8,13 @@
 
 import Vapor
 
-struct AuthSignupInput: Content {
+struct AuthSignUpInput: Content {
     let name: String
     let email: String
     let password: String
 }
 
-extension AuthSignupInput: Validatable {
+extension AuthSignUpInput: Validatable {
     static func validations(_ validations: inout Validations) {
         validations.add("name",
                         as: String.self,
@@ -28,12 +28,12 @@ extension AuthSignupInput: Validatable {
     }
 }
 
-struct AuthLoginInput: Content {
+struct AuthLogInInput: Content {
     let email: String
     let password: String
 }
 
-extension AuthLoginInput: Validatable {
+extension AuthLogInInput: Validatable {
     static func validations(_ validations: inout Validations) {
         validations.add("email",
                         as: String.self,
