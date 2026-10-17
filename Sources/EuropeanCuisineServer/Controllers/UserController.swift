@@ -13,28 +13,13 @@ struct UserController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let users = routes.grouped("api", "v0", "users")
 
-        users.get(use: list)
+        // Admin : only an admin can see list of users
+        users
+            .requiring(.admin)
+            .get(use: list)
 
-        #warning("teste une route qui nécessite d'être authentifié")
-        let protectedUsers = routes.authenticated().grouped("api", "v0", "users")
-        protectedUsers.get("me") { req -> UserOutput in
-            let user = try req.auth.require(User.self)
-
-            try await user.$infos.load(on: req.db)
-
-            guard let infos = user.infos else {
-                throw UserError.infosNotFound
-            }
-
-            return try UserOutput(user: user,
-                                  infos: infos)
-        }
-
-        #warning("teste une route qui nécessite d'être authentifié et admin")
-        let protectedForAdmin = routes.requiring(.admin).grouped("api", "v0", "users")
-        protectedForAdmin.get("profile") { _ -> String in
-            "You are an admin"
-        }
+        // A user authenticated can see his/her infos
+        users.authenticated().get("infos", use: show)
     }
 
     private func list(req: Request) async throws -> [UserOutput] {
@@ -49,7 +34,21 @@ struct UserController: RouteCollection {
                 return nil
             }
 
-            return try UserOutput(user: user, infos: infos)
+            return try UserOutput(user: user,
+                                  infos: infos)
         }
+    }
+
+    private func show(req: Request) async throws -> UserOutput {
+        let user = try req.auth.require(User.self)
+
+        try await user.$infos.load(on: req.db)
+
+        guard let infos = user.infos else {
+            throw UserError.infosNotFound
+        }
+
+        return try UserOutput(user: user,
+                              infos: infos)
     }
 }
