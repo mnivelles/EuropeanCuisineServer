@@ -11,16 +11,19 @@ import Vapor
 
 struct AuthenticationController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
-        let users = routes.grouped("api", "v0", "auth")
+        let api = routes.grouped("api", "v0")
 
         // Public
-        users.post("sign-up", use: signUpFestivalGoer) // Sign up Festival goer
-        users.post("log-in", use: login) // Log in anybody
+        let publicAuth = api.grouped("auth")
+        publicAuth.post("sign-up", use: signUpFestivalGoer) // Sign up Festival goer
+        publicAuth.post("log-in", use: login) // Log in anybody
 
         // Admin
-        users
+        let adminAuth = api
+            .grouped("admin", "auth")
             .requiring(.admin)
-            .post("admin", "sign-up", use: signUpStaff) // Sign up Staff
+        adminAuth
+            .post("sign-up", use: signUpStaff) // Sign up Staff
     }
 
     private func signUpFestivalGoer(req: Request) async throws -> Response {

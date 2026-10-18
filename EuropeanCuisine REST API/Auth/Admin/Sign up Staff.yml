@@ -1,0 +1,26 @@
+info:
+  name: Sign up Staff
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: "{{apiBaseURL}}/admin/auth/sign-up"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Boruto Uzumaki",
+        "email": "boruto@uzumaki.jp",
+        "password": "Mot2Passe#12"
+      }
+  auth:
+    type: bearer
+    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWJqZWN0IjoiNUNGOUFCRTgtRTlDQi00RDIxLUFCMUYtNjNERDJGREY2MzA3IiwiZXhwaXJhdGlvbiI6MTc5MjQ0NTA0MS4zNjczNTQ5fQ.NYweQHI53LE0ctXxpBNW8bgIOwoMfVfHYGGKko8pY8g
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
