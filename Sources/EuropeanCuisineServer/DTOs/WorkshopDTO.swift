@@ -13,6 +13,7 @@ struct WorkshopInput: Content {
     let name: String
     let startTime: Date
     let endTime: Date
+    let bookedCapacity: UInt16
     let capacityMax: UInt16
     let description: String
     let pictureURL: String
@@ -28,6 +29,7 @@ extension WorkshopInput {
         Workshop(name: name.trimmed,
                  startTime: startTime,
                  endTime: endTime,
+                 bookedCapacity: bookedCapacity,
                  capacityMax: capacityMax,
                  description: description,
                  categoryID: categoryID)
@@ -69,6 +71,7 @@ struct WorkshopOutput: Content {
     let name: String
     let startTime: Date
     let endTime: Date
+    let bookedCapacity: UInt16
     let capacityMax: UInt16
     let description: String
     let pictureURL: String
@@ -86,6 +89,7 @@ extension WorkshopOutput {
         self.name = workshop.name
         self.startTime = workshop.startTime
         self.endTime = workshop.endTime
+        self.bookedCapacity = workshop.bookedCapacity
         self.capacityMax = workshop.capacityMax
         self.description = workshop.description
         self.pictureURL = infos.pictureURL

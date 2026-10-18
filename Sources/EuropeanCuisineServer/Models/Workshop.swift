@@ -24,6 +24,9 @@ final class Workshop: Model, @unchecked Sendable {
     @Field(key: "end_time")
     var endTime: Date
 
+    @Field(key: "booked_capacity")
+    var bookedCapacity: UInt16
+
     @Field(key: "capacity_max")
     var capacityMax: UInt16
 
@@ -45,6 +48,7 @@ final class Workshop: Model, @unchecked Sendable {
          name: String,
          startTime: Date,
          endTime: Date,
+         bookedCapacity: UInt16,
          capacityMax: UInt16,
          description: String,
          categoryID: Category.IDValue) {
@@ -52,6 +56,7 @@ final class Workshop: Model, @unchecked Sendable {
         self.name = name
         self.startTime = startTime
         self.endTime = endTime
+        self.bookedCapacity = bookedCapacity
         self.capacityMax = capacityMax
         self.description = description
         $category.id = categoryID
