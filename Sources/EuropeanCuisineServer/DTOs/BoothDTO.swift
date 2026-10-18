@@ -92,8 +92,30 @@ extension BoothOutput {
     }
 }
 
-struct LocaleInput: Content {
-    var locale: String?
+struct AdminBoothListItemOutput: Content {
+    let id: UUID
+    let pictureURL: String
+    let name: String
+    let location: String
+    let countryCode: String
+    let countryName: String
+    let startTime: String
+    let endTime: String
+}
+
+extension AdminBoothListItemOutput {
+    init(_ booth: Booth, countryName: String = "No country name") throws {
+        self.id = try booth.requireID()
+        self.pictureURL = booth.pictureURL
+        self.name = booth.name
+        self.location = booth.location
+        self.countryCode = booth.country.code
+        self.countryName = countryName
+        self.startTime = booth.startTime.formatted(date: .omitted,
+                                                   time: .shortened)
+        self.endTime = booth.endTime.formatted(date: .omitted,
+                                               time: .shortened)
+    }
 }
 
 private struct AllergensValidatorResult: ValidatorResult {

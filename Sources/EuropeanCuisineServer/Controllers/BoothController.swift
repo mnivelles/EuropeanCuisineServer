@@ -13,16 +13,24 @@ struct BoothController: RouteCollection {
     private let defaultLocale: String = "en"
 
     func boot(routes: any RoutesBuilder) throws {
-        let booths = routes.grouped("api", "v0", "booths")
+        let api = routes.grouped("api", "v0")
 
-        booths.get(use: list)
-        booths.post(use: create)
+        // Public
+        let publicBooths = api.grouped("booths")
+        publicBooths.get(use: list)
+        publicBooths.post(use: create)
 
-        booths.group(":id") { booth in
+        publicBooths.group(":id") { booth in
             booth.get(use: show)
             booth.put(use: update)
             booth.delete(use: delete)
         }
+
+        // Admin site - Role = admin || staff
+        let adminBooths = api
+            .grouped("admin", "booths")
+            .requiring(.admin, .staff)
+        adminBooths.get(use: adminTableList)
     }
 
     private func list(req: Request) async throws -> [BoothOutput] {
@@ -40,6 +48,24 @@ struct BoothController: RouteCollection {
             let countryName = getCountryName(from: booth, locale: locale)
 
             return try BoothOutput(booth, countryName: countryName)
+        }
+    }
+
+    private func adminTableList(req: Request) async throws -> [AdminBoothListItemOutput] {
+        let locale = defaultLocale
+
+        let booths = try await Booth.query(on: req.db)
+            .with(\.$country) { country in
+                country
+                    .with(\.$translations)
+            }
+            .sort(\.$name, .ascending)
+            .all()
+
+        return try booths.map { booth in
+            let countryName = getCountryName(from: booth, locale: locale)
+
+            return try AdminBoothListItemOutput(booth, countryName: countryName)
         }
     }
 
