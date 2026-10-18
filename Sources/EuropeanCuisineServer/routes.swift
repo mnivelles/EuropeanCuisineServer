@@ -11,7 +11,7 @@ func routes(_ app: Application) throws {
     try app.register(collection: BoothCountryController())
     try app.register(collection: BoothCountryTranslationController())
     try app.register(collection: BoothController())
-    try app.register(collection: AuthController())
+    try app.register(collection: AuthenticationController())
     try app.register(collection: UserController())
     try app.register(collection: ReservationController())
 }

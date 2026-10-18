@@ -9,10 +9,13 @@
 import Vapor
 
 enum UserError: AbortError {
+    case notFound
     case infosNotFound
 
     var status: HTTPResponseStatus {
         switch self {
+        case .notFound:
+            .notFound
         case .infosNotFound:
             .notFound
         }
@@ -20,6 +23,8 @@ enum UserError: AbortError {
 
     var reason: String {
         switch self {
+        case .notFound:
+            "User not found"
         case .infosNotFound:
             "User infos not found"
         }

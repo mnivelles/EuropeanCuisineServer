@@ -14,12 +14,16 @@ struct AddMockDataMigration: AsyncMigration {
         try await addBooths(on: database)
 
         try await addWorkshops(on: database)
+
+        try await addUsers(on: database)
     }
 
     func revert(on database: any Database) async throws {
         try await removeBooths(on: database)
 
         try await removeWorkshops(on: database)
+
+        try await removeUsers(on: database)
     }
 
     private func addBooths(on database: any Database) async throws {
@@ -427,5 +431,31 @@ struct AddMockDataMigration: AsyncMigration {
         try await Workshop.query(on: database).delete()
 
         try await Category.query(on: database).delete()
+    }
+
+    private func addUsers(on database: any Database) async throws {
+        #warning("à retirer en production")
+        let passwordHash = try Bcrypt.hash("Mot2Passe#12")
+
+        let user = User(name: "Hiroyuki Sawano",
+                        email: "hiroyuki@sawano.jp",
+                        passwordHash: passwordHash,
+                        role: .admin)
+
+        try await user.create(on: database)
+
+        let userID = try user.requireID()
+
+        let infos = UserInfos(status: .active,
+                              pictureURL: "https://picsum.photos/id/189/800",
+                              userID: userID)
+
+        try await infos.create(on: database)
+    }
+
+    private func removeUsers(on database: any Database) async throws {
+        try await UserInfos.query(on: database).delete()
+
+        try await User.query(on: database).delete()
     }
 }
