@@ -10,7 +10,9 @@ http:
     - name: locale
       value: fr
       type: query
-  auth: inherit
+  auth:
+    type: bearer
+    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHBpcmF0aW9uIjoxNzkyNDQ2NjIxLjYwMzM0OSwic3ViamVjdCI6IjUyQ0E0QjRELTg5NTQtNEFENi05MDEzLUM0MzJFMUYxRkMzMiJ9.izUslDz3yL-hA5x5USWskGCZQKOZ7xTiSMQMfv8VZoA
 
 settings:
   encodeUrl: true
