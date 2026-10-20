@@ -104,17 +104,32 @@ struct AdminBoothListItemOutput: Content {
 }
 
 extension AdminBoothListItemOutput {
-    init(_ booth: Booth, countryName: String = "No country name") throws {
+    init(_ booth: Booth, countryName: String = "No country name", locale: String) throws {
+        let timeFormatStyle = Date.FormatStyle(date: .omitted,
+                                               time: .shortened,
+                                               locale: Locale(identifier: locale))
+
         self.id = try booth.requireID()
         self.pictureURL = booth.pictureURL
         self.name = booth.name
         self.location = booth.location
         self.countryCode = booth.country.code
         self.countryName = countryName
-        self.startTime = booth.startTime.formatted(date: .omitted,
-                                                   time: .shortened)
-        self.endTime = booth.endTime.formatted(date: .omitted,
-                                               time: .shortened)
+        self.startTime = booth.startTime.formatted(timeFormatStyle)
+        self.endTime = booth.endTime.formatted(timeFormatStyle)
+    }
+}
+
+struct AdminBoothListSortSearchInput: Content {
+    let query: String?
+    let sort: Sort?
+
+    enum Sort: String, Codable {
+        case name
+        case location
+        case country
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
     }
 }
 

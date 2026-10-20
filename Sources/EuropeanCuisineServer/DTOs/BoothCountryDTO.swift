@@ -30,11 +30,14 @@ extension BoothCountryInput {
 struct BoothCountryOutput: Content {
     let id: UUID
     let code: String
+    let name: String
 }
 
 extension BoothCountryOutput {
-    init(_ country: BoothCountry) throws {
+    init(_ country: BoothCountry,
+         name: String = "No country name") throws {
         self.id = try country.requireID()
         self.code = country.code
+        self.name = name
     }
 }
