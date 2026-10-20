@@ -24,11 +24,21 @@ struct BoothCountryController: RouteCollection {
     }
 
     private func list(req: Request) async throws -> [BoothCountryOutput] {
+        let locale = LocalizationUtils.getLocale(req: req)
+
         let countries = try await BoothCountry
             .query(on: req.db)
+            .with(\.$translations)
             .all()
 
-        return try countries.map(BoothCountryOutput.init)
+        return try countries.map { country in
+            let name = LocalizationUtils.getCountryName(from: country.translations,
+                                                        locale: locale)
+
+            return try BoothCountryOutput(country,
+                                          name: name)
+        }
+        .sorted(by: { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending })
     }
 
     private func create(req: Request) async throws -> Response {

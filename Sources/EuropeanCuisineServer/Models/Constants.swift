@@ -9,6 +9,14 @@
 import Vapor
 
 enum Constants {
+    static let defaultLocale: String = "en"
+
+    enum OpeningHours {
+        static let startHour: Int = 8
+        static let endHour: Int = 18
+        static let intervalMinutes: Int = 15
+    }
+
     enum Booth {
         enum Name {
             static let validator: Validator<String> = .count(1 ... 100)
