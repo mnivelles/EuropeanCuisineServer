@@ -64,7 +64,7 @@ func configure(_ app: Application) async throws {
         ],
         cacheExpiration: 10)
     let corsMiddleware = CORSMiddleware(configuration: corsConfiguration)
-    app.middleware.use(corsMiddleware)
+    app.middleware.use(corsMiddleware, at: .beginning)
 
     app.caches.use(.memory)
     app.gatekeeper.config = .init(maxRequests: 100, per: .minute)
