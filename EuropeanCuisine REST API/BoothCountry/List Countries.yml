@@ -5,7 +5,11 @@ info:
 
 http:
   method: GET
-  url: "{{baseURL}}"
+  url: "{{baseURL}}?locale=fr"
+  params:
+    - name: locale
+      value: fr
+      type: query
   auth: inherit
 
 settings:

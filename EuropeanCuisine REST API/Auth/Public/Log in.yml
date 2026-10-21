@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: "{{baseURL}}/log-in"
+  url: "{{apiBaseURL}}/auth/log-in"
   headers:
     - name: Content-Type
       value: application/json
@@ -13,7 +13,7 @@ http:
     type: json
     data: |-
       {
-        "email": "hiroyuki@sawano.jp",
+        "email": "naruto@uzumaki.jp",
         "password": "Mot2Passe#12"
       }
   auth: inherit

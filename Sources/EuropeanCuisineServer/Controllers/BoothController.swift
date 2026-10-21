@@ -10,23 +10,29 @@ import Fluent
 import Vapor
 
 struct BoothController: RouteCollection {
-    private let defaultLocale: String = "en"
-
     func boot(routes: any RoutesBuilder) throws {
-        let booths = routes.grouped("api", "v0", "booths")
+        let api = routes.grouped("api", "v0")
 
-        booths.get(use: list)
-        booths.post(use: create)
+        // Public
+        let publicBooths = api.grouped("booths")
+        publicBooths.get(use: list)
+        publicBooths.post(use: create)
 
-        booths.group(":id") { booth in
+        publicBooths.group(":id") { booth in
             booth.get(use: show)
             booth.put(use: update)
             booth.delete(use: delete)
         }
+
+        // Admin site - Role = admin || staff
+        let adminBooths = api
+            .grouped("admin", "booths")
+            .requiring(.admin, .staff)
+        adminBooths.get(use: adminTableList)
     }
 
     private func list(req: Request) async throws -> [BoothOutput] {
-        let locale = getLocale(req: req) ?? defaultLocale
+        let locale = LocalizationUtils.getLocale(req: req)
 
         let booths = try await Booth.query(on: req.db)
             .with(\.$country) { country in
@@ -37,14 +43,73 @@ struct BoothController: RouteCollection {
             .all()
 
         return try booths.map { booth in
-            let countryName = getCountryName(from: booth, locale: locale)
+            let countryName = LocalizationUtils.getCountryName(from: booth.country.translations,
+                                                               locale: locale)
 
             return try BoothOutput(booth, countryName: countryName)
         }
     }
 
+    private func adminTableList(req: Request) async throws -> Page<AdminBoothListItemOutput> {
+        let locale = LocalizationUtils.getLocale(req: req)
+        let input = try req.query.decode(AdminBoothListSortSearchInput.self)
+
+        let query = Booth.query(on: req.db)
+            .join(BoothCountry.self, on: \Booth.$country.$id == \BoothCountry.$id)
+            .join(BoothCountryTranslation.self,
+                  on: \BoothCountryTranslation.$country.$id == \BoothCountry.$id)
+            .filter(BoothCountryTranslation.self, \.$locale == locale)
+            .with(\.$country) { country in
+                country
+                    .with(\.$translations)
+            }
+
+        if let searchText = input.query,
+           searchText.trimmed.isNotEmpty {
+            query
+                .filter(\.$name ~~ searchText.trimmed)
+        }
+
+        if let sort = input.sort {
+            switch sort {
+            case .name:
+                query
+                    .sort(\.$name, .ascending)
+            case .location:
+                query
+                    .sort(\.$location, .ascending)
+                    .sort(\.$name, .ascending)
+            case .country:
+                query
+                    .sort(BoothCountryTranslation.self, \.$name, .ascending)
+                    .sort(\.$name, .ascending)
+            case .createdAt:
+                query
+                    .sort(\.$createdAt, .descending)
+            case .updatedAt:
+                query
+                    .sort(\.$updatedAt, .descending)
+            }
+        } else {
+            query
+                .sort(\.$name, .ascending)
+        }
+
+        let booths = try await query
+            .paginate(for: req)
+
+        return try booths.map { booth in
+            let countryName = LocalizationUtils.getCountryName(from: booth.country.translations,
+                                                               locale: locale)
+
+            return try AdminBoothListItemOutput(booth,
+                                                countryName: countryName,
+                                                locale: locale)
+        }
+    }
+
     private func create(req: Request) async throws -> Response {
-        let locale = getLocale(req: req) ?? defaultLocale
+        let locale = LocalizationUtils.getLocale(req: req)
 
         try BoothInput.validate(content: req)
 
@@ -69,24 +134,26 @@ struct BoothController: RouteCollection {
         try await booth.$country.load(on: req.db)
         try await booth.country.$translations.load(on: req.db)
 
-        let countryName = getCountryName(from: booth, locale: locale)
+        let countryName = LocalizationUtils.getCountryName(from: booth.country.translations,
+                                                           locale: locale)
 
         return try await BoothOutput(booth, countryName: countryName)
             .encodeResponse(status: .created, for: req)
     }
 
     private func show(req: Request) async throws -> BoothOutput {
-        let locale = getLocale(req: req) ?? defaultLocale
+        let locale = LocalizationUtils.getLocale(req: req)
 
         let booth = try await findBooth(req: req)
 
-        let countryName = getCountryName(from: booth, locale: locale)
+        let countryName = LocalizationUtils.getCountryName(from: booth.country.translations,
+                                                           locale: locale)
 
         return try BoothOutput(booth, countryName: countryName)
     }
 
     private func update(req: Request) async throws -> BoothOutput {
-        let locale = getLocale(req: req) ?? defaultLocale
+        let locale = LocalizationUtils.getLocale(req: req)
 
         try BoothInput.validate(content: req)
 
@@ -110,7 +177,8 @@ struct BoothController: RouteCollection {
 
         try await booth.update(on: req.db)
 
-        let countryName = getCountryName(from: booth, locale: locale)
+        let countryName = LocalizationUtils.getCountryName(from: booth.country.translations,
+                                                           locale: locale)
 
         return try BoothOutput(booth, countryName: countryName)
     }
@@ -121,15 +189,6 @@ struct BoothController: RouteCollection {
         try await booth.delete(on: req.db)
 
         return .noContent
-    }
-
-    private func getLocale(req: Request) -> String? {
-        guard let input = try? req.query.decode(LocaleInput.self),
-              let locale = input.locale else {
-            return nil
-        }
-
-        return locale
     }
 
     private func findBooth(req: Request) async throws -> Booth {
@@ -163,13 +222,5 @@ struct BoothController: RouteCollection {
         booth.startTime = input.startTime
         booth.endTime = input.endTime
         booth.$country.id = input.countryID
-    }
-
-    private func getCountryName(from booth: Booth, locale: String) -> String {
-        let translations = booth.country.translations
-
-        return (translations.first { $0.locale == locale }
-            ?? translations.first { $0.locale == defaultLocale })?
-            .name ?? "No country name"
     }
 }

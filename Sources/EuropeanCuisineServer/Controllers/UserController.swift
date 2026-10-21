@@ -11,15 +11,19 @@ import Vapor
 
 struct UserController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
-        let users = routes.grouped("api", "v0", "users")
+        let api = routes.grouped("api", "v0")
 
         // Admin : only an admin can see list of users
-        users
+        let adminUsers = api
+            .grouped("admin", "users")
             .requiring(.admin)
-            .get(use: list)
+        adminUsers.get(use: list)
 
         // A user authenticated can see his/her infos
-        users.authenticated().get("infos", use: show)
+        let authenticatedUsers = api
+            .grouped("users")
+            .authenticated()
+        authenticatedUsers.get("infos", use: show)
     }
 
     private func list(req: Request) async throws -> [UserOutput] {

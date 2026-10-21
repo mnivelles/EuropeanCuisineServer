@@ -21,4 +21,37 @@ enum Allergen: String, Codable, CaseIterable {
     case sulphurDioxideAndSulphites = "sulphur_dioxide_and_sulphites"
     case lupin
     case molluscs
+
+    var name: String {
+        switch self {
+        case .cerealsContainingGluten:
+            "Cereals containing gluten"
+        case .crustaceans:
+            "Crustaceans"
+        case .eggs:
+            "Eggs"
+        case .fish:
+            "Fish"
+        case .peanuts:
+            "Peanuts"
+        case .soybeans:
+            "Soybeans"
+        case .milk:
+            "Milk"
+        case .nuts:
+            "Tree nuts"
+        case .celery:
+            "Celery"
+        case .mustard:
+            "Mustard"
+        case .sesameSeeds:
+            "Sesame seeds"
+        case .sulphurDioxideAndSulphites:
+            "Sulphur dioxide and sulphites"
+        case .lupin:
+            "Lupin"
+        case .molluscs:
+            "Molluscs"
+        }
+    }
 }

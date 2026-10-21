@@ -1,0 +1,18 @@
+info:
+  name: Show User [auth]
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{apiBaseURL}}/users/infos"
+  auth:
+    type: bearer
+    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHBpcmF0aW9uIjoxNzkyNDQ1OTc0LjM1NTEzLCJzdWJqZWN0IjoiNTJDQTRCNEQtODk1NC00QUQ2LTkwMTMtQzQzMkUxRjFGQzMyIn0.rWaWMIwymgtb_k5H3aGUXUCIkWfbQA9MxjPgox9RcqQ
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

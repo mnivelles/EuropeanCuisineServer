@@ -43,7 +43,7 @@ func configure(_ app: Application) async throws {
     try await app.autoMigrate()
 
     let corsConfiguration = CORSMiddleware
-        .Configuration(allowedOrigin: .custom("http://localhost:8080"),
+        .Configuration(allowedOrigin: .any(["http://localhost:8080", "http://127.0.0.1:5500"]),
                        allowedMethods: [
                            .GET,
                            .POST,
