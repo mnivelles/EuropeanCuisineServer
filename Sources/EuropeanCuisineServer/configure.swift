@@ -43,21 +43,26 @@ func configure(_ app: Application) async throws {
     try await app.autoMigrate()
 
     let corsConfiguration = CORSMiddleware
-        .Configuration(allowedOrigin: .any(["http://localhost:8080", "http://127.0.0.1:5500"]),
-                       allowedMethods: [
-                           .GET,
-                           .POST,
-                           .PUT,
-                           .DELETE,
-                           .OPTIONS,
-                       ],
-                       allowedHeaders: [
-                           .accept,
-                           .authorization,
-                           .contentType,
-                           .origin,
-                       ],
-                       cacheExpiration: 10)
+        .Configuration(allowedOrigin: .any([
+            "http://localhost:8080",
+            "http://127.0.0.1:8080",
+            "http://localhost:5500",
+            "http://127.0.0.1:5500",
+        ]),
+        allowedMethods: [
+            .GET,
+            .POST,
+            .PUT,
+            .DELETE,
+            .OPTIONS,
+        ],
+        allowedHeaders: [
+            .accept,
+            .authorization,
+            .contentType,
+            .origin,
+        ],
+        cacheExpiration: 10)
     let corsMiddleware = CORSMiddleware(configuration: corsConfiguration)
     app.middleware.use(corsMiddleware)
 
