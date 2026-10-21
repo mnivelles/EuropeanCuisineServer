@@ -29,12 +29,15 @@ struct AddMockDataMigration: AsyncMigration {
     private func addBooths(on database: any Database) async throws {
         let france = BoothCountry(code: "FRA")
         let spain = BoothCountry(code: "ESP")
+        let greece = BoothCountry(code: "GRC")
 
         try await france.create(on: database)
         try await spain.create(on: database)
+        try await greece.create(on: database)
 
         let frCountryID = try france.requireID()
         let esCountryID = try spain.requireID()
+        let grCountryID = try greece.requireID()
 
         let franceInFrench = BoothCountryTranslation(locale: "fr",
                                                      name: "France",
@@ -52,10 +55,20 @@ struct AddMockDataMigration: AsyncMigration {
                                                      name: "Spain",
                                                      countryID: esCountryID)
 
+        let greeceInFrench = BoothCountryTranslation(locale: "fr",
+                                                     name: "Grèce",
+                                                     countryID: grCountryID)
+
+        let greeceInEnglish = BoothCountryTranslation(locale: "en",
+                                                      name: "Greece",
+                                                      countryID: grCountryID)
+
         try await franceInFrench.create(on: database)
         try await franceInEnglish.create(on: database)
         try await spainInFrench.create(on: database)
         try await spainInEnglish.create(on: database)
+        try await greeceInFrench.create(on: database)
+        try await greeceInEnglish.create(on: database)
 
         let frenchBooths: [Booth] = [
             Booth(name: "La Crêperie Bretonne",
@@ -66,8 +79,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [.cerealsContainingGluten, .milk, .eggs],
-                  startTime: .hourMinute(hour: 8, minute: 30),
-                  endTime: .hourMinute(hour: 16, minute: 45),
+                  startTime: .hourMinuteUTC(hour: 8, minute: 30),
+                  endTime: .hourMinuteUTC(hour: 16, minute: 45),
                   status: .active,
                   countryID: frCountryID),
 
@@ -79,8 +92,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [.milk],
-                  startTime: .hourMinute(hour: 9, minute: 30),
-                  endTime: .hourMinute(hour: 17, minute: 30),
+                  startTime: .hourMinuteUTC(hour: 9, minute: 30),
+                  endTime: .hourMinuteUTC(hour: 17, minute: 30),
                   status: .active,
                   countryID: frCountryID),
 
@@ -92,8 +105,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [],
-                  startTime: .hourMinute(hour: 8, minute: 0),
-                  endTime: .hourMinute(hour: 16, minute: 0),
+                  startTime: .hourMinuteUTC(hour: 8, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 16, minute: 0),
                   status: .active,
                   countryID: frCountryID),
 
@@ -105,8 +118,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: false,
                   isFamilyFriendly: true,
                   allergens: [.nuts, .eggs, .milk],
-                  startTime: .hourMinute(hour: 10, minute: 0),
-                  endTime: .hourMinute(hour: 12, minute: 30),
+                  startTime: .hourMinuteUTC(hour: 10, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 12, minute: 30),
                   status: .active,
                   countryID: frCountryID),
 
@@ -118,8 +131,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: false,
                   allergens: [.fish, .crustaceans, .cerealsContainingGluten, .eggs],
-                  startTime: .hourMinute(hour: 11, minute: 30),
-                  endTime: .hourMinute(hour: 15, minute: 30),
+                  startTime: .hourMinuteUTC(hour: 11, minute: 30),
+                  endTime: .hourMinuteUTC(hour: 15, minute: 30),
                   status: .active,
                   countryID: frCountryID),
 
@@ -131,8 +144,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [.cerealsContainingGluten, .milk, .eggs],
-                  startTime: .hourMinute(hour: 9, minute: 0),
-                  endTime: .hourMinute(hour: 17, minute: 0),
+                  startTime: .hourMinuteUTC(hour: 9, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 17, minute: 0),
                   status: .active,
                   countryID: frCountryID),
         ]
@@ -150,8 +163,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [.eggs],
-                  startTime: .hourMinute(hour: 9, minute: 0),
-                  endTime: .hourMinute(hour: 16, minute: 15),
+                  startTime: .hourMinuteUTC(hour: 9, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 16, minute: 15),
                   status: .active,
                   countryID: esCountryID),
 
@@ -163,8 +176,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [],
-                  startTime: .hourMinute(hour: 8, minute: 45),
-                  endTime: .hourMinute(hour: 15, minute: 0),
+                  startTime: .hourMinuteUTC(hour: 8, minute: 45),
+                  endTime: .hourMinuteUTC(hour: 15, minute: 0),
                   status: .active,
                   countryID: esCountryID),
 
@@ -176,8 +189,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [.cerealsContainingGluten, .milk],
-                  startTime: .hourMinute(hour: 12, minute: 0),
-                  endTime: .hourMinute(hour: 14, minute: 30),
+                  startTime: .hourMinuteUTC(hour: 12, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 14, minute: 30),
                   status: .active,
                   countryID: esCountryID),
 
@@ -189,8 +202,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: true,
                   allergens: [.cerealsContainingGluten],
-                  startTime: .hourMinute(hour: 10, minute: 30),
-                  endTime: .hourMinute(hour: 15, minute: 30),
+                  startTime: .hourMinuteUTC(hour: 10, minute: 30),
+                  endTime: .hourMinuteUTC(hour: 15, minute: 30),
                   status: .active,
                   countryID: esCountryID),
 
@@ -202,8 +215,8 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: false,
                   isFamilyFriendly: false,
                   allergens: [.cerealsContainingGluten, .milk],
-                  startTime: .hourMinute(hour: 9, minute: 0),
-                  endTime: .hourMinute(hour: 11, minute: 30),
+                  startTime: .hourMinuteUTC(hour: 9, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 11, minute: 30),
                   status: .active,
                   countryID: esCountryID),
 
@@ -215,13 +228,84 @@ struct AddMockDataMigration: AsyncMigration {
                   isPRM: true,
                   isFamilyFriendly: false,
                   allergens: [.molluscs],
-                  startTime: .hourMinute(hour: 10, minute: 30),
-                  endTime: .hourMinute(hour: 15, minute: 45),
+                  startTime: .hourMinuteUTC(hour: 10, minute: 30),
+                  endTime: .hourMinuteUTC(hour: 15, minute: 45),
                   status: .active,
                   countryID: esCountryID),
         ]
 
         for booth in spanishBooths {
+            try await booth.create(on: database)
+        }
+
+        let greekBooths: [Booth] = [
+            Booth(name: "O Souvlatzis",
+                  about: "Grilled pork and chicken souvlaki served in warm pita with tzatziki, tomato, onion and fries.",
+                  pictureURL: "https://picsum.photos/seed/souvlaki/800",
+                  location: "Aisle D - Stand 1",
+                  isVegan: false,
+                  isPRM: true,
+                  isFamilyFriendly: true,
+                  allergens: [.cerealsContainingGluten, .milk],
+                  startTime: .hourMinuteUTC(hour: 9, minute: 30),
+                  endTime: .hourMinuteUTC(hour: 17, minute: 30),
+                  status: .active,
+                  countryID: grCountryID),
+
+            Booth(name: "Mamá Moussaka",
+                  about: "Homemade moussaka with layers of aubergine, potato and spiced minced beef, topped with creamy béchamel.",
+                  pictureURL: "https://picsum.photos/seed/moussaka/800",
+                  location: "Aisle D - Stand 2",
+                  isVegan: false,
+                  isPRM: true,
+                  isFamilyFriendly: true,
+                  allergens: [.cerealsContainingGluten, .milk, .eggs],
+                  startTime: .hourMinuteUTC(hour: 11, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 16, minute: 0),
+                  status: .active,
+                  countryID: grCountryID),
+
+            Booth(name: "Filo & Feta",
+                  about: "Crispy spanakopita and tiropita: golden filo pastry filled with spinach, feta and fresh herbs.",
+                  pictureURL: "https://picsum.photos/seed/spanakopita/800",
+                  location: "Aisle D - Stand 3",
+                  isVegan: false,
+                  isPRM: false,
+                  isFamilyFriendly: true,
+                  allergens: [.cerealsContainingGluten, .milk, .eggs],
+                  startTime: .hourMinuteUTC(hour: 8, minute: 30),
+                  endTime: .hourMinuteUTC(hour: 15, minute: 0),
+                  status: .active,
+                  countryID: grCountryID),
+
+            Booth(name: "Mezze Aegean",
+                  about: "Gigantes plaki, dolmades, fava purée and horiatiki salad made with olive oil and fresh vegetables. 100% plant-based.",
+                  pictureURL: "https://picsum.photos/seed/mezze/800",
+                  location: "Aisle E - Stand 4",
+                  isVegan: true,
+                  isPRM: true,
+                  isFamilyFriendly: true,
+                  allergens: [],
+                  startTime: .hourMinuteUTC(hour: 10, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 18, minute: 0),
+                  status: .active,
+                  countryID: grCountryID),
+
+            Booth(name: "Loukoumades & Baklava",
+                  about: "Hot honey doughnuts with cinnamon and walnuts, plus baklava layered with pistachios and syrup.",
+                  pictureURL: "https://picsum.photos/seed/baklava/800",
+                  location: "Aisle E - Stand 5",
+                  isVegan: false,
+                  isPRM: true,
+                  isFamilyFriendly: true,
+                  allergens: [.cerealsContainingGluten, .nuts, .milk],
+                  startTime: .hourMinuteUTC(hour: 12, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 17, minute: 30),
+                  status: .active,
+                  countryID: grCountryID),
+        ]
+
+        for booth in greekBooths {
             try await booth.create(on: database)
         }
     }

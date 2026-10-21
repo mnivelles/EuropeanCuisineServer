@@ -9,6 +9,8 @@
 import Fluent
 import Vapor
 
+// MARK: - Public
+
 struct BoothInput: Content {
     let name: String
     let about: String
@@ -92,6 +94,102 @@ extension BoothOutput {
     }
 }
 
+// MARK: - Admin
+
+struct AdminCreateBoothInput: Content {
+    var picture: File
+    var name: String
+    var country: String
+    var location: String
+    var startTime: Date
+    var endTime: Date
+    var about: String
+    var allergens: [Allergen]
+    var isVegan: Bool
+    var isPRM: Bool
+    var isFamilyFriendly: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case picture
+        case name
+        case country
+        case location
+        case startTime
+        case endTime
+        case about
+        case allergens
+        case isVegan
+        case isPRM
+        case isFamilyFriendly
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.picture = try container.decode(File.self, forKey: .picture)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.country = try container.decode(String.self, forKey: .country)
+        self.location = try container.decode(String.self, forKey: .location)
+        self.startTime = try Self.decodeISODate(from: container, forKey: .startTime)
+        self.endTime = try Self.decodeISODate(from: container, forKey: .endTime)
+        self.about = try container.decode(String.self, forKey: .about)
+        self.allergens = try container.decodeIfPresent([Allergen].self, forKey: .allergens) ?? []
+        self.isVegan = try container.decode(Bool.self, forKey: .isVegan)
+        self.isPRM = try container.decode(Bool.self, forKey: .isPRM)
+        self.isFamilyFriendly = try container.decode(Bool.self, forKey: .isFamilyFriendly)
+    }
+
+    private static func decodeISODate(from container: KeyedDecodingContainer<CodingKeys>,
+                                      forKey key: CodingKeys) throws -> Date {
+        let string = try container.decode(String.self, forKey: key)
+        guard let date = ISO8601DateFormatter().date(from: string) else {
+            throw DecodingError.dataCorruptedError(forKey: key,
+                                                   in: container,
+                                                   debugDescription: "\(key.stringValue) must be an ISO 8601 date (e.g. 1970-01-01T08:00:00Z)")
+        }
+        return date
+    }
+}
+
+extension AdminCreateBoothInput: Validatable {
+    static func validations(_ validations: inout Validations) {
+        validations.add("name",
+                        as: String.self,
+                        is: Constants.Booth.Name.validator)
+        validations.add("country",
+                        as: String.self,
+                        is: Constants.BoothCountry.Code.validator)
+        validations.add("location",
+                        as: String.self,
+                        is: Constants.Booth.Location.validator)
+        validations.add("about",
+                        as: String.self,
+                        is: Constants.Booth.About.validator)
+        validations.add("allergens",
+                        as: [String].self,
+                        is: .allergens,
+                        required: false)
+    }
+}
+
+extension AdminCreateBoothInput {
+    func toModel(status: Booth.Status,
+                 pictureURL picture: String,
+                 countryID: UUID) -> Booth {
+        Booth(name: name.trimmed,
+              about: about.trimmed,
+              pictureURL: picture,
+              location: location.trimmed,
+              isVegan: isVegan,
+              isPRM: isPRM,
+              isFamilyFriendly: isFamilyFriendly,
+              allergens: Set(allergens),
+              startTime: startTime,
+              endTime: endTime,
+              status: status,
+              countryID: countryID)
+    }
+}
+
 struct AdminBoothListItemOutput: Content {
     let id: UUID
     let pictureURL: String
@@ -107,7 +205,8 @@ extension AdminBoothListItemOutput {
     init(_ booth: Booth, countryName: String = "No country name", locale: String) throws {
         let timeFormatStyle = Date.FormatStyle(date: .omitted,
                                                time: .shortened,
-                                               locale: Locale(identifier: locale))
+                                               locale: Locale(identifier: locale),
+                                               timeZone: .gmt)
 
         self.id = try booth.requireID()
         self.pictureURL = booth.pictureURL
