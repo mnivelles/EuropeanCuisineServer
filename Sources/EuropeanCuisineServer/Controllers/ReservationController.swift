@@ -46,9 +46,13 @@ struct ReservationController: RouteCollection {
                 continue
             }
 
-            try outputs.append(ReservationOutput(reservation: reservation,
-                                                 workshop: workshop,
-                                                 infos: infos))
+            let bookedCapacity = try await calculateBookedCapacity(workshopID: workshop.requireID(),
+                                                                   req: req)
+
+            let output = try ReservationOutput(reservation: reservation,
+                                               workshop: workshop,
+                                               infos: infos, bookedCapacity: bookedCapacity)
+            outputs.append(output)
         }
 
         return outputs
@@ -101,9 +105,12 @@ struct ReservationController: RouteCollection {
             existingReservation.status = .confirmed
             try await existingReservation.update(on: req.db)
 
+            let bookedCapacity = try await calculateBookedCapacity(workshopID: workshop.requireID(),
+                                                                   req: req)
+
             return try await ReservationOutput(reservation: existingReservation,
                                                workshop: workshop,
-                                               infos: infos)
+                                               infos: infos, bookedCapacity: bookedCapacity)
                 .encodeResponse(status: .ok, for: req)
         }
 
@@ -126,10 +133,27 @@ struct ReservationController: RouteCollection {
 
         try await reservation.create(on: req.db)
 
+        let bookedCapacity = try await calculateBookedCapacity(workshopID: workshop.requireID(),
+                                                               req: req)
+
         return try await ReservationOutput(reservation: reservation,
                                            workshop: workshop,
-                                           infos: infos)
+                                           infos: infos, bookedCapacity: bookedCapacity)
             .encodeResponse(status: .created, for: req)
+    }
+
+    private func calculateBookedCapacity(workshopID: UUID,
+                                         req: Request) async throws -> UInt16 {
+        let reservations = try await Reservation
+            .query(on: req.db)
+            .filter(\.$workshop.$id == workshopID)
+            .all()
+
+        let activeReservations = reservations.filter {
+            $0.status == .confirmed || $0.status == .pending
+        }
+
+        return UInt16(activeReservations.count)
     }
 
     private func cancel(req: Request) async throws -> HTTPStatus {

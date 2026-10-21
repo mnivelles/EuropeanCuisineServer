@@ -20,10 +20,11 @@ struct ReservationOutput: Content {
 }
 
 extension ReservationOutput {
-    init(reservation: Reservation, workshop: Workshop, infos: WorkshopInfos) throws {
+    init(reservation: Reservation, workshop: Workshop, infos: WorkshopInfos,
+         bookedCapacity: UInt16) throws {
         self.id = try reservation.requireID()
         self.status = reservation.status
         self.workshop = try WorkshopOutput(workshop: workshop,
-                                           infos: infos)
+                                           infos: infos, bookedCapacity: bookedCapacity)
     }
 }

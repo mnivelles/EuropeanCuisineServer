@@ -236,22 +236,27 @@ struct AddMockDataMigration: AsyncMigration {
 
     private func addWorkshops(on database: any Database) async throws {
         let recipeCategory = Category(name: "Recipe")
+        let fashionShowCategory = Category(name: "Fashion Show")
         let keynoteCategory = Category(name: "Keynote")
+        let kidsFamilyCategory = Category(name: "Kids Family")
         let discoveryCategory = Category(name: "Discovery")
 
         try await recipeCategory.create(on: database)
+        try await fashionShowCategory.create(on: database)
         try await keynoteCategory.create(on: database)
+        try await kidsFamilyCategory.create(on: database)
         try await discoveryCategory.create(on: database)
 
         let recipeCategoryID = try recipeCategory.requireID()
+        let fashionShowCategoryID = try fashionShowCategory.requireID()
         let keynoteCategoryID = try keynoteCategory.requireID()
+        let kidsFamilyCategoryID = try kidsFamilyCategory.requireID()
         let discoveryCategoryID = try discoveryCategory.requireID()
 
         let recipeWorkshopInputs: [WorkshopInput] = [
             WorkshopInput(name: "A Journey Through Italian Cuisine",
                           startTime: .from(year: 2026, month: 11, day: 14, hour: 10, minute: 0),
                           endTime: .from(year: 2026, month: 11, day: 14, hour: 11, minute: 30),
-                          bookedCapacity: 7,
                           capacityMax: 20,
                           description: "Discover the secrets of Italian cuisine: fresh pasta, traditional sauces and the story behind each region's recipes, with a tasting at the end of the workshop.",
                           pictureURL: "https://picsum.photos/seed/pasta/800",
@@ -263,7 +268,6 @@ struct AddMockDataMigration: AsyncMigration {
             WorkshopInput(name: "Spanish Tapas and Jamón Ibérico",
                           startTime: .from(year: 2026, month: 11, day: 14, hour: 14, minute: 0),
                           endTime: .from(year: 2026, month: 11, day: 14, hour: 15, minute: 30),
-                          bookedCapacity: 12,
                           capacityMax: 15,
                           description: "Learn how to prepare classic Spanish tapas, from tortilla española to patatas bravas, and discover how to carve and taste a real jamón ibérico.",
                           pictureURL: "https://picsum.photos/seed/jamon/800",
@@ -275,8 +279,7 @@ struct AddMockDataMigration: AsyncMigration {
             WorkshopInput(name: "French Pastry Masterclass",
                           startTime: .from(year: 2026, month: 11, day: 15, hour: 9, minute: 0),
                           endTime: .from(year: 2026, month: 11, day: 15, hour: 11, minute: 0),
-                          bookedCapacity: 8,
-                          capacityMax: 12,
+                          capacityMax: 8,
                           description: "Master the basics of French pastry: choux dough, light éclairs and buttery croissants, guided step by step by a professional pastry chef.",
                           pictureURL: "https://picsum.photos/seed/croissant/800",
                           location: "Pastry Studio, Hall A",
@@ -287,12 +290,33 @@ struct AddMockDataMigration: AsyncMigration {
             WorkshopInput(name: "Greek Mezze Without Meat",
                           startTime: .from(year: 2026, month: 11, day: 15, hour: 15, minute: 0),
                           endTime: .from(year: 2026, month: 11, day: 15, hour: 16, minute: 30),
-                          bookedCapacity: 19,
                           capacityMax: 25,
                           description: "Prepare a colorful, fully plant-based Greek mezze table: hummus, dolmades, spanakopita with olive oil pastry and a fresh village salad.",
                           pictureURL: "https://picsum.photos/seed/olive/800",
                           location: "Garden Kitchen, Hall C",
                           isVegan: true,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: recipeCategoryID),
+            WorkshopInput(name: "Authentic Portuguese Pastéis de Nata",
+                          startTime: .from(year: 2026, month: 11, day: 14, hour: 16, minute: 0),
+                          endTime: .from(year: 2026, month: 11, day: 14, hour: 17, minute: 30),
+                          capacityMax: 15,
+                          description: "Learn to prepare authentic Portuguese custard tarts with flaky pastry and a creamy filling, guided by a pastry specialist.",
+                          pictureURL: "https://picsum.photos/seed/pasteis/800",
+                          location: "Pastry Studio, Hall B",
+                          isVegan: false,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: recipeCategoryID),
+            WorkshopInput(name: "Handmade Japanese Ramen",
+                          startTime: .from(year: 2026, month: 11, day: 14, hour: 12, minute: 0),
+                          endTime: .from(year: 2026, month: 11, day: 14, hour: 13, minute: 30),
+                          capacityMax: 20,
+                          description: "Discover the fundamentals of Japanese ramen, from preparing a flavorful broth to assembling noodles and traditional toppings.",
+                          pictureURL: "https://picsum.photos/seed/ramen/800",
+                          location: "Kitchen Room, Hall C",
+                          isVegan: false,
                           isPRM: true,
                           isFamilyFriendly: true,
                           categoryID: recipeCategoryID),
@@ -306,11 +330,65 @@ struct AddMockDataMigration: AsyncMigration {
             try await infos.create(on: database)
         }
 
+        let fashionShowWorkshopInputs: [WorkshopInput] = [
+            WorkshopInput(name: "European Sustainable Fashion Show",
+                          startTime: .from(year: 2026, month: 11, day: 14, hour: 10, minute: 0),
+                          endTime: .from(year: 2026, month: 11, day: 14, hour: 11, minute: 0),
+                          capacityMax: 200,
+                          description: "Discover contemporary European designers presenting collections made with sustainable materials, ethical production methods and innovative designs.",
+                          pictureURL: "https://picsum.photos/seed/sustainablefashion/800",
+                          location: "Fashion Stage, Hall A",
+                          isVegan: true,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: fashionShowCategoryID),
+            WorkshopInput(name: "The Art of Mediterranean Couture",
+                          startTime: .from(year: 2026, month: 11, day: 14, hour: 14, minute: 30),
+                          endTime: .from(year: 2026, month: 11, day: 14, hour: 15, minute: 30),
+                          capacityMax: 180,
+                          description: "Experience a runway celebration of Mediterranean fashion, combining traditional craftsmanship, elegant silhouettes and contemporary design.",
+                          pictureURL: "https://picsum.photos/seed/couture/800",
+                          location: "Fashion Stage, Hall A",
+                          isVegan: true,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: fashionShowCategoryID),
+            WorkshopInput(name: "Traditional Textiles on the Runway",
+                          startTime: .from(year: 2026, month: 11, day: 15, hour: 11, minute: 0),
+                          endTime: .from(year: 2026, month: 11, day: 15, hour: 12, minute: 0),
+                          capacityMax: 180,
+                          description: "Explore European textile heritage through a fashion show featuring traditional embroidery, regional fabrics and modern interpretations of historic garments.",
+                          pictureURL: "https://picsum.photos/seed/textilerunway/800",
+                          location: "Fashion Stage, Hall B",
+                          isVegan: true,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: fashionShowCategoryID),
+            WorkshopInput(name: "Young European Designers",
+                          startTime: .from(year: 2026, month: 11, day: 15, hour: 14, minute: 0),
+                          endTime: .from(year: 2026, month: 11, day: 15, hour: 15, minute: 0),
+                          capacityMax: 220,
+                          description: "Meet the next generation of European fashion talent through a runway showcase of bold concepts, experimental materials and original collections.",
+                          pictureURL: "https://picsum.photos/seed/youngdesigners/800",
+                          location: "Fashion Stage, Hall A",
+                          isVegan: true,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: fashionShowCategoryID),
+        ]
+
+        for input in fashionShowWorkshopInputs {
+            let workshop = input.toModel()
+            try await workshop.create(on: database)
+
+            let infos = try input.toInfos(workshopID: workshop.requireID())
+            try await infos.create(on: database)
+        }
+
         let keynoteWorkshopInputs: [WorkshopInput] = [
             WorkshopInput(name: "The Future of European Gastronomy",
                           startTime: .from(year: 2026, month: 11, day: 14, hour: 9, minute: 0),
                           endTime: .from(year: 2026, month: 11, day: 14, hour: 9, minute: 45),
-                          bookedCapacity: 182,
                           capacityMax: 300,
                           description: "Opening keynote on the trends shaping European cuisine: sustainability, local sourcing and the new generation of chefs reinventing traditional recipes.",
                           pictureURL: "https://picsum.photos/seed/future/800",
@@ -322,7 +400,6 @@ struct AddMockDataMigration: AsyncMigration {
             WorkshopInput(name: "From Farm to Fork: Sustainable Food Systems",
                           startTime: .from(year: 2026, month: 11, day: 14, hour: 13, minute: 0),
                           endTime: .from(year: 2026, month: 11, day: 14, hour: 14, minute: 0),
-                          bookedCapacity: 76,
                           capacityMax: 250,
                           description: "A talk on how short supply chains, seasonal produce and reduced food waste are changing the way Europe eats, with examples from small producers across the continent.",
                           pictureURL: "https://picsum.photos/seed/farm/800",
@@ -334,7 +411,6 @@ struct AddMockDataMigration: AsyncMigration {
             WorkshopInput(name: "Wine and Food Pairing Across Europe",
                           startTime: .from(year: 2026, month: 11, day: 15, hour: 10, minute: 30),
                           endTime: .from(year: 2026, month: 11, day: 15, hour: 11, minute: 30),
-                          bookedCapacity: 99,
                           capacityMax: 200,
                           description: "A renowned sommelier explores the art of pairing wines with regional dishes, from Portuguese vinho verde to Hungarian Tokaji.",
                           pictureURL: "https://picsum.photos/seed/wine/800",
@@ -346,7 +422,6 @@ struct AddMockDataMigration: AsyncMigration {
             WorkshopInput(name: "Culinary Heritage: Preserving Traditional Recipes",
                           startTime: .from(year: 2026, month: 11, day: 15, hour: 16, minute: 0),
                           endTime: .from(year: 2026, month: 11, day: 15, hour: 17, minute: 0),
-                          bookedCapacity: 23,
                           capacityMax: 300,
                           description: "Closing keynote on the importance of documenting and passing on family and regional recipes, and how festivals like this one keep culinary traditions alive.",
                           pictureURL: "https://picsum.photos/seed/heritage/800",
@@ -369,7 +444,6 @@ struct AddMockDataMigration: AsyncMigration {
             WorkshopInput(name: "Cheese Tasting Tour of Europe",
                           startTime: .from(year: 2026, month: 11, day: 14, hour: 11, minute: 0),
                           endTime: .from(year: 2026, month: 11, day: 14, hour: 12, minute: 0),
-                          bookedCapacity: 12,
                           capacityMax: 30,
                           description: "Taste your way across the continent with a guided selection of cheeses: French comté, Dutch gouda, Italian pecorino and Swiss gruyère, each paired with the right bread and condiments.",
                           pictureURL: "https://picsum.photos/seed/cheese/800",
@@ -381,7 +455,6 @@ struct AddMockDataMigration: AsyncMigration {
             WorkshopInput(name: "Scandinavian Smoked and Pickled Flavors",
                           startTime: .from(year: 2026, month: 11, day: 14, hour: 15, minute: 30),
                           endTime: .from(year: 2026, month: 11, day: 14, hour: 16, minute: 30),
-                          bookedCapacity: 17,
                           capacityMax: 25,
                           description: "Discover the traditional preservation techniques of Northern Europe: cured salmon, pickled herring, rye bread and the rich flavors of the Nordic pantry.",
                           pictureURL: "https://picsum.photos/seed/salmon/800",
@@ -393,7 +466,6 @@ struct AddMockDataMigration: AsyncMigration {
             WorkshopInput(name: "Central European Bread and Beer Pairing",
                           startTime: .from(year: 2026, month: 11, day: 15, hour: 11, minute: 30),
                           endTime: .from(year: 2026, month: 11, day: 15, hour: 12, minute: 30),
-                          bookedCapacity: 24,
                           capacityMax: 30,
                           description: "Explore German, Czech and Belgian beer styles alongside freshly baked pretzels and regional breads, with tasting notes from a master brewer.",
                           pictureURL: "https://picsum.photos/seed/beer/800",
@@ -405,7 +477,6 @@ struct AddMockDataMigration: AsyncMigration {
             WorkshopInput(name: "Mediterranean Olive Oil and Honey Discovery",
                           startTime: .from(year: 2026, month: 11, day: 15, hour: 14, minute: 0),
                           endTime: .from(year: 2026, month: 11, day: 15, hour: 15, minute: 0),
-                          bookedCapacity: 6,
                           capacityMax: 35,
                           description: "Learn to taste and compare olive oils from Greece, Spain and Italy, and discover the flavors of artisanal honeys from across the Mediterranean basin.",
                           pictureURL: "https://picsum.photos/seed/honey/800",
@@ -414,9 +485,86 @@ struct AddMockDataMigration: AsyncMigration {
                           isPRM: true,
                           isFamilyFriendly: true,
                           categoryID: discoveryCategoryID),
+            WorkshopInput(name: "The Rise of Plant-Based European Cuisine",
+                          startTime: .from(year: 2026, month: 11, day: 14, hour: 10, minute: 0),
+                          endTime: .from(year: 2026, month: 11, day: 14, hour: 10, minute: 45),
+                          capacityMax: 250,
+                          description: "Explore how European chefs are reinventing traditional dishes with plant-based ingredients, sustainable techniques and innovative alternatives.",
+                          pictureURL: "https://picsum.photos/seed/plantbased/800",
+                          location: "Conference Room, Hall B",
+                          isVegan: true,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: keynoteCategoryID),
+            WorkshopInput(name: "European Coffee Culture and Roasting",
+                          startTime: .from(year: 2026, month: 11, day: 15, hour: 10, minute: 0),
+                          endTime: .from(year: 2026, month: 11, day: 15, hour: 11, minute: 0),
+                          capacityMax: 30,
+                          description: "Travel through Europe's coffee traditions, compare roasting profiles and discover how grind size, brewing methods and extraction influence the final cup.",
+                          pictureURL: "https://picsum.photos/seed/coffee/800",
+                          location: "Tasting Room, Hall A",
+                          isVegan: true,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: discoveryCategoryID),
         ]
 
         for input in discoveryWorkshopInputs {
+            let workshop = input.toModel()
+            try await workshop.create(on: database)
+
+            let infos = try input.toInfos(workshopID: workshop.requireID())
+            try await infos.create(on: database)
+        }
+
+        let kidsFamilyWorkshopInputs: [WorkshopInput] = [
+            WorkshopInput(name: "Kids' Baking: Decorate Your Own Cookies",
+                          startTime: .from(year: 2026, month: 11, day: 14, hour: 11, minute: 0),
+                          endTime: .from(year: 2026, month: 11, day: 14, hour: 12, minute: 0),
+                          capacityMax: 16,
+                          description: "A fun baking experience for children where little chefs decorate homemade cookies with colorful icing, sprinkles and creative designs.",
+                          pictureURL: "https://picsum.photos/seed/kidscookies/800",
+                          location: "Family Kitchen, Hall C",
+                          isVegan: false,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: kidsFamilyCategoryID),
+            WorkshopInput(name: "Little Chefs: Handmade Pizza",
+                          startTime: .from(year: 2026, month: 11, day: 14, hour: 15, minute: 0),
+                          endTime: .from(year: 2026, month: 11, day: 14, hour: 16, minute: 0),
+                          capacityMax: 15,
+                          description: "Children and their families learn to shape pizza dough, choose fresh toppings and prepare their own delicious Italian-style pizzas.",
+                          pictureURL: "https://picsum.photos/seed/kidspizza/800",
+                          location: "Family Kitchen, Hall A",
+                          isVegan: false,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: kidsFamilyCategoryID),
+            WorkshopInput(name: "Family Gingerbread Workshop",
+                          startTime: .from(year: 2026, month: 11, day: 15, hour: 10, minute: 0),
+                          endTime: .from(year: 2026, month: 11, day: 15, hour: 11, minute: 30),
+                          capacityMax: 18,
+                          description: "Families work together to bake and decorate gingerbread creations while discovering the sweet traditions of European festive baking.",
+                          pictureURL: "https://picsum.photos/seed/gingerbread/800",
+                          location: "Family Kitchen, Hall B",
+                          isVegan: false,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: kidsFamilyCategoryID),
+            WorkshopInput(name: "Junior Pastry Chefs",
+                          startTime: .from(year: 2026, month: 11, day: 15, hour: 13, minute: 0),
+                          endTime: .from(year: 2026, month: 11, day: 15, hour: 14, minute: 0),
+                          capacityMax: 16,
+                          description: "Young aspiring pastry chefs discover basic baking techniques and create simple sweet treats with guidance from an experienced instructor.",
+                          pictureURL: "https://picsum.photos/seed/juniorpastry/800",
+                          location: "Family Kitchen, Hall C",
+                          isVegan: false,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: kidsFamilyCategoryID),
+        ]
+
+        for input in kidsFamilyWorkshopInputs {
             let workshop = input.toModel()
             try await workshop.create(on: database)
 

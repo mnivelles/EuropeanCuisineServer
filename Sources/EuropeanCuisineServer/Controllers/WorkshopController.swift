@@ -30,14 +30,23 @@ struct WorkshopController: RouteCollection {
             .with(\.$category)
             .all()
 
-        return try workshops.compactMap { workshop -> WorkshopOutput? in
+        var outputs: [WorkshopOutput] = []
+
+        for workshop in workshops {
             guard let infos = workshop.infos else {
-                return nil
+                continue
             }
 
-            return try WorkshopOutput(workshop: workshop,
-                                      infos: infos)
+            let bookedCapacity = try await calculateBookedCapacity(workshopID: workshop.requireID(),
+                                                                   req: req)
+
+            let output = try WorkshopOutput(workshop: workshop,
+                                            infos: infos,
+                                            bookedCapacity: bookedCapacity)
+            outputs.append(output)
         }
+
+        return outputs
     }
 
     private func create(req: Request) async throws -> Response {
@@ -63,8 +72,11 @@ struct WorkshopController: RouteCollection {
 
             try await workshop.$category.load(on: db)
 
+            let bookedCapacity = try await calculateBookedCapacity(workshopID: workshop.requireID(),
+                                                                   req: req)
+
             return try await WorkshopOutput(workshop: workshop,
-                                            infos: infos)
+                                            infos: infos, bookedCapacity: bookedCapacity)
                 .encodeResponse(status: .created, for: req)
         }
     }
@@ -76,8 +88,11 @@ struct WorkshopController: RouteCollection {
             throw WorkshopError.infosNotFound
         }
 
+        let bookedCapacity = try await calculateBookedCapacity(workshopID: workshop.requireID(),
+                                                               req: req)
+
         return try WorkshopOutput(workshop: workshop,
-                                  infos: infos)
+                                  infos: infos, bookedCapacity: bookedCapacity)
     }
 
     private func update(req: Request) async throws -> WorkshopOutput {
@@ -100,8 +115,11 @@ struct WorkshopController: RouteCollection {
             try await workshop.update(on: db)
             try await infos.update(on: db)
 
+            let bookedCapacity = try await calculateBookedCapacity(workshopID: workshop.requireID(),
+                                                                   req: req)
+
             return try WorkshopOutput(workshop: workshop,
-                                      infos: infos)
+                                      infos: infos, bookedCapacity: bookedCapacity)
         }
     }
 
@@ -128,6 +146,19 @@ struct WorkshopController: RouteCollection {
         }
 
         return workshop
+    }
+
+    private func calculateBookedCapacity(workshopID: UUID, req: Request) async throws -> UInt16 {
+        let reservations = try await Reservation
+            .query(on: req.db)
+            .filter(\.$workshop.$id == workshopID)
+            .all()
+
+        let activeReservations = reservations.filter {
+            $0.status == .confirmed || $0.status == .pending
+        }
+
+        return UInt16(activeReservations.count)
     }
 
     private func apply(input: WorkshopInput, to workshop: Workshop) {
