@@ -1,0 +1,26 @@
+info:
+  name: Admin List Workshops
+  type: http
+  seq: 7
+
+http:
+  method: GET
+  url: "{{baseAdminURL}}?query=&sort=name&per=5"
+  params:
+    - name: query
+      value: ""
+      type: query
+    - name: sort
+      value: name
+      type: query
+    - name: per
+      value: "5"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
