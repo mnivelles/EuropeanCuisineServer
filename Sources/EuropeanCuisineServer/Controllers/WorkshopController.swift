@@ -11,16 +11,22 @@ import Vapor
 
 struct WorkshopController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
-        let workshops = routes.grouped("api", "v0", "workshops")
+        let api = routes.grouped("api", "v0")
 
-        workshops.get(use: list)
-        workshops.post(use: create)
+        // Public
+        let publicWorkshops = api.grouped("workshops")
+        publicWorkshops.get(use: list)
+        publicWorkshops.post(use: create)
 
-        workshops.group(":id") { workshop in
+        publicWorkshops.group(":id") { workshop in
             workshop.get(use: show)
             workshop.put(use: update)
             workshop.delete(use: delete)
         }
+
+        // Admin
+        let adminWorkshops = api.grouped("admin", "workshops")
+        adminWorkshops.get(use: adminTableList)
     }
 
     private func list(req: Request) async throws -> [WorkshopOutput] {
@@ -47,6 +53,60 @@ struct WorkshopController: RouteCollection {
         }
 
         return outputs
+    }
+
+    private func adminTableList(req: Request) async throws -> Page<AdminWorkshopListItemOutput> {
+        let input = try req.query.decode(AdminWorkshopListSortSearchInput.self)
+
+        let query = Workshop.query(on: req.db)
+            .join(Category.self, on: \Workshop.$category.$id == \Category.$id)
+            .join(WorkshopInfos.self, on: \WorkshopInfos.$workshop.$id == \Workshop.$id)
+            .with(\.$infos)
+            .with(\.$category)
+
+        if let searchText = input.query,
+           searchText.trimmed.isNotEmpty {
+            query
+                .filter(\.$name ~~ searchText.trimmed)
+        }
+
+        if let sort = input.sort {
+            switch sort {
+            case .name:
+                query
+                    .sort(\.$name, .ascending)
+            case .category:
+                query
+                    .sort(Category.self, \.$name, .ascending)
+                    .sort(\.$name, .ascending)
+            case .location:
+                query
+                    .sort(WorkshopInfos.self, \.$location, .ascending)
+                    .sort(\.$name, .ascending)
+            case .date:
+                query
+                    .sort(\.$startTime, .ascending)
+            }
+        } else {
+            query
+                .sort(\.$name, .ascending)
+        }
+
+        let page = try await query.paginate(for: req)
+
+        var items: [AdminWorkshopListItemOutput] = []
+        for workshop in page.items {
+            guard let infos = workshop.infos else { continue }
+
+            let bookedCapacity = try await calculateBookedCapacity(workshopID: workshop.requireID(),
+                                                                   req: req)
+
+            try items.append(AdminWorkshopListItemOutput(workshop: workshop,
+                                                         infos: infos,
+                                                         bookedCapacity: bookedCapacity))
+        }
+
+        return Page(items: items, metadata: page.metadata)
     }
 
     private func create(req: Request) async throws -> Response {
@@ -149,16 +209,17 @@ struct WorkshopController: RouteCollection {
     }
 
     private func calculateBookedCapacity(workshopID: UUID, req: Request) async throws -> UInt16 {
-        let reservations = try await Reservation
+        let count = try await Reservation
             .query(on: req.db)
             .filter(\.$workshop.$id == workshopID)
-            .all()
+//            .filter(\.$status != .cancelled)
+            .count()
 
-        let activeReservations = reservations.filter {
-            $0.status == .confirmed || $0.status == .pending
+        guard count <= Int(UInt16.max) else {
+            return 0
         }
 
-        return UInt16(activeReservations.count)
+        return UInt16(count)
     }
 
     private func apply(input: WorkshopInput, to workshop: Workshop) {

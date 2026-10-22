@@ -99,3 +99,42 @@ extension WorkshopOutput {
         self.categoryName = workshop.category.name
     }
 }
+
+struct AdminWorkshopListItemOutput: Content {
+    let pictureURL: String
+    let name: String
+    let category: String
+    let location: String
+    let date: String
+    let startTime: String
+    let endTime: String
+    let capacity: String
+}
+
+extension AdminWorkshopListItemOutput {
+    init(workshop: Workshop, infos: WorkshopInfos, bookedCapacity: UInt16) throws {
+        let locale = Locale(identifier: "en")
+        let dateFormat = Date.FormatStyle(date: .abbreviated, time: .omitted, locale: locale)
+        let timeFormat = Date.FormatStyle(date: .omitted, time: .shortened, locale: locale)
+        self.pictureURL = infos.pictureURL
+        self.name = workshop.name
+        self.category = workshop.category.name
+        self.location = infos.location
+        self.date = workshop.startTime.formatted(dateFormat)
+        self.startTime = workshop.startTime.formatted(timeFormat)
+        self.endTime = workshop.endTime.formatted(timeFormat)
+        self.capacity = "\(bookedCapacity)/\(workshop.capacityMax)"
+    }
+}
+
+struct AdminWorkshopListSortSearchInput: Content {
+    let query: String?
+    let sort: Sort?
+
+    enum Sort: String, Codable {
+        case name
+        case category
+        case location
+        case date
+    }
+}
