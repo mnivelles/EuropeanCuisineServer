@@ -11,6 +11,7 @@ import Vapor
 
 struct BoothController: RouteCollection {
     private let maxImageSize: Int = 1_500_000
+    private let imageExtensions = ["png", "jpeg", "jpg", "avif", "webp"]
 
     func boot(routes: any RoutesBuilder) throws {
         let api = routes.grouped("api", "v0")
@@ -152,6 +153,15 @@ struct BoothController: RouteCollection {
         try AdminCreateBoothInput.validate(content: req)
 
         let input = try req.content.decode(AdminCreateBoothInput.self)
+        let picture = input.picture
+
+        guard picture.data.readableBytes <= maxImageSize else {
+            throw ImageFileError.fileMaxSize(max: maxImageSize)
+        }
+
+        guard imageExtensions.contains(picture.extension?.lowercased() ?? "") else {
+            throw ImageFileError.fileExtension(extensions: imageExtensions)
+        }
 
         guard try await Booth.query(on: req.db)
             .filter(\.$name == input.name).first() == nil else {
