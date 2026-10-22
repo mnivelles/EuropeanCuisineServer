@@ -10,8 +10,12 @@ import Fluent
 import Vapor
 
 struct BoothController: RouteCollection {
+    private let maxImageSize: Int = 1_500_000
+
     func boot(routes: any RoutesBuilder) throws {
         let api = routes.grouped("api", "v0")
+
+        #warning("retirer dans Public : post, put et delete")
 
         // Public
         let publicBooths = api.grouped("booths")
@@ -29,6 +33,7 @@ struct BoothController: RouteCollection {
             .grouped("admin", "booths")
             .requiring(.admin, .staff)
         adminBooths.get(use: adminTableList)
+        adminBooths.on(.POST, body: .collect(maxSize: "2mb"), use: adminCreate)
     }
 
     private func list(req: Request) async throws -> [BoothOutput] {
@@ -138,6 +143,43 @@ struct BoothController: RouteCollection {
                                                            locale: locale)
 
         return try await BoothOutput(booth, countryName: countryName)
+            .encodeResponse(status: .created, for: req)
+    }
+
+    private func adminCreate(req: Request) async throws -> Response {
+        let locale = LocalizationUtils.getLocale(req: req)
+
+        try AdminCreateBoothInput.validate(content: req)
+
+        let input = try req.content.decode(AdminCreateBoothInput.self)
+
+        guard try await Booth.query(on: req.db)
+            .filter(\.$name == input.name).first() == nil else {
+            throw BoothError.alreadyExists
+        }
+
+        guard let country = try await BoothCountry
+            .query(on: req.db)
+            .filter(\.$code == input.country)
+            .first() else {
+            throw BoothCountryError.notFound
+        }
+
+        let booth = try input.toModel(status: .active,
+                                      pictureURL: "https://picsum.photos/seed/void/800",
+                                      countryID: country.requireID())
+
+        try await booth.create(on: req.db)
+
+        try await booth.$country.load(on: req.db)
+        try await booth.country.$translations.load(on: req.db)
+
+        let countryName = LocalizationUtils.getCountryName(from: booth.country.translations,
+                                                           locale: locale)
+
+        return try await AdminBoothListItemOutput(booth,
+                                                  countryName: countryName,
+                                                  locale: locale)
             .encodeResponse(status: .created, for: req)
     }
 

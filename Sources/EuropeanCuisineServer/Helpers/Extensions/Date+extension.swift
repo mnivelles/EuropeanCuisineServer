@@ -14,8 +14,9 @@ extension Date {
                      day: Int,
                      hour: Int = 0,
                      minute: Int = 0,
-                     second: Int = 0) -> Date {
-        DateComponents(calendar: .current,
+                     second: Int = 0,
+                     calendar: Calendar = .current) -> Date {
+        DateComponents(calendar: calendar,
                        year: year,
                        month: month,
                        day: day,
@@ -24,7 +25,16 @@ extension Date {
                        second: second).date ?? .now
     }
 
-    static func hourMinute(hour: Int, minute: Int) -> Date {
-        from(year: 2001, month: 1, day: 1, hour: hour, minute: minute, second: 0)
+    static func hourMinuteUTC(hour: Int, minute: Int) -> Date {
+        var utcCalendar = Calendar(identifier: .gregorian)
+        utcCalendar.timeZone = TimeZone(secondsFromGMT: 0)!
+
+        return from(year: 2001,
+                    month: 1,
+                    day: 1,
+                    hour: hour,
+                    minute: minute,
+                    second: 0,
+                    calendar: utcCalendar)
     }
 }

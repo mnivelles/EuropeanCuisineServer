@@ -15,7 +15,7 @@ struct UserJWTPayload: JWTPayload {
     var subject: SubjectClaim
     var expiration: ExpirationClaim
 
-    static let expirationTime: TimeInterval = 24 * 3600 // 24h
+    static let expirationTime: TimeInterval = 28 * 24 * 3600 // 28 jours
 
     func verify(using algorithm: some JWTAlgorithm) async throws {
         try expiration.verifyNotExpired()
