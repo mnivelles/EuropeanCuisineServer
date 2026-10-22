@@ -34,7 +34,7 @@ struct AuthenticationController: RouteCollection {
         try await signUp(req: req, role: .staff)
     }
 
-    private func login(req: Request) async throws -> TokenResponse {
+    private func login(req: Request) async throws -> LogInOutput {
         try AuthLogInInput.validate(content: req)
 
         let input = try req.content.decode(AuthLogInInput.self)
@@ -53,7 +53,9 @@ struct AuthenticationController: RouteCollection {
         let token = try await UserJWTPayload.generateToken(for: user,
                                                            req: req)
 
-        return TokenResponse(token: token)
+        return LogInOutput(token: token,
+                           name: user.name,
+                           email: user.email)
     }
 
     private func signUp(req: Request, role: User.Role) async throws -> Response {

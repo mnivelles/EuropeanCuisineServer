@@ -44,6 +44,8 @@ extension AuthLogInInput: Validatable {
     }
 }
 
-struct TokenResponse: Content {
+struct LogInOutput: Content {
     let token: String
+    let name: String
+    let email: String
 }
