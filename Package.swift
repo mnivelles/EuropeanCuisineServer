@@ -21,6 +21,8 @@ let package = Package(name: "EuropeanCuisineServer",
                                    from: "4.0.0"),
 
                           .package(url: "https://github.com/vapor/jwt.git", from: "5.1.2"),
+
+                          .package(url: "https://github.com/soto-project/soto.git", from: "7.17.0"),
                       ],
                       targets: [
                           .executableTarget(name: "EuropeanCuisineServer",
@@ -33,6 +35,7 @@ let package = Package(name: "EuropeanCuisineServer",
                                                 .product(name: "NIOPosix", package: "swift-nio"),
                                                 .product(name: "Gatekeeper", package: "gatekeeper"),
                                                 .product(name: "JWT", package: "jwt"),
+                                                .product(name: "SotoS3", package: "soto"),
                                             ],
                                             swiftSettings: swiftSettings),
                           .testTarget(name: "EuropeanCuisineServerTests",

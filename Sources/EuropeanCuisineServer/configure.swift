@@ -3,6 +3,7 @@ import FluentMySQLDriver
 import Gatekeeper
 import JWT
 import NIOSSL
+import SotoCore
 import Vapor
 
 /// configures your application
@@ -69,6 +70,12 @@ func configure(_ app: Application) async throws {
     app.caches.use(.memory)
     app.gatekeeper.config = .init(maxRequests: 100, per: .minute)
     app.middleware.use(GatekeeperMiddleware())
+
+    let awsClient =
+        AWSClient(credentialProvider: .static(accessKeyId: Environment.get("R2_ACCESS_KEY_ID")!,
+                                              secretAccessKey: Environment
+                                                  .get("R2_SECRET_ACCESS_KEY")!))
+    app.services.awsClient.use { _ in awsClient }
 
     // register routes
     try routes(app)

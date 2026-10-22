@@ -10,8 +10,7 @@ import Fluent
 import Vapor
 
 struct BoothController: RouteCollection {
-    private let maxImageSize: Int = 1_500_000
-    private let imageExtensions = ["png", "jpeg", "jpg", "avif", "webp"]
+    private let imageFolder = "booths"
 
     func boot(routes: any RoutesBuilder) throws {
         let api = routes.grouped("api", "v0")
@@ -155,14 +154,6 @@ struct BoothController: RouteCollection {
         let input = try req.content.decode(AdminCreateBoothInput.self)
         let picture = input.picture
 
-        guard picture.data.readableBytes <= maxImageSize else {
-            throw ImageFileError.fileMaxSize(max: maxImageSize)
-        }
-
-        guard imageExtensions.contains(picture.extension?.lowercased() ?? "") else {
-            throw ImageFileError.fileExtension(extensions: imageExtensions)
-        }
-
         guard try await Booth.query(on: req.db)
             .filter(\.$name == input.name).first() == nil else {
             throw BoothError.alreadyExists
@@ -179,18 +170,31 @@ struct BoothController: RouteCollection {
                                       pictureURL: "https://picsum.photos/seed/void/800",
                                       countryID: country.requireID())
 
-        try await booth.create(on: req.db)
+        return try await req.db.transaction { db in
+            try await booth.create(on: db)
 
-        try await booth.$country.load(on: req.db)
-        try await booth.country.$translations.load(on: req.db)
+            let storage = ImageStorage()
 
-        let countryName = LocalizationUtils.getCountryName(from: booth.country.translations,
-                                                           locale: locale)
+            let url = try await storage.upload(req: req,
+                                               file: picture,
+                                               folder: imageFolder,
+                                               id: booth.requireID())
 
-        return try await AdminBoothListItemOutput(booth,
-                                                  countryName: countryName,
-                                                  locale: locale)
-            .encodeResponse(status: .created, for: req)
+            booth.pictureURL = url.absoluteString
+
+            try await booth.update(on: db)
+
+            try await booth.$country.load(on: db)
+            try await booth.country.$translations.load(on: db)
+
+            let countryName = LocalizationUtils.getCountryName(from: booth.country.translations,
+                                                               locale: locale)
+
+            return try await AdminBoothListItemOutput(booth,
+                                                      countryName: countryName,
+                                                      locale: locale)
+                .encodeResponse(status: .created, for: req)
+        }
     }
 
     private func show(req: Request) async throws -> BoothOutput {

@@ -17,6 +17,11 @@ enum Constants {
         static let intervalMinutes: Int = 15
     }
 
+    enum Image {
+        static let maxSize: Int = 1_500_000
+        static let allowedExtensions = ["png", "jpeg", "jpg", "avif", "webp"]
+    }
+
     enum Booth {
         enum Name {
             static let validator: Validator<String> = .count(1 ... 100)
