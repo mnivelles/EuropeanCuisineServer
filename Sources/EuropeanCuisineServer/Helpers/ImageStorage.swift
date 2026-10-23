@@ -56,31 +56,3 @@ struct ImageStorage {
         return url
     }
 }
-
-// let file = try req.content.decode(File.self)
-// let key = "workshops/" + UUID().uuidString
-//
-// guard file.data.readableBytes <= maxImageSize else  {
-//    throw Abort(.badRequest, reason: "Image size should not exceed \(Double(maxImageSize) /
-//    1_000_000.0) MB")
-// }
-//
-// guard ["png", "jpeg", "jpg", "avif", "webp"].contains(file.extension?.lowercased()) else {
-//    throw Abort(.badRequest, reason: "Image must be jpg, png, avif or webp")
-// }
-//
-// let putObjectRequest = S3.PutObjectRequest(
-//    acl: .publicRead,
-//    body: .init(buffer: file.data),
-//    bucket: bucketName,
-//    contentType: file.contentType?.description ?? "application/octet-stream",
-//    key: key
-// )
-//
-// let s3 = S3(client: req.services.awsClient,
-//            endpoint: Environment.get("R2_ENDPOINT_URL"))
-//
-// _ = try await s3.putObject(putObjectRequest)
-//
-// let url = try url(for: key, region: s3.region.rawValue)
-// return FileUploadResponse(url: url)
