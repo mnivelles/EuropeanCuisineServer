@@ -666,23 +666,107 @@ struct AddMockDataMigration: AsyncMigration {
     }
 
     private func addUsers(on database: any Database) async throws {
+        // Admin user
+
         #warning("à retirer en production")
         let passwordHash = try Bcrypt.hash("Mot2Passe#12")
 
-        let user = User(name: "Hiroyuki Sawano",
-                        email: "hiroyuki@sawano.jp",
-                        passwordHash: passwordHash,
-                        role: .admin)
+        let adminUser = User(name: "Hiroyuki Sawano",
+                             email: "hiroyuki@sawano.jp",
+                             passwordHash: passwordHash,
+                             role: .admin)
 
-        try await user.create(on: database)
+        try await adminUser.create(on: database)
 
-        let userID = try user.requireID()
+        let adminUserID = try adminUser.requireID()
 
-        let infos = UserInfos(status: .active,
-                              pictureURL: "https://picsum.photos/id/189/800",
-                              userID: userID)
+        let adminUserInfos = UserInfos(status: .active,
+                                       pictureURL: "https://picsum.photos/id/189/800",
+                                       userID: adminUserID)
 
-        try await infos.create(on: database)
+        try await adminUserInfos.create(on: database)
+
+        // Other users
+
+        // Festival Goer 1
+        let goer1 = User(name: "Aka Hinawa",
+                         email: "aka@hinawa.jp",
+                         passwordHash: passwordHash,
+                         role: .festivalGoer)
+
+        try await goer1.create(on: database)
+
+        let goer1ID = try goer1.requireID()
+
+        let goer1Infos = UserInfos(status: .active,
+                                   pictureURL: "https://picsum.photos/seed/taka/800",
+                                   userID: goer1ID)
+
+        try await goer1Infos.create(on: database)
+
+        // Festival Goer 2
+        let goer2 = User(name: "Suika Midori",
+                         email: "suika@midori.jp",
+                         passwordHash: passwordHash,
+                         role: .festivalGoer)
+
+        try await goer2.create(on: database)
+
+        let goer2ID = try goer2.requireID()
+
+        let goer2Infos = UserInfos(status: .active,
+                                   pictureURL: "https://picsum.photos/seed/suika/800",
+                                   userID: goer2ID)
+
+        try await goer2Infos.create(on: database)
+
+        // Festival Goer 3
+        let goer3 = User(name: "Ringa Odori",
+                         email: "ringa@odori.jp",
+                         passwordHash: passwordHash,
+                         role: .festivalGoer)
+
+        try await goer3.create(on: database)
+
+        let goer3ID = try goer3.requireID()
+
+        let goer3Infos = UserInfos(status: .disabled,
+                                   pictureURL: "https://picsum.photos/seed/ringa/800",
+                                   userID: goer3ID)
+
+        try await goer3Infos.create(on: database)
+
+        // Staff 1
+        let staff1 = User(name: "Myu Mikado",
+                          email: "myu@mikado.jp",
+                          passwordHash: passwordHash,
+                          role: .staff)
+
+        try await staff1.create(on: database)
+
+        let staff1ID = try staff1.requireID()
+
+        let staff1Infos = UserInfos(status: .active,
+                                    pictureURL: "https://picsum.photos/seed/myu/800",
+                                    userID: staff1ID)
+
+        try await staff1Infos.create(on: database)
+
+        // Staff 2
+        let staff2 = User(name: "Claire Elisabeth de la Chance",
+                          email: "claire.e.d.l.chance@icloud.com",
+                          passwordHash: passwordHash,
+                          role: .staff)
+
+        try await staff2.create(on: database)
+
+        let staff2ID = try staff2.requireID()
+
+        let staff2Infos = UserInfos(status: .disabled,
+                                    pictureURL: "https://picsum.photos/seed/claire/800",
+                                    userID: staff2ID)
+
+        try await staff2Infos.create(on: database)
     }
 
     private func removeUsers(on database: any Database) async throws {

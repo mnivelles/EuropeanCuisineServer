@@ -24,3 +24,52 @@ extension UserOutput {
         self.pictureURL = infos.pictureURL
     }
 }
+
+struct AdminUserListSortSearchInput: Content {
+    let query: String?
+    let sort: Sort?
+    let role: User.Role?
+
+    enum Sort: String, Codable {
+        case name
+        case email
+        case role
+        case createdAt = "created_at"
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case query, sort, role
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.query = try container.decodeIfNotEmpty(String.self, forKey: .query)
+        self.sort = try container.decodeIfNotEmpty(Sort.self, forKey: .sort)
+        self.role = try container.decodeIfNotEmpty(User.Role.self, forKey: .role)
+    }
+}
+
+struct AdminUserListItemOutput: Content {
+    let id: UUID
+    let name: String
+    let email: String
+    let pictureURL: String?
+    let role: User.Role
+    let status: User.Status
+    let creationDate: String
+}
+
+extension AdminUserListItemOutput {
+    init(user: User, infos: UserInfos) throws {
+        let locale = Locale(identifier: "en")
+        let dateFormat = Date.FormatStyle(date: .numeric, time: .shortened, locale: locale)
+
+        self.id = try user.requireID()
+        self.name = user.name
+        self.email = user.email
+        self.pictureURL = infos.pictureURL
+        self.role = user.role
+        self.status = infos.status
+        self.creationDate = user.createdAt?.formatted(dateFormat) ?? "[missing]"
+    }
+}

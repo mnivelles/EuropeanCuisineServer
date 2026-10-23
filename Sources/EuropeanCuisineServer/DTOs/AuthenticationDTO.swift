@@ -48,4 +48,5 @@ struct LogInOutput: Content {
     let token: String
     let name: String
     let email: String
+    let pictureURL: String?
 }

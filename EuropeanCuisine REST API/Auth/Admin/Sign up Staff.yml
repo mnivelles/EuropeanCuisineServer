@@ -10,13 +10,13 @@ http:
     type: json
     data: |-
       {
-        "name": "Boruto Uzumaki",
-        "email": "boruto@uzumaki.jp",
+        "name": "Himawaro Uzumaki",
+        "email": "himawari@uzumaki.jp",
         "password": "Mot2Passe#12"
       }
   auth:
     type: bearer
-    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWJqZWN0IjoiNUNGOUFCRTgtRTlDQi00RDIxLUFCMUYtNjNERDJGREY2MzA3IiwiZXhwaXJhdGlvbiI6MTc5MjQ0NTA0MS4zNjczNTQ5fQ.NYweQHI53LE0ctXxpBNW8bgIOwoMfVfHYGGKko8pY8g
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmF0aW9uIjoxNzkyNTkzNDY3LjQyNjAwOTIsInN1YmplY3QiOiI1Q0Y5QUJFOC1FOUNCLTREMjEtQUIxRi02M0REMkZERjYzMDcifQ.43HDhUKwL4kUEpIgjrMi3AaeNbQ3PYggZFe5BnFRt9o
 
 settings:
   encodeUrl: true

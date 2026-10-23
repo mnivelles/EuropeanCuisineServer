@@ -42,6 +42,7 @@ struct AuthenticationController: RouteCollection {
         guard let user = try await User
             .query(on: req.db)
             .filter(\.$email == input.email)
+            .with(\.$infos)
             .first() else {
             throw AuthError.unauthorized
         }
@@ -53,9 +54,12 @@ struct AuthenticationController: RouteCollection {
         let token = try await UserJWTPayload.generateToken(for: user,
                                                            req: req)
 
+        let pictureURL = user.infos?.pictureURL
+
         return LogInOutput(token: token,
                            name: user.name,
-                           email: user.email)
+                           email: user.email,
+                           pictureURL: pictureURL)
     }
 
     private func signUp(req: Request, role: User.Role) async throws -> Response {

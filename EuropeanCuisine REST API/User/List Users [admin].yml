@@ -8,7 +8,7 @@ http:
   url: "{{apiBaseURL}}/admin/users"
   auth:
     type: bearer
-    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWJqZWN0IjoiNUNGOUFCRTgtRTlDQi00RDIxLUFCMUYtNjNERDJGREY2MzA3IiwiZXhwaXJhdGlvbiI6MTc5MjQ0NTIzMy45MTI4NDZ9.AstXW-8ojrR79_JGr5AvipDTTJqZKVbbnXejz48YwHo
+    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWJqZWN0IjoiMDczOTE5MjktOEY0Ni00M0E4LThGQ0EtMTZBRUYyMjVCNDdEIiwiZXhwaXJhdGlvbiI6MTc5NTE4NzA4Ni41Mjc3MTl9.wiA9PsIUJrapHQz9AXDVB4FYd3phYPNppbEw9nlu9sI
 
 settings:
   encodeUrl: true
