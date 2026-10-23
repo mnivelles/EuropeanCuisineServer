@@ -14,6 +14,7 @@ struct WorkshopController: RouteCollection {
         let api = routes.grouped("api", "v0")
 
         // Public
+        #warning("Delete from public create, update and delete")
         let publicWorkshops = api.grouped("workshops")
         publicWorkshops.get(use: list)
         publicWorkshops.post(use: create)
@@ -26,6 +27,7 @@ struct WorkshopController: RouteCollection {
 
         // Admin
         let adminWorkshops = api.grouped("admin", "workshops")
+            .requiring(.admin, .staff)
         adminWorkshops.get(use: adminTableList)
     }
 
@@ -212,7 +214,7 @@ struct WorkshopController: RouteCollection {
         let count = try await Reservation
             .query(on: req.db)
             .filter(\.$workshop.$id == workshopID)
-//            .filter(\.$status != .cancelled)
+            .filter(\.$status == .confirmed)
             .count()
 
         guard count <= Int(UInt16.max) else {
