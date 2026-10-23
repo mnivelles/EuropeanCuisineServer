@@ -13,5 +13,16 @@ extension User {
         case festivalGoer = "festival_goer"
 
         static let schema: String = "user_roles"
+
+        var name: String {
+            switch self {
+            case .admin:
+                "Admin"
+            case .staff:
+                "Staff"
+            case .festivalGoer:
+                "Festival goer"
+            }
+        }
     }
 }
