@@ -109,6 +109,7 @@ struct AdminWorkshopListItemOutput: Content {
     let startTime: String
     let endTime: String
     let capacity: String
+    let capacityPercent: Double
 }
 
 extension AdminWorkshopListItemOutput {
@@ -124,6 +125,9 @@ extension AdminWorkshopListItemOutput {
         self.startTime = workshop.startTime.formatted(timeFormat)
         self.endTime = workshop.endTime.formatted(timeFormat)
         self.capacity = "\(bookedCapacity)/\(workshop.capacityMax)"
+        self.capacityPercent = workshop.capacityMax != 0
+            ? Double(bookedCapacity) / Double(workshop.capacityMax)
+            : 0
     }
 }
 
