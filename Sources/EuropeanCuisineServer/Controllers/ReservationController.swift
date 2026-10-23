@@ -11,16 +11,20 @@ import Vapor
 
 struct ReservationController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
-        let reservations = routes
-            .authenticated()
-            .grouped("api", "v0", "reservations")
+        let api = routes.grouped("api", "v0")
 
-        reservations.get(use: list)
-        reservations.post(use: create)
+        #warning("Delete from public create, update and delete")
+        let publicReservations = api.grouped("reservations")
+        publicReservations.get(use: list)
+        publicReservations.post(use: create)
 
-        reservations.group(":id") { reservation in
+        publicReservations.group(":id") { reservation in
             reservation.delete(use: cancel)
         }
+
+        let adminReservations = api.grouped("admin", "reservations")
+            .requiring(.admin, .staff)
+        adminReservations.get(use: adminTableList)
     }
 
     private func list(req: Request) async throws -> [ReservationOutput] {
@@ -56,6 +60,66 @@ struct ReservationController: RouteCollection {
         }
 
         return outputs
+    }
+
+    private func adminTableList(req: Request) async throws -> Page<AdminReservationListItemOutput> {
+        let input = try req.query.decode(AdminReservationListSortSearchInput.self)
+
+        let query = Reservation.query(on: req.db)
+            .join(Workshop.self, on: \Reservation.$workshop.$id == \Workshop.$id)
+            .join(Category.self, on: \Workshop.$category.$id == \Category.$id)
+            .join(WorkshopInfos.self, on: \WorkshopInfos.$workshop.$id == \Workshop.$id)
+            .join(User.self, on: \Reservation.$user.$id == \User.$id)
+            .with(\.$workshop) { workshop in
+                workshop
+                    .with(\.$infos)
+                    .with(\.$category)
+            }
+            .with(\.$user)
+
+        if let searchText = input.query,
+           searchText.trimmed.isEmpty {
+            query
+                .filter(Workshop.self, \.$name ~~ searchText.trimmed)
+        }
+
+        if let sort = input.sort {
+            switch sort {
+            case .name:
+                query.sort(Workshop.self, \.$name, .ascending)
+
+            case .category:
+                query.sort(Category.self, \.$name, .ascending)
+                query.sort(Workshop.self, \.$name, .ascending)
+
+            case .date:
+                query.sort(Workshop.self, \.$startTime, .ascending)
+            }
+        } else {
+            query
+                .sort(Workshop.self, \.$name, .ascending)
+        }
+
+        let page = try await query.paginate(for: req)
+
+        var items: [AdminReservationListItemOutput] = []
+
+        for reservation in page.items {
+            let workshop = reservation.workshop
+            let user = reservation.user
+
+            guard let infos = workshop.infos else {
+                continue
+            }
+
+            try items.append(AdminReservationListItemOutput(reservation: reservation,
+                                                            workshop: workshop,
+                                                            infos: infos,
+                                                            user: user))
+        }
+
+        return Page(items: items,
+                    metadata: page.metadata)
     }
 
     private func create(req: Request) async throws -> Response {

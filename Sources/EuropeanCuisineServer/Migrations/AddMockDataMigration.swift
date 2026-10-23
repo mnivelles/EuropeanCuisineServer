@@ -16,6 +16,8 @@ struct AddMockDataMigration: AsyncMigration {
         try await addWorkshops(on: database)
 
         try await addUsers(on: database)
+
+        try await addReservations(on: database)
     }
 
     func revert(on database: any Database) async throws {
@@ -24,6 +26,8 @@ struct AddMockDataMigration: AsyncMigration {
         try await removeWorkshops(on: database)
 
         try await removeUsers(on: database)
+
+        try await removeReservations(on: database)
     }
 
     private func addBooths(on database: any Database) async throws {
@@ -773,5 +777,123 @@ struct AddMockDataMigration: AsyncMigration {
         try await UserInfos.query(on: database).delete()
 
         try await User.query(on: database).delete()
+    }
+
+    private func addReservations(on database: any Database) async throws {
+        #warning("à retirer en production")
+        let passwordHash = try Bcrypt.hash("Mot2Passe#12")
+
+        let userGoer1 = User(name: "Camille Martin", email: "camille.martin@example.com",
+                             passwordHash: passwordHash, role: .festivalGoer)
+        let userGoer2 = User(name: "John Doe", email: "john.doe@example.com",
+                             passwordHash: passwordHash, role: .festivalGoer)
+
+        try await userGoer1.create(on: database)
+        try await userGoer2.create(on: database)
+
+        let userGoerID1 = try userGoer1.requireID()
+        let userGoerID2 = try userGoer2.requireID()
+
+        let userGoerInfos1 = UserInfos(status: .active,
+                                       pictureURL: "https://picsum.photos/id/189/800",
+                                       userID: userGoerID1)
+        let userGoerInfos2 = UserInfos(status: .active,
+                                       pictureURL: "https://picsum.photos/id/189/800",
+                                       userID: userGoerID2)
+
+        try await userGoerInfos1.create(on: database)
+        try await userGoerInfos2.create(on: database)
+
+        let blogCategory = Category(name: "Blog")
+
+        try await blogCategory.create(on: database)
+
+        let blogCategoryID = try blogCategory.requireID()
+
+        let workshopInput1 = WorkshopInput(name: "The Art of French Pastry",
+                                           startTime: .from(year: 2026, month: 11, day: 14,
+                                                            hour: 14, minute: 0),
+                                           endTime: .from(year: 2026, month: 11, day: 14, hour: 15,
+                                                          minute: 30),
+                                           capacityMax: 15,
+                                           description: "Explore the world of French pastry by learning the secrets behind classic croissants, éclairs and delicate pastries. Discover essential techniques and enjoy tasting your creations at the end of the workshop.",
+                                           pictureURL: "https://picsum.photos/seed/frenchpastry/800",
+                                           location: "Pastry Room, Hall B",
+                                           isVegan: false,
+                                           isPRM: true,
+                                           isFamilyFriendly: true,
+                                           categoryID: blogCategoryID)
+
+        let workshop1 = workshopInput1.toModel()
+        try await workshop1.create(on: database)
+
+        let infos1 = try workshopInput1.toInfos(workshopID: workshop1.requireID())
+        try await infos1.create(on: database)
+
+        let workshopInput2 = WorkshopInput(name: "A Taste of Spanish Tapas",
+                                           startTime: .from(year: 2026, month: 11, day: 15,
+                                                            hour: 11, minute: 0),
+                                           endTime: .from(year: 2026, month: 11, day: 15, hour: 12,
+                                                          minute: 30),
+                                           capacityMax: 20,
+                                           description: "Discover the vibrant flavors of Spain through traditional tapas. Learn how to prepare patatas bravas, pan con tomate and other Spanish favorites while exploring the culinary traditions behind these iconic dishes.",
+                                           pictureURL: "https://picsum.photos/seed/spanishtapas/800",
+                                           location: "Cooking Room, Hall C",
+                                           isVegan: false,
+                                           isPRM: true,
+                                           isFamilyFriendly: true,
+                                           categoryID: blogCategoryID)
+
+        let workshop2 = workshopInput2.toModel()
+        try await workshop2.create(on: database)
+
+        let infos2 = try workshopInput2.toInfos(workshopID: workshop2.requireID())
+        try await infos2.create(on: database)
+
+        let workshopInput3 = WorkshopInput(name: "The Secrets of French Cheese",
+                                           startTime: .from(year: 2026, month: 11, day: 15,
+                                                            hour: 14, minute: 0),
+                                           endTime: .from(year: 2026, month: 11, day: 15, hour: 15,
+                                                          minute: 0),
+                                           capacityMax: 2,
+                                           description: "Enjoy an intimate cheese-tasting experience and discover the secrets of French cheesemaking. Learn about regional specialties, explore different textures and flavors, and discover how to pair cheeses with complementary ingredients.",
+                                           pictureURL: "https://picsum.photos/seed/frenchcheese/800",
+                                           location: "Tasting Room, Hall A",
+                                           isVegan: false,
+                                           isPRM: true,
+                                           isFamilyFriendly: true,
+                                           categoryID: blogCategoryID)
+
+        let workshop3 = workshopInput3.toModel()
+        try await workshop3.create(on: database)
+
+        let infos3 = try workshopInput3.toInfos(workshopID: workshop3.requireID())
+        try await infos3.create(on: database)
+
+        // Workshop with one user
+        let reservation1 = try Reservation(status: .confirmed, workshopID: workshop1.requireID(),
+                                           userID: userGoerID1)
+
+        // Workshop with several user
+        let reservation2A = try Reservation(status: .pending, workshopID: workshop2.requireID(),
+                                            userID: userGoerID1)
+        let reservation2B = try Reservation(status: .confirmed, workshopID: workshop2.requireID(),
+                                            userID: userGoerID2)
+
+        // Workshop full
+        let reservation3A = try Reservation(status: .confirmed, workshopID: workshop3.requireID(),
+                                            userID: userGoerID1)
+        let reservation3B = try Reservation(status: .cancelled, workshopID: workshop3.requireID(),
+                                            userID: userGoerID2)
+
+        try await reservation1.create(on: database)
+        try await reservation2A.create(on: database)
+        try await reservation2B.create(on: database)
+        try await reservation3A.create(on: database)
+        try await reservation3B.create(on: database)
+    }
+
+    private func removeReservations(on database: any Database) async throws {
+        try await Reservation.query(on: database).delete()
     }
 }

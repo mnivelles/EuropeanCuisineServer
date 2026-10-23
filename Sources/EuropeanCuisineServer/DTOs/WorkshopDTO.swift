@@ -115,7 +115,7 @@ struct AdminWorkshopListItemOutput: Content {
 extension AdminWorkshopListItemOutput {
     init(workshop: Workshop, infos: WorkshopInfos, bookedCapacity: UInt16) throws {
         let locale = Locale(identifier: "en")
-        let dateFormat = Date.FormatStyle(date: .abbreviated, time: .omitted, locale: locale)
+        let dateFormat = Date.FormatStyle(date: .numeric, time: .omitted, locale: locale)
         let timeFormat = Date.FormatStyle(date: .omitted, time: .shortened, locale: locale)
         self.pictureURL = infos.pictureURL
         self.name = workshop.name
