@@ -21,7 +21,7 @@ extension User {
             case .staff:
                 "Staff"
             case .festivalGoer:
-                "Festival goer"
+                "Goer"
             }
         }
     }

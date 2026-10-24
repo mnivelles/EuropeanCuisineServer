@@ -54,7 +54,8 @@ struct AdminUserListItemOutput: Content {
     let name: String
     let email: String
     let pictureURL: String?
-    let role: String
+    let role: User.Role
+    let roleName: String
     let status: User.Status
     let creationDate: String
 }
@@ -68,7 +69,8 @@ extension AdminUserListItemOutput {
         self.name = user.name
         self.email = user.email
         self.pictureURL = infos.pictureURL
-        self.role = user.role.name
+        self.role = user.role
+        self.roleName = user.role.name
         self.status = infos.status
         self.creationDate = user.createdAt?.formatted(dateFormat) ?? "[missing]"
     }
