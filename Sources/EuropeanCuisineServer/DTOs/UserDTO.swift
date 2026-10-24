@@ -29,6 +29,7 @@ struct AdminUserListSortSearchInput: Content {
     let query: String?
     let sort: Sort?
     let role: User.Role?
+    let status: Status?
 
     enum Sort: String, Codable {
         case name
@@ -37,8 +38,13 @@ struct AdminUserListSortSearchInput: Content {
         case createdAt = "created_at"
     }
 
+    enum Status: String, Codable {
+        case enabled
+        case disabled
+    }
+
     enum CodingKeys: String, CodingKey {
-        case query, sort, role
+        case query, sort, role, status
     }
 
     init(from decoder: any Decoder) throws {
@@ -46,6 +52,7 @@ struct AdminUserListSortSearchInput: Content {
         self.query = try container.decodeIfNotEmpty(String.self, forKey: .query)
         self.sort = try container.decodeIfNotEmpty(Sort.self, forKey: .sort)
         self.role = try container.decodeIfNotEmpty(User.Role.self, forKey: .role)
+        self.status = try container.decodeIfNotEmpty(Status.self, forKey: .status)
     }
 }
 

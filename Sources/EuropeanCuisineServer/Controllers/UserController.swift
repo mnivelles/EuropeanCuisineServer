@@ -32,11 +32,12 @@ struct UserController: RouteCollection {
             user.on(.PUT,
                     body: .collect(maxSize: Constants.Image.requestMaxSize),
                     use: adminUpdate)
+            user.patch("enable", use: adminEnableUser)
+            user.patch("disable", use: adminDisableUser)
         }
     }
 
     private func adminList(req: Request) async throws -> Page<AdminUserListItemOutput> {
-        let locale = LocalizationUtils.getLocale(req: req)
         let input = try req.query.decode(AdminUserListSortSearchInput.self)
 
         let user = try req.auth.require(User.self)
@@ -44,12 +45,29 @@ struct UserController: RouteCollection {
         let query = try User
             .query(on: req.db)
             .filter(\.$id != user.requireID())
+            .join(UserInfos.self, on: \User.$id == \UserInfos.$user.$id)
             .with(\.$infos)
 
         if let searchText = input.query,
            searchText.trimmed.isNotEmpty {
             query
                 .filter(\.$name ~~ searchText.trimmed)
+        }
+
+        if let status = input.status {
+            switch status {
+            case .enabled:
+                query
+                    .filter(UserInfos.self, \.$status == .active)
+            case .disabled:
+                query
+                    .filter(UserInfos.self, \.$status == .disabled)
+            }
+        }
+
+        if let role = input.role {
+            query
+                .filter(\.$role == role)
         }
 
         if let sort = input.sort {
@@ -71,11 +89,6 @@ struct UserController: RouteCollection {
         } else {
             query
                 .sort(\.$name, .ascending)
-        }
-
-        if let role = input.role {
-            query
-                .filter(\.$role == role)
         }
 
         let users = try await query
@@ -129,13 +142,24 @@ struct UserController: RouteCollection {
     private func adminUpdate(req: Request) async throws -> AdminShowUserOutput {
         let id = try req.parameters.require("id", as: UUID.self)
 
+        let authUser = try req.auth.require(User.self)
+
+        guard authUser.id != id else {
+            throw UserError.sameUser
+        }
+
         try AdminUpdateUserInput.validate(content: req)
 
         let input = try req.content.decode(AdminUpdateUserInput.self)
-        let picture = input.picture
 
         guard let user = try await User.find(id, on: req.db) else {
             throw UserError.notFound
+        }
+
+        try await user.$infos.load(on: req.db)
+
+        guard user.infos?.status == .active else {
+            throw UserError.disabled
         }
 
         guard try await (User.query(on: req.db).filter(\.$email == input.email).first() == nil) ||
@@ -144,8 +168,6 @@ struct UserController: RouteCollection {
         }
 
         return try await req.db.transaction { db in
-            try await user.$infos.load(on: db)
-
             if let picture = input.picture {
                 let storage = ImageStorage()
 
@@ -170,6 +192,56 @@ struct UserController: RouteCollection {
             return try AdminShowUserOutput(user: user,
                                            infos: infos)
         }
+    }
+
+    private func adminEnableUser(req: Request) async throws -> HTTPStatus {
+        let id = try req.parameters.require("id", as: UUID.self)
+
+        let authUser = try req.auth.require(User.self)
+
+        guard authUser.id != id else {
+            throw UserError.sameUser
+        }
+
+        guard let user = try await User.find(id, on: req.db) else {
+            throw UserError.notFound
+        }
+
+        try await user.$infos.load(on: req.db)
+
+        guard user.infos?.status == .disabled else {
+            throw UserError.invalidAction
+        }
+
+        user.infos?.status = .active
+        try await user.infos?.update(on: req.db)
+
+        return .ok
+    }
+
+    private func adminDisableUser(req: Request) async throws -> HTTPStatus {
+        let id = try req.parameters.require("id", as: UUID.self)
+
+        let authUser = try req.auth.require(User.self)
+
+        guard authUser.id != id else {
+            throw UserError.sameUser
+        }
+
+        guard let user = try await User.find(id, on: req.db) else {
+            throw UserError.notFound
+        }
+
+        try await user.$infos.load(on: req.db)
+
+        guard user.infos?.status == .active else {
+            throw UserError.invalidAction
+        }
+
+        user.infos?.status = .disabled
+        try await user.infos?.update(on: req.db)
+
+        return .ok
     }
 
     private func apply(input: AdminUpdateUserInput, to user: User) {

@@ -1,0 +1,22 @@
+info:
+  name: Disable User [admin]
+  type: http
+  seq: 6
+
+http:
+  method: PATCH
+  url: "{{apiBaseURL}}/admin/users/:id/disable"
+  params:
+    - name: id
+      value: 94B700D6-94EF-4730-9739-F73EBE673529
+      type: path
+  auth:
+    type: bearer
+    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHBpcmF0aW9uIjoxNzk1Mjc0OTY1LjYyNDIwMSwic3ViamVjdCI6IkE0ODE0NzU0LTNCMDQtNDk0My04NjRELTQyODQ5QzZDNUY3RCJ9.22-dqFIF38M7w-hRs_3Er53ovKLEe1FU0coEgAPTRac
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

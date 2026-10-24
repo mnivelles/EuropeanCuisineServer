@@ -13,6 +13,8 @@ enum UserError: AbortError {
     case infosNotFound
     case sameUser
     case emailAlreadyExists
+    case invalidAction
+    case disabled
 
     var status: HTTPResponseStatus {
         switch self {
@@ -24,6 +26,10 @@ enum UserError: AbortError {
             .conflict
         case .emailAlreadyExists:
             .conflict
+        case .invalidAction:
+            .badRequest
+        case .disabled:
+            .badRequest
         }
     }
 
@@ -37,6 +43,10 @@ enum UserError: AbortError {
             "Same user"
         case .emailAlreadyExists:
             "Email is not valid"
+        case .invalidAction:
+            "Action is not valid"
+        case .disabled:
+            "User is disabled"
         }
     }
 }
