@@ -75,3 +75,44 @@ extension AdminUserListItemOutput {
         self.creationDate = user.createdAt?.formatted(dateFormat) ?? "[missing]"
     }
 }
+
+struct AdminShowUserOutput: Content {
+    let id: UUID
+    let name: String
+    let email: String
+    let pictureURL: String?
+    let role: User.Role
+}
+
+extension AdminShowUserOutput {
+    init(user: User, infos: UserInfos) throws {
+        self.id = try user.requireID()
+        self.name = user.name
+        self.email = user.email
+        self.pictureURL = infos.pictureURL
+        self.role = user.role
+    }
+}
+
+struct UserRoleOptionOutput: Content {
+    let value: User.Role
+    let label: String
+}
+
+struct AdminUpdateUserInput: Content {
+    let name: String
+    let email: String
+    let role: User.Role
+    let picture: File?
+}
+
+extension AdminUpdateUserInput: Validatable {
+    static func validations(_ validations: inout Validations) {
+        validations.add("name",
+                        as: String.self,
+                        is: Constants.User.Name.validator)
+        validations.add("email",
+                        as: String.self,
+                        is: Constants.User.Email.validator)
+    }
+}

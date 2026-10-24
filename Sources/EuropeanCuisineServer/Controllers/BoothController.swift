@@ -33,7 +33,9 @@ struct BoothController: RouteCollection {
             .grouped("admin", "booths")
             .requiring(.admin, .staff)
         adminBooths.get(use: adminTableList)
-        adminBooths.on(.POST, body: .collect(maxSize: "2mb"), use: adminCreate)
+        adminBooths.on(.POST,
+                       body: .collect(maxSize: Constants.Image.requestMaxSize),
+                       use: adminCreate)
     }
 
     private func list(req: Request) async throws -> [BoothOutput] {

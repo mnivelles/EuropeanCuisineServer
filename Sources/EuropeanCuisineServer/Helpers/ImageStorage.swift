@@ -39,17 +39,19 @@ struct ImageStorage {
 
         _ = try await s3.putObject(putObjectRequest)
 
-        return try url(for: key, region: s3.region.rawValue)
+        return try url(for: key, version: String(UUID().uuidString.prefix(8)))
     }
 
-    private func url(for key: String, region: String) throws -> URL {
-        guard let endpoint = Environment.get("R2_PUBLIC_URL") else {
+    private func url(for key: String, version: String) throws -> URL {
+        guard let endpoint = Environment.get("R2_PUBLIC_URL"),
+              var components = URLComponents(string: "\(endpoint)/\(key)")
+        else {
             throw Abort(.internalServerError)
         }
 
-        let urlString = "\(endpoint)/\(key)"
+        components.queryItems = [URLQueryItem(name: "v", value: version)]
 
-        guard let url = URL(string: urlString) else {
+        guard let url = components.url else {
             throw Abort(.internalServerError)
         }
 

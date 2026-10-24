@@ -24,5 +24,16 @@ extension User {
                 "Goer"
             }
         }
+
+        var fullName: String {
+            switch self {
+            case .admin:
+                "Administrator"
+            case .staff:
+                "Staff member"
+            case .festivalGoer:
+                "Festival goer"
+            }
+        }
     }
 }

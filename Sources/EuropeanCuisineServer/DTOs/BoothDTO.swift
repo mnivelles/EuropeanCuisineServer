@@ -97,17 +97,17 @@ extension BoothOutput {
 // MARK: - Admin
 
 struct AdminCreateBoothInput: Content {
-    var picture: File
-    var name: String
-    var country: String
-    var location: String
-    var startTime: Date
-    var endTime: Date
-    var about: String
-    var allergens: [Allergen]
-    var isVegan: Bool
-    var isPRM: Bool
-    var isFamilyFriendly: Bool
+    let picture: File
+    let name: String
+    let country: String
+    let location: String
+    let startTime: Date
+    let endTime: Date
+    let about: String
+    let allergens: [Allergen]
+    let isVegan: Bool
+    let isPRM: Bool
+    let isFamilyFriendly: Bool
 
     enum CodingKeys: String, CodingKey {
         case picture
