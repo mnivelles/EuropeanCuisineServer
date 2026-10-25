@@ -38,10 +38,6 @@ struct BoothController: RouteCollection {
                        use: adminCreate)
 
         adminBooths.group(":id") { booth in
-            //            booth.get(use: adminShow)
-            //            booth.on(.PUT,
-            //                    body: .collect(maxSize: Constants.Image.requestMaxSize),
-            //                    use: adminUpdate)
             booth.get(use: adminShow)
             booth.on(.PUT,
                      body: .collect(maxSize: Constants.Image.requestMaxSize),
@@ -148,7 +144,7 @@ struct BoothController: RouteCollection {
         let input = try req.content.decode(BoothInput.self)
 
         guard try await Booth.query(on: req.db)
-            .filter(\.$name == input.name).first() == nil else {
+            .filter(\.$name == input.name.trimmed).first() == nil else {
             throw BoothError.alreadyExists
         }
 
@@ -182,7 +178,7 @@ struct BoothController: RouteCollection {
         let picture = input.picture
 
         guard try await Booth.query(on: req.db)
-            .filter(\.$name == input.name).first() == nil else {
+            .filter(\.$name == input.name.trimmed).first() == nil else {
             throw BoothError.alreadyExists
         }
 
@@ -249,8 +245,8 @@ struct BoothController: RouteCollection {
         let booth = try await findBooth(req: req)
 
         guard try await Booth.query(on: req.db)
-            .filter(\.$name == input.name).first() == nil
-            || (input.name == booth.name) else {
+            .filter(\.$name == input.name.trimmed).first() == nil
+            || (input.name.trimmed == booth.name.trimmed) else {
             throw BoothError.alreadyExists
         }
 
@@ -273,7 +269,7 @@ struct BoothController: RouteCollection {
     private func adminShow(req: Request) async throws -> AdminShowBoothOutput {
         let booth = try await findBooth(req: req)
 
-        return try AdminShowBoothOutput(booth: booth)
+        return try AdminShowBoothOutput(booth)
     }
 
     private func adminUpdate(req: Request) async throws -> AdminShowBoothOutput {
@@ -313,7 +309,7 @@ struct BoothController: RouteCollection {
 
             try await booth.update(on: db)
 
-            return try AdminShowBoothOutput(booth: booth)
+            return try AdminShowBoothOutput(booth)
         }
     }
 

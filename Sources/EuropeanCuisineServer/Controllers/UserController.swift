@@ -163,7 +163,7 @@ struct UserController: RouteCollection {
         }
 
         guard try await (User.query(on: req.db).filter(\.$email == input.email).first() == nil) ||
-            user.email == input.email else {
+            user.email == input.email.trimmed else {
             throw UserError.emailAlreadyExists
         }
 
@@ -245,8 +245,8 @@ struct UserController: RouteCollection {
     }
 
     private func apply(input: AdminUpdateUserInput, to user: User) {
-        user.name = input.name
-        user.email = input.email
+        user.name = input.name.trimmed
+        user.email = input.email.trimmed
         user.role = input.role
     }
 }

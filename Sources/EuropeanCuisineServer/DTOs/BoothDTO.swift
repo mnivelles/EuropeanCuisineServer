@@ -256,7 +256,7 @@ struct AdminShowBoothOutput: Content {
 }
 
 extension AdminShowBoothOutput {
-    init(booth: Booth) throws {
+    init(_ booth: Booth) throws {
         self.id = try booth.requireID()
         self.pictureURL = booth.pictureURL
         self.name = booth.name

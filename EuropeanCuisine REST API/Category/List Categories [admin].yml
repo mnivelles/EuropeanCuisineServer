@@ -1,0 +1,31 @@
+info:
+  name: List Categories [admin]
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: "{{baseAdminURL}}?query=&sort=workshop_count&page=3&per=2"
+  params:
+    - name: query
+      value: ""
+      type: query
+    - name: sort
+      value: workshop_count
+      type: query
+    - name: page
+      value: "3"
+      type: query
+    - name: per
+      value: "2"
+      type: query
+  auth:
+    type: bearer
+    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWJqZWN0IjoiQTQ4MTQ3NTQtM0IwNC00OTQzLTg2NEQtNDI4NDlDNkM1RjdEIiwiZXhwaXJhdGlvbiI6MTc5NTM2Mjc2My4wODIxNTl9.e6CwYD7A3Bk1tIIpW2WCB16KzwIpB5hJeFWcbl1QJPQ
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
