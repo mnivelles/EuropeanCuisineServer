@@ -87,6 +87,17 @@ struct BoothController: RouteCollection {
                 .filter(\.$name ~~ searchText.trimmed)
         }
 
+        if let status = input.status {
+            switch status {
+            case .enabled:
+                query
+                    .filter(\.$status == .active)
+            case .disabled:
+                query
+                    .filter(\.$status == .disabled)
+            }
+        }
+
         if let sort = input.sort {
             switch sort {
             case .name:

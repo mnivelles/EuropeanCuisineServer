@@ -224,6 +224,7 @@ extension AdminBoothListItemOutput {
 struct AdminBoothListSortSearchInput: Content {
     let query: String?
     let sort: Sort?
+    let status: Status?
 
     enum Sort: String, Codable {
         case name
@@ -231,6 +232,22 @@ struct AdminBoothListSortSearchInput: Content {
         case country
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+    }
+
+    enum Status: String, Codable {
+        case enabled
+        case disabled
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case query, sort, status
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.query = try container.decodeIfNotEmpty(String.self, forKey: .query)
+        self.sort = try container.decodeIfNotEmpty(Sort.self, forKey: .sort)
+        self.status = try container.decodeIfNotEmpty(Status.self, forKey: .status)
     }
 }
 
