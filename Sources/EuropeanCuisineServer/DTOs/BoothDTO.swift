@@ -199,6 +199,7 @@ struct AdminBoothListItemOutput: Content {
     let countryName: String
     let startTime: String
     let endTime: String
+    let status: Booth.Status
 }
 
 extension AdminBoothListItemOutput {
@@ -216,6 +217,7 @@ extension AdminBoothListItemOutput {
         self.countryName = countryName
         self.startTime = booth.startTime.formatted(timeFormatStyle)
         self.endTime = booth.endTime.formatted(timeFormatStyle)
+        self.status = booth.status
     }
 }
 
