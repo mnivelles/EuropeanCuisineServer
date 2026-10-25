@@ -129,24 +129,13 @@ struct AdminCreateBoothInput: Content {
         self.name = try container.decode(String.self, forKey: .name)
         self.country = try container.decode(String.self, forKey: .country)
         self.location = try container.decode(String.self, forKey: .location)
-        self.startTime = try Self.decodeISODate(from: container, forKey: .startTime)
-        self.endTime = try Self.decodeISODate(from: container, forKey: .endTime)
+        self.startTime = try container.decodeISODate(forKey: .startTime)
+        self.endTime = try container.decodeISODate(forKey: .endTime)
         self.about = try container.decode(String.self, forKey: .about)
         self.allergens = try container.decodeIfPresent([Allergen].self, forKey: .allergens) ?? []
         self.isVegan = try container.decode(Bool.self, forKey: .isVegan)
         self.isPRM = try container.decode(Bool.self, forKey: .isPRM)
         self.isFamilyFriendly = try container.decode(Bool.self, forKey: .isFamilyFriendly)
-    }
-
-    private static func decodeISODate(from container: KeyedDecodingContainer<CodingKeys>,
-                                      forKey key: CodingKeys) throws -> Date {
-        let string = try container.decode(String.self, forKey: key)
-        guard let date = ISO8601DateFormatter().date(from: string) else {
-            throw DecodingError.dataCorruptedError(forKey: key,
-                                                   in: container,
-                                                   debugDescription: "\(key.stringValue) must be an ISO 8601 date (e.g. 1970-01-01T08:00:00Z)")
-        }
-        return date
     }
 }
 
@@ -248,6 +237,102 @@ struct AdminBoothListSortSearchInput: Content {
         self.query = try container.decodeIfNotEmpty(String.self, forKey: .query)
         self.sort = try container.decodeIfNotEmpty(Sort.self, forKey: .sort)
         self.status = try container.decodeIfNotEmpty(Status.self, forKey: .status)
+    }
+}
+
+struct AdminShowBoothOutput: Content {
+    let id: UUID
+    let pictureURL: String?
+    let name: String
+    let country: String
+    let location: String
+    let startTime: Date
+    let endTime: Date
+    let about: String
+    let allergens: Set<Allergen>
+    let isVegan: Bool
+    let isPRM: Bool
+    let isFamilyFriendly: Bool
+}
+
+extension AdminShowBoothOutput {
+    init(booth: Booth) throws {
+        self.id = try booth.requireID()
+        self.pictureURL = booth.pictureURL
+        self.name = booth.name
+        self.country = booth.country.code
+        self.location = booth.location
+        self.startTime = booth.startTime
+        self.endTime = booth.endTime
+        self.about = booth.about
+        self.allergens = booth.allergens
+        self.isVegan = booth.isVegan
+        self.isPRM = booth.isPRM
+        self.isFamilyFriendly = booth.isFamilyFriendly
+    }
+}
+
+struct AdminUpdateBoothInput: Content {
+    let picture: File?
+    let name: String
+    let country: String
+    let location: String
+    let startTime: Date
+    let endTime: Date
+    let about: String
+    let allergens: [Allergen]
+    let isVegan: Bool
+    let isPRM: Bool
+    let isFamilyFriendly: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case picture
+        case name
+        case country
+        case location
+        case startTime
+        case endTime
+        case about
+        case allergens
+        case isVegan
+        case isPRM
+        case isFamilyFriendly
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.picture = try container.decodeIfPresent(File.self, forKey: .picture)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.country = try container.decode(String.self, forKey: .country)
+        self.location = try container.decode(String.self, forKey: .location)
+        self.startTime = try container.decodeISODate(forKey: .startTime)
+        self.endTime = try container.decodeISODate(forKey: .endTime)
+        self.about = try container.decode(String.self, forKey: .about)
+        self.allergens = try container.decodeIfPresent([Allergen].self, forKey: .allergens) ?? []
+        self.isVegan = try container.decode(Bool.self, forKey: .isVegan)
+        self.isPRM = try container.decode(Bool.self, forKey: .isPRM)
+        self.isFamilyFriendly = try container.decode(Bool.self, forKey: .isFamilyFriendly)
+    }
+}
+
+extension AdminUpdateBoothInput: Validatable {
+    static func validations(_ validations: inout Validations) {
+        validations.add("name",
+                        as: String.self,
+                        is: Constants.Booth.Name.validator)
+        validations.add("country",
+                        as: String.self,
+                        is: Constants.BoothCountry.Code.validator)
+        validations.add("location",
+                        as: String.self,
+                        is: Constants.Booth.Location.validator)
+        validations.add("about",
+                        as: String.self,
+                        is: Constants.Booth.About.validator)
+        validations.add("allergens",
+                        as: [String].self,
+                        is: .allergens,
+                        required: false)
     }
 }
 

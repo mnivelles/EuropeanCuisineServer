@@ -42,6 +42,10 @@ struct BoothController: RouteCollection {
             //            booth.on(.PUT,
             //                    body: .collect(maxSize: Constants.Image.requestMaxSize),
             //                    use: adminUpdate)
+            booth.get(use: adminShow)
+            booth.on(.PUT,
+                     body: .collect(maxSize: Constants.Image.requestMaxSize),
+                     use: adminUpdate)
             booth.patch("enable", use: adminEnableBooth)
             booth.patch("disable", use: adminDisableBooth)
         }
@@ -266,6 +270,53 @@ struct BoothController: RouteCollection {
         return try BoothOutput(booth, countryName: countryName)
     }
 
+    private func adminShow(req: Request) async throws -> AdminShowBoothOutput {
+        let booth = try await findBooth(req: req)
+
+        return try AdminShowBoothOutput(booth: booth)
+    }
+
+    private func adminUpdate(req: Request) async throws -> AdminShowBoothOutput {
+        try AdminUpdateBoothInput.validate(content: req)
+
+        let input = try req.content.decode(AdminUpdateBoothInput.self)
+
+        let booth = try await findBooth(req: req)
+
+        guard booth.status == .active else {
+            throw BoothError.disabled
+        }
+
+        guard let country = try await BoothCountry
+            .query(on: req.db)
+            .filter(\.$code == input.country)
+            .first() else {
+            throw BoothCountryError.notFound
+        }
+
+        return try await req.db.transaction { db in
+            apply(input: input, to: booth)
+
+            booth.$country.id = try country.requireID()
+            booth.$country.value = country
+
+            if let picture = input.picture {
+                let storage = ImageStorage()
+
+                let url = try await storage.upload(req: req,
+                                                   file: picture,
+                                                   folder: imageFolder,
+                                                   id: booth.requireID())
+
+                booth.pictureURL = url.absoluteString
+            }
+
+            try await booth.update(on: db)
+
+            return try AdminShowBoothOutput(booth: booth)
+        }
+    }
+
     private func delete(req: Request) async throws -> HTTPStatus {
         let booth = try await findBooth(req: req)
 
@@ -331,5 +382,17 @@ struct BoothController: RouteCollection {
         booth.startTime = input.startTime
         booth.endTime = input.endTime
         booth.$country.id = input.countryID
+    }
+
+    private func apply(input: AdminUpdateBoothInput, to booth: Booth) {
+        booth.name = input.name
+        booth.location = input.location
+        booth.startTime = input.startTime
+        booth.endTime = input.endTime
+        booth.about = input.about
+        booth.allergens = Set(input.allergens)
+        booth.isVegan = input.isVegan
+        booth.isPRM = input.isPRM
+        booth.isFamilyFriendly = input.isFamilyFriendly
     }
 }

@@ -5,7 +5,7 @@ info:
 
 http:
   method: PATCH
-  url: "{{apiBaseURL}}/admin/users/:id/disable"
+  url: "{{apiBaseURL}}/admin/users/:id/enable"
   params:
     - name: id
       value: 94B700D6-94EF-4730-9739-F73EBE673529
