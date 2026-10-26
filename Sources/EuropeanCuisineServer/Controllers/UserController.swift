@@ -26,6 +26,7 @@ struct UserController: RouteCollection {
             .grouped("admin", "users")
             .requiring(.admin)
         adminUsers.get(use: adminList)
+        adminUsers.post(use: adminCreate)
 
         adminUsers.group(":id") { user in
             user.get(use: adminShow)
@@ -115,6 +116,39 @@ struct UserController: RouteCollection {
 
         return try UserOutput(user: user,
                               infos: infos)
+    }
+
+    private func adminCreate(req: Request) async throws -> Response {
+        try AdminCreateUserInput.validate(content: req)
+
+        let input = try req.content.decode(AdminCreateUserInput.self)
+
+        guard try await User
+            .query(on: req.db)
+            .filter(\.$email == input.email)
+            .first() == nil else {
+            throw UserError.emailAlreadyExists
+        }
+
+        let passwordHash = try Bcrypt.hash(input.password)
+
+        let user = User(name: input.name,
+                        email: input.email,
+                        passwordHash: passwordHash,
+                        role: input.role)
+
+        return try await req.db.transaction { db in
+            try await user.create(on: db)
+
+            let infos = try UserInfos(status: .active,
+                                      pictureURL: nil,
+                                      userID: user.requireID())
+
+            try await infos.create(on: db)
+
+            return try await AdminShowUserOutput(user: user, infos: infos)
+                .encodeResponse(status: .created, for: req)
+        }
     }
 
     private func adminShow(req: Request) async throws -> AdminShowUserOutput {

@@ -25,6 +25,27 @@ extension UserOutput {
     }
 }
 
+struct AdminCreateUserInput: Content {
+    let name: String
+    let email: String
+    let password: String
+    let role: User.Role
+}
+
+extension AdminCreateUserInput: Validatable {
+    static func validations(_ validations: inout Validations) {
+        validations.add("name",
+                        as: String.self,
+                        is: Constants.User.Name.validator)
+        validations.add("email",
+                        as: String.self,
+                        is: Constants.User.Email.validator)
+        validations.add("password",
+                        as: String.self,
+                        is: Constants.User.Password.validator)
+    }
+}
+
 struct AdminUserListSortSearchInput: Content {
     let query: String?
     let sort: Sort?
