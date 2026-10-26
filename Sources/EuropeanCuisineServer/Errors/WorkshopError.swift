@@ -13,6 +13,7 @@ enum WorkshopError: AbortError {
     case alreadyExists
     case invalidTimeOrder
     case infosNotFound
+    case invalidAction
 
     var status: HTTPResponseStatus {
         switch self {
@@ -24,6 +25,8 @@ enum WorkshopError: AbortError {
             .unprocessableEntity
         case .infosNotFound:
             .notFound
+        case .invalidAction:
+            .badRequest
         }
     }
 
@@ -37,6 +40,8 @@ enum WorkshopError: AbortError {
             "EndTime must be after StartTime"
         case .infosNotFound:
             "Workshop infos not found"
+        case .invalidAction:
+            "Action is not valid"
         }
     }
 }

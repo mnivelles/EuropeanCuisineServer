@@ -37,4 +37,31 @@ extension Date {
                     second: 0,
                     calendar: utcCalendar)
     }
+
+    static func combine(date: Date, time: Date) -> Date? {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+
+        let dateParts = calendar.dateComponents([.year, .month, .day], from: date)
+
+        let timeParts = calendar.dateComponents([.hour, .minute], from: time)
+
+        var components = DateComponents()
+        components.timeZone = calendar.timeZone
+        components.year = dateParts.year
+        components.month = dateParts.month
+        components.day = dateParts.day
+        components.hour = timeParts.hour
+        components.minute = timeParts.minute
+        components.second = 0
+
+        return calendar.date(from: components)
+    }
+
+    static func parseUTCDate(_ string: String) -> Date? {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withFullDate]
+        formatter.timeZone = TimeZone(identifier: "UTC")!
+        return formatter.date(from: string)
+    }
 }

@@ -117,8 +117,10 @@ struct AdminWorkshopListItemOutput: Content {
 extension AdminWorkshopListItemOutput {
     init(workshop: Workshop, infos: WorkshopInfos, bookedCapacity: UInt16) throws {
         let locale = Locale(identifier: "en")
-        let dateFormat = Date.FormatStyle(date: .numeric, time: .omitted, locale: locale)
-        let timeFormat = Date.FormatStyle(date: .omitted, time: .shortened, locale: locale)
+        let dateFormat = Date.FormatStyle(date: .numeric, time: .omitted, locale: locale,
+                                          timeZone: .gmt)
+        let timeFormat = Date.FormatStyle(date: .omitted, time: .shortened, locale: locale,
+                                          timeZone: .gmt)
         self.id = try workshop.requireID()
         self.status = infos.status
         self.pictureURL = infos.pictureURL
@@ -152,7 +154,7 @@ struct AdminCreateWorkshopInput: Content {
     var name: String
     var category: String
     var about: String
-    var date: String
+    var date: Date
     var startTime: Date
     var endTime: Date
     var capacityMax: UInt16
@@ -182,25 +184,16 @@ struct AdminCreateWorkshopInput: Content {
         self.name = try container.decode(String.self, forKey: .name)
         self.category = try container.decode(String.self, forKey: .category)
         self.about = try container.decode(String.self, forKey: .about)
-        self.date = try container.decode(String.self, forKey: .date)
-        self.startTime = try Self.decodeISODate(from: container, forKey: .startTime)
-        self.endTime = try Self.decodeISODate(from: container, forKey: .endTime)
+        let dateString = try container.decode(String.self, forKey: .date)
+        self.date = Date.parseUTCDate(dateString) ?? .distantPast
+
+        self.startTime = try container.decodeISODate(forKey: .startTime)
+        self.endTime = try container.decodeISODate(forKey: .endTime)
         self.capacityMax = try container.decode(UInt16.self, forKey: .capacityMax)
         self.location = try container.decode(String.self, forKey: .location)
         self.isVegan = try container.decode(Bool.self, forKey: .isVegan)
         self.isPRM = try container.decode(Bool.self, forKey: .isPRM)
         self.isFamilyFriendly = try container.decode(Bool.self, forKey: .isFamilyFriendly)
-    }
-
-    private static func decodeISODate(from container: KeyedDecodingContainer<CodingKeys>,
-                                      forKey key: CodingKeys) throws -> Date {
-        let string = try container.decode(String.self, forKey: key)
-        guard let date = ISO8601DateFormatter().date(from: string) else {
-            throw DecodingError.dataCorruptedError(forKey: key,
-                                                   in: container,
-                                                   debugDescription: "\(key.stringValue) must be an ISO 8601 date (e.g. 1970-01-01T08:00:00Z)")
-        }
-        return date
     }
 }
 
@@ -224,36 +217,16 @@ extension AdminCreateWorkshopInput: Validatable {
     }
 }
 
-// extension AdminCreateWorkshopInput {
-//    func toModel(status: Workshop.Status,
-//                 pictureURL picture: String, bookedCapacity: UInt16,
-//                 categoryID: UUID, id: UUID) -> WorkshopOutput {
-//        WorkshopOutput(id: id,
-//                       name: name.trimmed,
-//                       startTime: startTime,
-//                       endTime: endTime,
-//                       bookedCapacity: bookedCapacity,
-//                       capacityMax: capacityMax,
-//                       description: about.trimmed,
-//                       pictureURL: picture,
-//                       location: location.trimmed,
-//                       isVegan: isVegan,
-//                       isPRM: isPRM,
-//                       isFamilyFriendly: isFamilyFriendly,
-//                       categoryID: categoryID,
-//                       categoryName: category.trimmed
-//        )
-//    }
-// }
-
 extension AdminCreateWorkshopInput {
     func toModel(categoryID: UUID) -> Workshop {
-        Workshop(name: name.trimmed,
-                 startTime: startTime,
-                 endTime: endTime,
-                 capacityMax: capacityMax,
-                 description: about.trimmed,
-                 categoryID: categoryID)
+        let newStartTime = Date.combine(date: date, time: startTime) ?? .distantPast
+        let newEndTime = Date.combine(date: date, time: endTime) ?? .distantPast
+        return Workshop(name: name.trimmed,
+                        startTime: newStartTime,
+                        endTime: newEndTime,
+                        capacityMax: capacityMax,
+                        description: about.trimmed,
+                        categoryID: categoryID)
     }
 
     func toInfos(workshopID: UUID, pictureURL: String) -> WorkshopInfos {

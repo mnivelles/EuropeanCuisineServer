@@ -19,7 +19,6 @@ struct WorkshopController: RouteCollection {
         #warning("Delete from public create, update and delete")
         let publicWorkshops = api.grouped("workshops")
         publicWorkshops.get(use: list)
-        publicWorkshops.post(use: create)
 
         publicWorkshops.group(":id") { workshop in
             workshop.get(use: show)
@@ -31,10 +30,13 @@ struct WorkshopController: RouteCollection {
         let adminWorkshops = api.grouped("admin", "workshops")
             .requiring(.admin, .staff)
         adminWorkshops.get(use: adminTableList)
+        adminWorkshops.on(.POST,
+                          body: .collect(maxSize: Constants.Image.requestMaxSize),
+                          use: adminCreate)
 
         adminWorkshops.group(":id") { workshop in
-            workshop.delete(use: adminCancel)
-            workshop.post("reactivate", use: adminReactivate)
+            workshop.patch("cancel", use: adminCancel)
+            workshop.patch("publish", use: adminPublish)
         }
     }
 
@@ -151,8 +153,6 @@ struct WorkshopController: RouteCollection {
     }
 
     private func adminCreate(req: Request) async throws -> Response {
-        let locale = LocalizationUtils.getLocale(req: req)
-
         try AdminCreateWorkshopInput.validate(content: req)
 
         let input = try req.content.decode(AdminCreateWorkshopInput.self)
@@ -184,7 +184,7 @@ struct WorkshopController: RouteCollection {
                                                id: workshop.requireID())
 
             let infos = try input.toInfos(workshopID: workshop.requireID(),
-                                          pictureURL: "https://picsum.photos/seed/void/800")
+                                          pictureURL: url.absoluteString)
 
             try await infos.create(on: db)
 
@@ -197,11 +197,15 @@ struct WorkshopController: RouteCollection {
         }
     }
 
-    private func adminReactivate(req: Request) async throws -> HTTPStatus {
+    private func adminPublish(req: Request) async throws -> HTTPStatus {
         let workshop = try await findWorkshop(req: req)
 
         guard let infos = workshop.infos else {
             throw WorkshopError.infosNotFound
+        }
+
+        guard infos.status == .cancelled else {
+            throw WorkshopError.invalidAction
         }
 
         infos.status = .published
@@ -265,6 +269,10 @@ struct WorkshopController: RouteCollection {
 
         guard let infos = workshop.infos else {
             throw WorkshopError.infosNotFound
+        }
+
+        guard infos.status == .published else {
+            throw WorkshopError.invalidAction
         }
 
         infos.status = .cancelled

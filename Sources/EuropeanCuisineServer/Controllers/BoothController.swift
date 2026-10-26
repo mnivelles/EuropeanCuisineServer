@@ -331,7 +331,7 @@ struct BoothController: RouteCollection {
         booth.status = .disabled
         try await booth.update(on: req.db)
 
-        return .ok
+        return .noContent
     }
 
     private func adminEnableBooth(req: Request) async throws -> HTTPStatus {
@@ -344,7 +344,7 @@ struct BoothController: RouteCollection {
         booth.status = .active
         try await booth.update(on: req.db)
 
-        return .ok
+        return .noContent
     }
 
     private func findBooth(req: Request) async throws -> Booth {
