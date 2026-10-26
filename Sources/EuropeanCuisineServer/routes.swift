@@ -16,4 +16,5 @@ func routes(_ app: Application) throws {
     try app.register(collection: ReservationController())
     try app.register(collection: TimeController())
     try app.register(collection: AllergenController())
+    try app.register(collection: UserRoleController())
 }

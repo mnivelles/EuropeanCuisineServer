@@ -21,6 +21,17 @@ extension User {
             case .staff:
                 "Staff"
             case .festivalGoer:
+                "Goer"
+            }
+        }
+
+        var fullName: String {
+            switch self {
+            case .admin:
+                "Administrator"
+            case .staff:
+                "Staff member"
+            case .festivalGoer:
                 "Festival goer"
             }
         }

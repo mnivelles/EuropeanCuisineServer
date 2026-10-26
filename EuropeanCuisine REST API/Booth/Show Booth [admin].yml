@@ -1,0 +1,22 @@
+info:
+  name: Show Booth [admin]
+  type: http
+  seq: 5
+
+http:
+  method: GET
+  url: "{{baseAdminURL}}/:id"
+  params:
+    - name: id
+      value: 1A7252FE-65E9-4A68-81BB-1E087A8A111F
+      type: path
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmF0aW9uIjoxNzk1MzU2MTc1LjM2NjA5Niwic3ViamVjdCI6IkE0ODE0NzU0LTNCMDQtNDk0My04NjRELTQyODQ5QzZDNUY3RCJ9.Y1S7EuiWxDydrHrNWm11udZwsnuhyefNCspR5klH4jo
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -8,3 +8,5 @@ request:
   variables:
     - name: baseURL
       value: "{{apiBaseURL}}/categories"
+    - name: baseAdminURL
+      value: "{{apiBaseURL}}/admin/categories"

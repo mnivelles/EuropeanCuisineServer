@@ -11,6 +11,7 @@ import Vapor
 enum CategoryError: AbortError {
     case alreadyExists
     case notFound
+    case containsWorkshops
 
     var status: HTTPResponseStatus {
         switch self {
@@ -18,6 +19,8 @@ enum CategoryError: AbortError {
             .conflict
         case .notFound:
             .notFound
+        case .containsWorkshops:
+            .conflict
         }
     }
 
@@ -27,6 +30,8 @@ enum CategoryError: AbortError {
             "A category with this name already exists"
         case .notFound:
             "Category not found"
+        case .containsWorkshops:
+            "Category cannot be deleted because it still contains workshops"
         }
     }
 }

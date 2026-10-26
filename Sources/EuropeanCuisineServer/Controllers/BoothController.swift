@@ -20,12 +20,12 @@ struct BoothController: RouteCollection {
         // Public
         let publicBooths = api.grouped("booths")
         publicBooths.get(use: list)
-        publicBooths.post(use: create)
+        publicBooths.post(use: create) // FIXME: TO DELETE
 
         publicBooths.group(":id") { booth in
             booth.get(use: show)
-            booth.put(use: update)
-            booth.delete(use: delete)
+            booth.put(use: update) // FIXME: TO DELETE
+            booth.delete(use: delete) // FIXME: TO DELETE
         }
 
         // Admin site - Role = admin || staff
@@ -33,13 +33,25 @@ struct BoothController: RouteCollection {
             .grouped("admin", "booths")
             .requiring(.admin, .staff)
         adminBooths.get(use: adminTableList)
-        adminBooths.on(.POST, body: .collect(maxSize: "2mb"), use: adminCreate)
+        adminBooths.on(.POST,
+                       body: .collect(maxSize: Constants.Image.requestMaxSize),
+                       use: adminCreate)
+
+        adminBooths.group(":id") { booth in
+            booth.get(use: adminShow)
+            booth.on(.PUT,
+                     body: .collect(maxSize: Constants.Image.requestMaxSize),
+                     use: adminUpdate)
+            booth.patch("enable", use: adminEnableBooth)
+            booth.patch("disable", use: adminDisableBooth)
+        }
     }
 
     private func list(req: Request) async throws -> [BoothOutput] {
         let locale = LocalizationUtils.getLocale(req: req)
 
         let booths = try await Booth.query(on: req.db)
+            .filter(\.$status == .active)
             .with(\.$country) { country in
                 country
                     .with(\.$translations)
@@ -73,6 +85,17 @@ struct BoothController: RouteCollection {
            searchText.trimmed.isNotEmpty {
             query
                 .filter(\.$name ~~ searchText.trimmed)
+        }
+
+        if let status = input.status {
+            switch status {
+            case .enabled:
+                query
+                    .filter(\.$status == .active)
+            case .disabled:
+                query
+                    .filter(\.$status == .disabled)
+            }
         }
 
         if let sort = input.sort {
@@ -121,7 +144,7 @@ struct BoothController: RouteCollection {
         let input = try req.content.decode(BoothInput.self)
 
         guard try await Booth.query(on: req.db)
-            .filter(\.$name == input.name).first() == nil else {
+            .filter(\.$name == input.name.trimmed).first() == nil else {
             throw BoothError.alreadyExists
         }
 
@@ -155,7 +178,7 @@ struct BoothController: RouteCollection {
         let picture = input.picture
 
         guard try await Booth.query(on: req.db)
-            .filter(\.$name == input.name).first() == nil else {
+            .filter(\.$name == input.name.trimmed).first() == nil else {
             throw BoothError.alreadyExists
         }
 
@@ -202,6 +225,10 @@ struct BoothController: RouteCollection {
 
         let booth = try await findBooth(req: req)
 
+        guard booth.status == .active else {
+            throw BoothError.disabled
+        }
+
         let countryName = LocalizationUtils.getCountryName(from: booth.country.translations,
                                                            locale: locale)
 
@@ -218,8 +245,8 @@ struct BoothController: RouteCollection {
         let booth = try await findBooth(req: req)
 
         guard try await Booth.query(on: req.db)
-            .filter(\.$name == input.name).first() == nil
-            || (input.name == booth.name) else {
+            .filter(\.$name == input.name.trimmed).first() == nil
+            || (input.name.trimmed == booth.name.trimmed) else {
             throw BoothError.alreadyExists
         }
 
@@ -239,12 +266,85 @@ struct BoothController: RouteCollection {
         return try BoothOutput(booth, countryName: countryName)
     }
 
+    private func adminShow(req: Request) async throws -> AdminShowBoothOutput {
+        let booth = try await findBooth(req: req)
+
+        return try AdminShowBoothOutput(booth)
+    }
+
+    private func adminUpdate(req: Request) async throws -> AdminShowBoothOutput {
+        try AdminUpdateBoothInput.validate(content: req)
+
+        let input = try req.content.decode(AdminUpdateBoothInput.self)
+
+        let booth = try await findBooth(req: req)
+
+        guard booth.status == .active else {
+            throw BoothError.disabled
+        }
+
+        guard let country = try await BoothCountry
+            .query(on: req.db)
+            .filter(\.$code == input.country)
+            .first() else {
+            throw BoothCountryError.notFound
+        }
+
+        return try await req.db.transaction { db in
+            apply(input: input, to: booth)
+
+            booth.$country.id = try country.requireID()
+            booth.$country.value = country
+
+            if let picture = input.picture {
+                let storage = ImageStorage()
+
+                let url = try await storage.upload(req: req,
+                                                   file: picture,
+                                                   folder: imageFolder,
+                                                   id: booth.requireID())
+
+                booth.pictureURL = url.absoluteString
+            }
+
+            try await booth.update(on: db)
+
+            return try AdminShowBoothOutput(booth)
+        }
+    }
+
     private func delete(req: Request) async throws -> HTTPStatus {
         let booth = try await findBooth(req: req)
 
         try await booth.delete(on: req.db)
 
         return .noContent
+    }
+
+    private func adminDisableBooth(req: Request) async throws -> HTTPStatus {
+        let booth = try await findBooth(req: req)
+
+        guard booth.status == .active else {
+            throw BoothError.invalidAction
+        }
+
+        booth.status = .disabled
+        try await booth.update(on: req.db)
+
+        return .ok
+    }
+
+    private func adminEnableBooth(req: Request) async throws -> HTTPStatus {
+        let booth = try await findBooth(req: req)
+
+        guard booth.status == .disabled else {
+            throw BoothError.invalidAction
+        }
+
+        booth.status = .active
+        try await booth.update(on: req.db)
+
+        return .ok
     }
 
     private func findBooth(req: Request) async throws -> Booth {
@@ -278,5 +378,17 @@ struct BoothController: RouteCollection {
         booth.startTime = input.startTime
         booth.endTime = input.endTime
         booth.$country.id = input.countryID
+    }
+
+    private func apply(input: AdminUpdateBoothInput, to booth: Booth) {
+        booth.name = input.name
+        booth.location = input.location
+        booth.startTime = input.startTime
+        booth.endTime = input.endTime
+        booth.about = input.about
+        booth.allergens = Set(input.allergens)
+        booth.isVegan = input.isVegan
+        booth.isPRM = input.isPRM
+        booth.isFamilyFriendly = input.isFamilyFriendly
     }
 }

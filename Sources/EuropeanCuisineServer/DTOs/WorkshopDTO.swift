@@ -266,3 +266,9 @@ extension AdminCreateWorkshopInput {
                       workshopID: workshopID)
     }
 }
+
+struct AdminWorkshopCategoryListOutput: Content {
+    let id: UUID
+    let name: String
+    let numberOfWorkshops: UInt
+}

@@ -11,6 +11,10 @@ import Vapor
 enum UserError: AbortError {
     case notFound
     case infosNotFound
+    case sameUser
+    case emailAlreadyExists
+    case invalidAction
+    case disabled
 
     var status: HTTPResponseStatus {
         switch self {
@@ -18,6 +22,14 @@ enum UserError: AbortError {
             .notFound
         case .infosNotFound:
             .notFound
+        case .sameUser:
+            .conflict
+        case .emailAlreadyExists:
+            .conflict
+        case .invalidAction:
+            .badRequest
+        case .disabled:
+            .badRequest
         }
     }
 
@@ -27,6 +39,14 @@ enum UserError: AbortError {
             "User not found"
         case .infosNotFound:
             "User infos not found"
+        case .sameUser:
+            "Same user"
+        case .emailAlreadyExists:
+            "Email is not valid"
+        case .invalidAction:
+            "Action is not valid"
+        case .disabled:
+            "User is disabled"
         }
     }
 }

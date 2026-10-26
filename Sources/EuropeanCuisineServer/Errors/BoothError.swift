@@ -11,6 +11,8 @@ import Vapor
 enum BoothError: AbortError {
     case alreadyExists
     case notFound
+    case invalidAction
+    case disabled
 
     var status: HTTPResponseStatus {
         switch self {
@@ -18,6 +20,10 @@ enum BoothError: AbortError {
             .conflict
         case .notFound:
             .notFound
+        case .invalidAction:
+            .badRequest
+        case .disabled:
+            .badRequest
         }
     }
 
@@ -27,6 +33,10 @@ enum BoothError: AbortError {
             "A booth with this name already exists"
         case .notFound:
             "Booth not found"
+        case .invalidAction:
+            "Action is not valid"
+        case .disabled:
+            "Booth is disabled"
         }
     }
 }

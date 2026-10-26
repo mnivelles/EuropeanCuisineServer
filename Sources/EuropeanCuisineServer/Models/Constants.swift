@@ -18,6 +18,7 @@ enum Constants {
     }
 
     enum Image {
+        static let requestMaxSize: ByteCount = .init(stringLiteral: "2mb")
         static let maxSize: Int = 1_500_000
         static let allowedExtensions = ["png", "jpeg", "jpg", "avif", "webp"]
     }

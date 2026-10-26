@@ -54,6 +54,7 @@ func configure(_ app: Application) async throws {
             .GET,
             .POST,
             .PUT,
+            .PATCH,
             .DELETE,
             .OPTIONS,
         ],
