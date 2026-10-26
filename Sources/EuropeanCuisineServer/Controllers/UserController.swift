@@ -168,7 +168,8 @@ struct UserController: RouteCollection {
         }
 
         return try await req.db.transaction { db in
-            if let picture = input.picture {
+            if let picture = input.picture,
+               !input.hasNoPicture {
                 let storage = ImageStorage()
 
                 let url = try await storage.upload(req: req,
@@ -177,13 +178,12 @@ struct UserController: RouteCollection {
                                                    id: user.requireID())
 
                 user.infos?.pictureURL = url.absoluteString
-
-                try await user.infos?.update(on: db)
             }
 
             apply(input: input, to: user)
 
             try await user.update(on: db)
+            try await user.infos?.update(on: db)
 
             guard let infos = user.infos else {
                 throw UserError.infosNotFound
@@ -248,5 +248,9 @@ struct UserController: RouteCollection {
         user.name = input.name.trimmed
         user.email = input.email.trimmed
         user.role = input.role
+
+        if input.hasNoPicture {
+            user.infos?.pictureURL = nil
+        }
     }
 }

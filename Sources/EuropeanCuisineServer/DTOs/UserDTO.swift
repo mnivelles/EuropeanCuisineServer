@@ -111,6 +111,7 @@ struct AdminUpdateUserInput: Content {
     let email: String
     let role: User.Role
     let picture: File?
+    let hasNoPicture: Bool
 }
 
 extension AdminUpdateUserInput: Validatable {
