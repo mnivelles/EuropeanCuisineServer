@@ -10,6 +10,8 @@ import Fluent
 import Vapor
 
 struct WorkshopController: RouteCollection {
+    private let imageFolder = "workshops"
+
     func boot(routes: any RoutesBuilder) throws {
         let api = routes.grouped("api", "v0")
 
@@ -29,6 +31,11 @@ struct WorkshopController: RouteCollection {
         let adminWorkshops = api.grouped("admin", "workshops")
             .requiring(.admin, .staff)
         adminWorkshops.get(use: adminTableList)
+
+        adminWorkshops.group(":id") { workshop in
+            workshop.delete(use: adminCancel)
+            workshop.post("reactivate", use: adminReactivate)
+        }
     }
 
     private func list(req: Request) async throws -> [WorkshopOutput] {
@@ -143,6 +150,66 @@ struct WorkshopController: RouteCollection {
         }
     }
 
+    private func adminCreate(req: Request) async throws -> Response {
+        let locale = LocalizationUtils.getLocale(req: req)
+
+        try AdminCreateWorkshopInput.validate(content: req)
+
+        let input = try req.content.decode(AdminCreateWorkshopInput.self)
+        let picture = input.picture
+
+        guard try await Workshop.query(on: req.db)
+            .filter(\.$name == input.name)
+            .first() == nil else {
+            throw WorkshopError.alreadyExists
+        }
+
+        guard let category = try await Category.query(on: req.db)
+            .filter(\.$name == input.category.trimmed)
+            .first()
+        else {
+            throw CategoryError.notFound
+        }
+
+        return try await req.db.transaction { db in
+            let workshop = try input.toModel(categoryID: category.requireID())
+
+            try await workshop.create(on: db)
+
+            let storage = ImageStorage()
+
+            let url = try await storage.upload(req: req,
+                                               file: picture,
+                                               folder: imageFolder,
+                                               id: workshop.requireID())
+
+            let infos = try input.toInfos(workshopID: workshop.requireID(),
+                                          pictureURL: "https://picsum.photos/seed/void/800")
+
+            try await infos.create(on: db)
+
+            try await workshop.$category.load(on: db)
+
+            return try await AdminWorkshopListItemOutput(workshop: workshop,
+                                                         infos: infos,
+                                                         bookedCapacity: 0)
+                .encodeResponse(status: .created, for: req)
+        }
+    }
+
+    private func adminReactivate(req: Request) async throws -> HTTPStatus {
+        let workshop = try await findWorkshop(req: req)
+
+        guard let infos = workshop.infos else {
+            throw WorkshopError.infosNotFound
+        }
+
+        infos.status = .published
+        try await infos.update(on: req.db)
+
+        return .noContent
+    }
+
     private func show(req: Request) async throws -> WorkshopOutput {
         let workshop = try await findWorkshop(req: req)
 
@@ -189,6 +256,19 @@ struct WorkshopController: RouteCollection {
         let workshop = try await findWorkshop(req: req)
 
         try await workshop.delete(on: req.db)
+
+        return .noContent
+    }
+
+    private func adminCancel(req: Request) async throws -> HTTPStatus {
+        let workshop = try await findWorkshop(req: req)
+
+        guard let infos = workshop.infos else {
+            throw WorkshopError.infosNotFound
+        }
+
+        infos.status = .cancelled
+        try await infos.update(on: req.db)
 
         return .noContent
     }

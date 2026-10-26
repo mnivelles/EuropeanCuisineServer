@@ -11,22 +11,39 @@ import Vapor
 
 struct CategoryController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
-        let categories = routes.grouped("api", "v0", "categories")
+        let api = routes.grouped("api", "v0")
 
-        categories.get(use: list)
-        categories.post(use: create)
+        #warning("Delete from public create, update and delete")
+        let publicCategories = api.grouped("categories")
+        publicCategories.get(use: list)
+        publicCategories.post(use: create)
 
-        categories.group(":id") { category in
+        publicCategories.group(":id") { category in
             category.get(use: show)
             category.put(use: update)
             category.delete(use: delete)
         }
+
+        let adminCategories = api.grouped("admin", "categories")
+            .requiring(.admin, .staff)
+        adminCategories.get(use: adminTableList)
     }
 
     private func list(req: Request) async throws -> [CategoryOutput] {
         let categories = try await Category.query(on: req.db).all()
 
         return try categories.map(CategoryOutput.init)
+    }
+
+    private func adminTableList(req: Request) async throws -> Page<CategoryOutput> {
+        let query = Category.query(on: req.db)
+            .sort(\.$name, .ascending)
+
+        let page = try await query.paginate(for: req)
+
+        let items = try page.items.map(CategoryOutput.init)
+
+        return Page(items: items, metadata: page.metadata)
     }
 
     private func create(req: Request) async throws -> Response {

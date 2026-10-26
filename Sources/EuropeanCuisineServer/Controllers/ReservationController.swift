@@ -77,6 +77,19 @@ struct ReservationController: RouteCollection {
             }
             .with(\.$user)
 
+        if let filter = input.filter {
+            switch filter {
+            case .all:
+                break
+            case .confirmed:
+                query.filter(\.$status == .confirmed)
+            case .pending:
+                query.filter(\.$status == .pending)
+            case .cancelled:
+                query.filter(\.$status == .cancelled)
+            }
+        }
+
         if let searchText = input.query,
            searchText.trimmed.isEmpty {
             query
