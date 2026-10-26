@@ -1,5 +1,5 @@
 info:
-  name: Admin List Workshops
+  name: List Workshops [admin]
   type: http
   seq: 7
 

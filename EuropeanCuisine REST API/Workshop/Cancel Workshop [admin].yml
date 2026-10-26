@@ -1,0 +1,20 @@
+info:
+  name: Cancel Workshop [admin]
+  type: http
+  seq: 7
+
+http:
+  method: PATCH
+  url: "{{baseAdminURL}}/:id/cancel"
+  params:
+    - name: id
+      value: 177AAE2A-313E-4ED3-B85A-651D48379AD3
+      type: path
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
