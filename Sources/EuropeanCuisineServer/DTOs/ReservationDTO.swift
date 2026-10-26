@@ -59,10 +59,18 @@ extension AdminReservationListItemOutput {
 struct AdminReservationListSortSearchInput: Content {
     let query: String?
     let sort: Sort?
+    let filter: Filter?
 
     enum Sort: String, Codable {
         case name
         case category
         case date
+    }
+
+    enum Filter: String, Codable {
+        case all
+        case confirmed
+        case pending
+        case cancelled
     }
 }

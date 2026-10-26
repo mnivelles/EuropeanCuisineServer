@@ -101,6 +101,8 @@ extension WorkshopOutput {
 }
 
 struct AdminWorkshopListItemOutput: Content {
+    let id: UUID
+    let status: Workshop.Status
     let pictureURL: String
     let name: String
     let category: String
@@ -117,6 +119,8 @@ extension AdminWorkshopListItemOutput {
         let locale = Locale(identifier: "en")
         let dateFormat = Date.FormatStyle(date: .numeric, time: .omitted, locale: locale)
         let timeFormat = Date.FormatStyle(date: .omitted, time: .shortened, locale: locale)
+        self.id = try workshop.requireID()
+        self.status = infos.status
         self.pictureURL = infos.pictureURL
         self.name = workshop.name
         self.category = workshop.category.name
@@ -140,6 +144,126 @@ struct AdminWorkshopListSortSearchInput: Content {
         case category
         case location
         case date
+    }
+}
+
+struct AdminCreateWorkshopInput: Content {
+    var picture: File
+    var name: String
+    var category: String
+    var about: String
+    var date: String
+    var startTime: Date
+    var endTime: Date
+    var capacityMax: UInt16
+    var location: String
+    var isVegan: Bool
+    var isPRM: Bool
+    var isFamilyFriendly: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case picture
+        case name
+        case category
+        case about
+        case date
+        case startTime
+        case endTime
+        case capacityMax
+        case location
+        case isVegan
+        case isPRM
+        case isFamilyFriendly
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.picture = try container.decode(File.self, forKey: .picture)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.category = try container.decode(String.self, forKey: .category)
+        self.about = try container.decode(String.self, forKey: .about)
+        self.date = try container.decode(String.self, forKey: .date)
+        self.startTime = try Self.decodeISODate(from: container, forKey: .startTime)
+        self.endTime = try Self.decodeISODate(from: container, forKey: .endTime)
+        self.capacityMax = try container.decode(UInt16.self, forKey: .capacityMax)
+        self.location = try container.decode(String.self, forKey: .location)
+        self.isVegan = try container.decode(Bool.self, forKey: .isVegan)
+        self.isPRM = try container.decode(Bool.self, forKey: .isPRM)
+        self.isFamilyFriendly = try container.decode(Bool.self, forKey: .isFamilyFriendly)
+    }
+
+    private static func decodeISODate(from container: KeyedDecodingContainer<CodingKeys>,
+                                      forKey key: CodingKeys) throws -> Date {
+        let string = try container.decode(String.self, forKey: key)
+        guard let date = ISO8601DateFormatter().date(from: string) else {
+            throw DecodingError.dataCorruptedError(forKey: key,
+                                                   in: container,
+                                                   debugDescription: "\(key.stringValue) must be an ISO 8601 date (e.g. 1970-01-01T08:00:00Z)")
+        }
+        return date
+    }
+}
+
+extension AdminCreateWorkshopInput: Validatable {
+    static func validations(_ validations: inout Validations) {
+        validations.add("name",
+                        as: String.self,
+                        is: Constants.Workshop.Name.validator)
+        validations.add("category",
+                        as: String.self,
+                        is: Constants.Category.Name.validator)
+        validations.add("about",
+                        as: String.self,
+                        is: Constants.Booth.About.validator)
+        validations.add("capacityMax",
+                        as: UInt16.self,
+                        is: Constants.Workshop.CapacityMax.validator)
+        validations.add("location",
+                        as: String.self,
+                        is: Constants.Booth.Location.validator)
+    }
+}
+
+// extension AdminCreateWorkshopInput {
+//    func toModel(status: Workshop.Status,
+//                 pictureURL picture: String, bookedCapacity: UInt16,
+//                 categoryID: UUID, id: UUID) -> WorkshopOutput {
+//        WorkshopOutput(id: id,
+//                       name: name.trimmed,
+//                       startTime: startTime,
+//                       endTime: endTime,
+//                       bookedCapacity: bookedCapacity,
+//                       capacityMax: capacityMax,
+//                       description: about.trimmed,
+//                       pictureURL: picture,
+//                       location: location.trimmed,
+//                       isVegan: isVegan,
+//                       isPRM: isPRM,
+//                       isFamilyFriendly: isFamilyFriendly,
+//                       categoryID: categoryID,
+//                       categoryName: category.trimmed
+//        )
+//    }
+// }
+
+extension AdminCreateWorkshopInput {
+    func toModel(categoryID: UUID) -> Workshop {
+        Workshop(name: name.trimmed,
+                 startTime: startTime,
+                 endTime: endTime,
+                 capacityMax: capacityMax,
+                 description: about.trimmed,
+                 categoryID: categoryID)
+    }
+
+    func toInfos(workshopID: UUID, pictureURL: String) -> WorkshopInfos {
+        WorkshopInfos(status: .published,
+                      pictureURL: pictureURL,
+                      location: location.trimmed,
+                      isVegan: isVegan,
+                      isPRM: isPRM,
+                      isFamilyFriendly: isFamilyFriendly,
+                      workshopID: workshopID)
     }
 }
 

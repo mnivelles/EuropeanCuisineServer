@@ -10,6 +10,7 @@ import Vapor
 
 enum WorkshopError: AbortError {
     case notFound
+    case alreadyExists
     case invalidTimeOrder
     case infosNotFound
 
@@ -17,6 +18,8 @@ enum WorkshopError: AbortError {
         switch self {
         case .notFound:
             .notFound
+        case .alreadyExists:
+            .conflict
         case .invalidTimeOrder:
             .unprocessableEntity
         case .infosNotFound:
@@ -28,6 +31,8 @@ enum WorkshopError: AbortError {
         switch self {
         case .notFound:
             "Workshop not found"
+        case .alreadyExists:
+            "A booth with this name already exists"
         case .invalidTimeOrder:
             "EndTime must be after StartTime"
         case .infosNotFound:

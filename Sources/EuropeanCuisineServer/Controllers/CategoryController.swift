@@ -50,6 +50,17 @@ struct CategoryController: RouteCollection {
         return try categories.map(CategoryOutput.init)
     }
 
+    private func adminTableList(req: Request) async throws -> Page<CategoryOutput> {
+        let query = Category.query(on: req.db)
+            .sort(\.$name, .ascending)
+
+        let page = try await query.paginate(for: req)
+
+        let items = try page.items.map(CategoryOutput.init)
+
+        return Page(items: items, metadata: page.metadata)
+    }
+
     private func create(req: Request) async throws -> Response {
         try CategoryInput.validate(content: req)
 
