@@ -11,6 +11,7 @@ import Vapor
 enum AuthError: AbortError {
     case passwordOrEmailFailed
     case unauthorized
+    case notActive
 
     var status: HTTPResponseStatus {
         switch self {
@@ -18,6 +19,8 @@ enum AuthError: AbortError {
             .badRequest
         case .unauthorized:
             .unauthorized
+        case .notActive:
+            .forbidden
         }
     }
 
@@ -27,6 +30,8 @@ enum AuthError: AbortError {
             "Incorrect email or password"
         case .unauthorized:
             "Invalid credentials"
+        case .notActive:
+            "Account is not active"
         }
     }
 }

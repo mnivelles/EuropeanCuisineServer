@@ -51,6 +51,12 @@ final class User: Model, @unchecked Sendable {
     }
 }
 
+extension User {
+    var isActive: Bool {
+        infos?.status == .active
+    }
+}
+
 extension User: ModelAuthenticatable {
     static var usernameKey: KeyPath<User, FluentKit.FieldProperty<User, String>> {
         \User.$email

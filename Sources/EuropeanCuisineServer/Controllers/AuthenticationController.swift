@@ -51,6 +51,10 @@ struct AuthenticationController: RouteCollection {
             throw AuthError.unauthorized
         }
 
+        guard user.isActive else {
+            throw AuthError.notActive
+        }
+
         let token = try await UserJWTPayload.generateToken(for: user,
                                                            req: req)
 

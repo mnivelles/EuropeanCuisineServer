@@ -26,6 +26,7 @@ struct UserController: RouteCollection {
             .grouped("admin", "users")
             .requiring(.admin)
         adminUsers.get(use: adminList)
+        adminUsers.post(use: adminCreate)
 
         adminUsers.group(":id") { user in
             user.get(use: adminShow)
@@ -117,6 +118,39 @@ struct UserController: RouteCollection {
                               infos: infos)
     }
 
+    private func adminCreate(req: Request) async throws -> Response {
+        try AdminCreateUserInput.validate(content: req)
+
+        let input = try req.content.decode(AdminCreateUserInput.self)
+
+        guard try await User
+            .query(on: req.db)
+            .filter(\.$email == input.email)
+            .first() == nil else {
+            throw UserError.emailAlreadyExists
+        }
+
+        let passwordHash = try Bcrypt.hash(input.password)
+
+        let user = User(name: input.name,
+                        email: input.email,
+                        passwordHash: passwordHash,
+                        role: input.role)
+
+        return try await req.db.transaction { db in
+            try await user.create(on: db)
+
+            let infos = try UserInfos(status: .active,
+                                      pictureURL: nil,
+                                      userID: user.requireID())
+
+            try await infos.create(on: db)
+
+            return try await AdminShowUserOutput(user: user, infos: infos)
+                .encodeResponse(status: .created, for: req)
+        }
+    }
+
     private func adminShow(req: Request) async throws -> AdminShowUserOutput {
         let id = try req.parameters.require("id", as: UUID.self)
 
@@ -168,7 +202,8 @@ struct UserController: RouteCollection {
         }
 
         return try await req.db.transaction { db in
-            if let picture = input.picture {
+            if let picture = input.picture,
+               !input.hasNoPicture {
                 let storage = ImageStorage()
 
                 let url = try await storage.upload(req: req,
@@ -177,13 +212,12 @@ struct UserController: RouteCollection {
                                                    id: user.requireID())
 
                 user.infos?.pictureURL = url.absoluteString
-
-                try await user.infos?.update(on: db)
             }
 
             apply(input: input, to: user)
 
             try await user.update(on: db)
+            try await user.infos?.update(on: db)
 
             guard let infos = user.infos else {
                 throw UserError.infosNotFound
@@ -248,5 +282,9 @@ struct UserController: RouteCollection {
         user.name = input.name.trimmed
         user.email = input.email.trimmed
         user.role = input.role
+
+        if input.hasNoPicture {
+            user.infos?.pictureURL = nil
+        }
     }
 }

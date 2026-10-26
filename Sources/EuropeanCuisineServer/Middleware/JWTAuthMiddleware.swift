@@ -16,7 +16,14 @@ struct JWTAuthMiddleware: JWTAuthenticator {
             return
         }
 
-        guard let user = try await User.find(userID, on: req.db) else {
+        guard let user = try await User.query(on: req.db)
+            .filter(\.$id == userID)
+            .with(\.$infos)
+            .first() else {
+            return
+        }
+
+        guard user.isActive else {
             return
         }
 
