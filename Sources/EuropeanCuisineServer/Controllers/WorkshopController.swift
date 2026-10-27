@@ -33,6 +33,7 @@ struct WorkshopController: RouteCollection {
         adminWorkshops.on(.POST,
                           body: .collect(maxSize: Constants.Image.requestMaxSize),
                           use: adminCreate)
+        adminWorkshops.get("calendar", use: adminCalendar)
 
         adminWorkshops.group(":id") { workshop in
             workshop.patch("cancel", use: adminCancel)
@@ -279,6 +280,21 @@ struct WorkshopController: RouteCollection {
         try await infos.update(on: req.db)
 
         return .noContent
+    }
+
+    private func adminCalendar(req: Request) async throws -> [AdminCalendarOutput] {
+        let categories = try await Category.query(on: req.db)
+            .sort(\.$name, .ascending)
+            .all()
+
+        let workshops = try await Workshop.query(on: req.db)
+            .join(WorkshopInfos.self, on: \Workshop.$id == \WorkshopInfos.$workshop.$id)
+            .filter(WorkshopInfos.self, \.$status == .published)
+            .with(\.$category)
+            .sort(\.$startTime, .ascending)
+            .all()
+
+        return try AdminCalendarOutput.make(from: workshops, categories: categories)
     }
 
     private func findWorkshop(req: Request) async throws -> Workshop {

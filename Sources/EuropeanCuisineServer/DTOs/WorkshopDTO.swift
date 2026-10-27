@@ -245,3 +245,100 @@ struct AdminWorkshopCategoryListOutput: Content {
     let name: String
     let numberOfWorkshops: UInt
 }
+
+struct AdminCalendarOutput: Content {
+    let weekdayShort: String
+    let date: String
+    let events: [Event]
+
+    struct Event: Content {
+        let id: UUID
+        let name: String
+        let startTime: String
+        let endTime: String
+        let startClass: String
+        let endClass: String
+        let themeClass: String
+    }
+}
+
+extension AdminCalendarOutput {
+    static func make(from workshops: [Workshop],
+                     categories: [Category]) throws -> [AdminCalendarOutput] {
+        let themes = try CalendarTheme.assign(to: categories)
+        let timeZone: TimeZone = .gmt
+        let locale = Locale(identifier: "en_US_POSIX")
+
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timeZone
+
+        let weekdayFormatter = DateFormatter()
+        weekdayFormatter.locale = locale
+        weekdayFormatter.timeZone = timeZone
+        weekdayFormatter.dateFormat = "EEE"
+
+        let dayFormatter = DateFormatter()
+        dayFormatter.locale = locale
+        dayFormatter.timeZone = timeZone
+        dayFormatter.dateFormat = "d"
+
+        let timeFormatter = DateFormatter()
+        timeFormatter.locale = locale
+        timeFormatter.timeZone = timeZone
+
+        func clock(_ date: Date) -> String {
+            let format = Date.FormatStyle(date: .omitted,
+                                          time: .shortened,
+                                          locale: locale,
+                                          timeZone: timeZone)
+
+            return date.formatted(format)
+        }
+
+        func slotClass(_ prefix: String, _ date: Date) -> String {
+            let parts = calendar.dateComponents([.hour, .minute], from: date)
+            return prefix + "_" + String(format: "%02d-%02d", parts.hour ?? 0, parts.minute ?? 0)
+        }
+
+        func themeClass(_ workshop: Workshop) -> String {
+            themes[workshop.$category.id] ?? CalendarTheme.all[0]
+        }
+
+        let groupedByDay = Dictionary(grouping: workshops) {
+            calendar.startOfDay(for: $0.startTime)
+        }
+
+        return try groupedByDay
+            .sorted { $0.key < $1.key }
+            .map { day, dayWorkshops in
+                let events = try dayWorkshops
+                    .sorted { $0.startTime < $1.startTime }
+                    .map { workshop in
+                        try AdminCalendarOutput.Event(id: workshop.requireID(),
+                                                      name: workshop.name,
+                                                      startTime: clock(workshop.startTime),
+                                                      endTime: clock(workshop.endTime),
+                                                      startClass: slotClass("start",
+                                                                            workshop.startTime),
+                                                      endClass: slotClass("end", workshop.endTime),
+                                                      themeClass: themeClass(workshop))
+                    }
+
+                return AdminCalendarOutput(weekdayShort: weekdayFormatter.string(from: day),
+                                           date: dayFormatter.string(from: day),
+                                           events: events)
+            }
+    }
+}
+
+enum CalendarTheme {
+    static let all: [String] = (1 ... 7).map { "theme\($0)" }
+
+    static func assign(to categories: [Category]) throws -> [Category.IDValue: String] {
+        var themes: [Category.IDValue: String] = [:]
+        for (index, category) in categories.enumerated() {
+            try themes[category.requireID()] = all[index % all.count]
+        }
+        return themes
+    }
+}
