@@ -220,8 +220,8 @@ struct WorkshopController: RouteCollection {
             throw WorkshopError.infosNotFound
         }
 
-        let newStartTime = Date.combine(date: input.date, time: input.startTime) ?? .distantPast
-        let newEndTime = Date.combine(date: input.date, time: input.endTime) ?? .distantPast
+        let newStartTime = Date.combineUTC(date: input.date, time: input.startTime) ?? .distantPast
+        let newEndTime = Date.combineUTC(date: input.date, time: input.endTime) ?? .distantPast
 
         var pictureURL = infos.pictureURL
 
@@ -345,7 +345,11 @@ struct WorkshopController: RouteCollection {
         return .noContent
     }
 
-    private func adminCalendar(req: Request) async throws -> [AdminCalendarOutput] {
+    private func adminCalendar(req: Request) async throws -> AdminCalendarOutput {
+        let input = try req.query.decode(AdminCalendarPaginationInput.self)
+        let page = input.page ?? 1
+        let per = input.per ?? 5
+
         let categories = try await Category.query(on: req.db)
             .sort(\.$name, .ascending)
             .all()
@@ -357,7 +361,23 @@ struct WorkshopController: RouteCollection {
             .sort(\.$startTime, .ascending)
             .all()
 
-        return try AdminCalendarOutput.make(from: workshops, categories: categories)
+        let items = try AdminCalendarOutput.make(from: workshops, categories: categories)
+        let days = AdminCalendarOutput.days(from: workshops)
+
+        let offset = max(0, (page - 1) * per)
+
+        let paginatedItems = Array(items.dropFirst(offset).prefix(per))
+        let paginatedDays = Array(days.dropFirst(offset).prefix(per))
+
+        let totalPages = max(1, Int(ceil(Double(items.count) / Double(per))))
+        let isFirstPage = (page == 1) && !items.isEmpty
+        let isLastPage = (page >= totalPages) && !items.isEmpty
+
+        return .init(items: paginatedItems,
+                     rangeTitle: AdminCalendarOutput.rangeTitle(for: paginatedDays),
+                     metadata: .init(isFirstPage: isFirstPage,
+                                     isLastPage: isLastPage,
+                                     page: page))
     }
 
     private func findWorkshop(req: Request) async throws -> Workshop {

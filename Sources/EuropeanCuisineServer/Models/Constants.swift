@@ -13,7 +13,7 @@ enum Constants {
 
     enum OpeningHours {
         static let startHour: Int = 8
-        static let endHour: Int = 18
+        static let endHour: Int = 19
         static let intervalMinutes: Int = 15
     }
 

@@ -219,8 +219,8 @@ extension AdminCreateWorkshopInput: Validatable {
 
 extension AdminCreateWorkshopInput {
     func toModel(categoryID: UUID) -> Workshop {
-        let newStartTime = Date.combine(date: date, time: startTime) ?? .distantPast
-        let newEndTime = Date.combine(date: date, time: endTime) ?? .distantPast
+        let newStartTime = Date.combineUTC(date: date, time: startTime) ?? .distantPast
+        let newEndTime = Date.combineUTC(date: date, time: endTime) ?? .distantPast
         return Workshop(name: name.trimmed,
                         startTime: newStartTime,
                         endTime: newEndTime,
@@ -309,8 +309,8 @@ extension AdminUpdateWorkshopInput: Validatable {
     }
 
     func validateDateOrder() throws {
-        let newStartTime = Date.combine(date: date, time: startTime) ?? .distantPast
-        let newEndTime = Date.combine(date: date, time: endTime) ?? .distantPast
+        let newStartTime = Date.combineUTC(date: date, time: startTime) ?? .distantPast
+        let newEndTime = Date.combineUTC(date: date, time: endTime) ?? .distantPast
 
         guard newEndTime > newStartTime else {
             throw WorkshopError.invalidTimeOrder
@@ -325,30 +325,41 @@ struct AdminWorkshopCategoryListOutput: Content {
 }
 
 struct AdminCalendarOutput: Content {
-    let weekdayShort: String
-    let date: String
-    let events: [Event]
+    let items: [Item]
+    let rangeTitle: String
+    let metadata: Metadata
 
-    struct Event: Content {
-        let id: UUID
-        let name: String
-        let startTime: String
-        let endTime: String
-        let startClass: String
-        let endClass: String
-        let themeClass: String
+    struct Metadata: Content {
+        let isFirstPage: Bool
+        let isLastPage: Bool
+        let page: Int
+    }
+
+    struct Item: Content {
+        let weekdayShort: String
+        let date: String
+        let events: [Event]
+
+        struct Event: Content {
+            let id: UUID
+            let name: String
+            let startTime: String
+            let endTime: String
+            let startClass: String
+            let endClass: String
+            let themeClass: String
+        }
     }
 }
 
 extension AdminCalendarOutput {
     static func make(from workshops: [Workshop],
-                     categories: [Category]) throws -> [AdminCalendarOutput] {
+                     categories: [Category]) throws -> [AdminCalendarOutput.Item] {
         let themes = try CalendarTheme.assign(to: categories)
         let timeZone: TimeZone = .gmt
         let locale = Locale(identifier: "en_US_POSIX")
 
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = timeZone
+        let calendar = calendar
 
         let weekdayFormatter = DateFormatter()
         weekdayFormatter.locale = locale
@@ -392,20 +403,59 @@ extension AdminCalendarOutput {
                 let events = try dayWorkshops
                     .sorted { $0.startTime < $1.startTime }
                     .map { workshop in
-                        try AdminCalendarOutput.Event(id: workshop.requireID(),
-                                                      name: workshop.name,
-                                                      startTime: clock(workshop.startTime),
-                                                      endTime: clock(workshop.endTime),
-                                                      startClass: slotClass("start",
-                                                                            workshop.startTime),
-                                                      endClass: slotClass("end", workshop.endTime),
-                                                      themeClass: themeClass(workshop))
+                        try AdminCalendarOutput.Item.Event(id: workshop.requireID(),
+                                                           name: workshop.name,
+                                                           startTime: clock(workshop.startTime),
+                                                           endTime: clock(workshop.endTime),
+                                                           startClass: slotClass("start",
+                                                                                 workshop
+                                                                                     .startTime),
+                                                           endClass: slotClass("end",
+                                                                               workshop.endTime),
+                                                           themeClass: themeClass(workshop))
                     }
 
-                return AdminCalendarOutput(weekdayShort: weekdayFormatter.string(from: day),
-                                           date: dayFormatter.string(from: day),
-                                           events: events)
+                return AdminCalendarOutput.Item(weekdayShort: weekdayFormatter.string(from: day),
+                                                date: dayFormatter.string(from: day),
+                                                events: events)
             }
+    }
+}
+
+extension AdminCalendarOutput {
+    private static var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .gmt
+        return calendar
+    }
+
+    static func days(from workshops: [Workshop]) -> [Date] {
+        let calendar = calendar
+        return Set(workshops.map { calendar.startOfDay(for: $0.startTime) }).sorted()
+    }
+
+    static func rangeTitle(for days: [Date]) -> String {
+        guard let first = days.first, let last = days.last else {
+            return "[error]"
+        }
+
+        let calendar = calendar
+        let monthFormatter = DateFormatter()
+        monthFormatter.locale = Locale(identifier: "en_US_POSIX")
+        monthFormatter.timeZone = .gmt
+        monthFormatter.dateFormat = "MMMM"
+
+        let firstMonth = monthFormatter.string(from: first)
+        let lastMonth = monthFormatter.string(from: last)
+        let firstDay = calendar.component(.day, from: first)
+        let lastDay = calendar.component(.day, from: last)
+
+        if firstMonth != lastMonth {
+            return "\(firstMonth) \(firstDay) - \(lastMonth) \(lastDay)"
+        }
+        return firstDay == lastDay
+            ? "\(firstMonth) \(firstDay)"
+            : "\(firstMonth) \(firstDay)-\(lastDay)"
     }
 }
 
@@ -419,4 +469,9 @@ enum CalendarTheme {
         }
         return themes
     }
+}
+
+struct AdminCalendarPaginationInput: Content {
+    let page: Int?
+    let per: Int?
 }
