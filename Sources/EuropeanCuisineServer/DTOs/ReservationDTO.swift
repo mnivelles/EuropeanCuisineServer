@@ -74,3 +74,68 @@ struct AdminReservationListSortSearchInput: Content {
         case cancelled
     }
 }
+
+struct AdminWorkshopReservationListItemOutput: Content {
+    let id: UUID
+    let userName: String
+    let userPictureURL: String?
+    let status: Reservation.Status
+}
+
+extension AdminWorkshopReservationListItemOutput {
+    init(reservation: Reservation, user: User) throws {
+        self.id = try reservation.requireID()
+        self.userName = user.name
+        self.userPictureURL = user.infos?.pictureURL
+        self.status = reservation.status
+    }
+}
+
+struct AdminUpdateReservationInput: Content {
+    let status: Reservation.Status
+}
+
+struct AdminReservationEditOutput: Content {
+    let status: Reservation.Status
+
+    let workshop: WorkshopDetails
+    let user: UserDetails
+
+    struct WorkshopDetails: Content {
+        let name: String
+        let category: String
+        let date: String
+        let startTime: String
+        let endTime: String
+    }
+
+    struct UserDetails: Content {
+        let name: String
+        let email: String
+    }
+}
+
+extension AdminReservationEditOutput {
+    init(reservation: Reservation,
+         workshop: Workshop,
+         user: User) {
+        let locale = Locale(identifier: "en")
+        let dateFormat = Date.FormatStyle(date: .complete,
+                                          time: .omitted,
+                                          locale: locale)
+        let timeFormat = Date.FormatStyle(date: .omitted,
+                                          time: .shortened,
+                                          locale: locale)
+
+        self.status = reservation.status
+
+        self.workshop = WorkshopDetails(name: workshop.name,
+                                        category: workshop.category.name,
+                                        date: workshop.startTime.formatted(dateFormat),
+                                        startTime: workshop.startTime.formatted(timeFormat),
+                                        endTime: workshop.endTime.formatted(timeFormat))
+
+        self.user = UserDetails(name: user.name,
+                                email: user.email)
+    }
+}

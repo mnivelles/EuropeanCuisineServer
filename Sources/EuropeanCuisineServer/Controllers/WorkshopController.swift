@@ -33,6 +33,7 @@ struct WorkshopController: RouteCollection {
         adminWorkshops.on(.POST,
                           body: .collect(maxSize: Constants.Image.requestMaxSize),
                           use: adminCreate)
+        adminWorkshops.get(":workshopID", "reservations", use: adminWorkshopReservationList)
 
         adminWorkshops.group(":id") { workshop in
             workshop.on(.PUT,
@@ -118,6 +119,33 @@ struct WorkshopController: RouteCollection {
             try items.append(AdminWorkshopListItemOutput(workshop: workshop,
                                                          infos: infos,
                                                          bookedCapacity: bookedCapacity))
+        }
+
+        return Page(items: items, metadata: page.metadata)
+    }
+
+    private func adminWorkshopReservationList(req: Request) async throws
+        -> Page<AdminWorkshopReservationListItemOutput> {
+        let workshopID = try req.parameters.require("workshopID", as: UUID.self)
+
+        let filter = req.query[String.self, at: "filter"] ?? "status"
+
+        let query = Reservation.query(on: req.db)
+            .filter(\.$workshop.$id == workshopID)
+        if filter != "status",
+           let status = Reservation.Status(rawValue: filter) {
+            query.filter(\.$status == status)
+        }
+
+        query.with(\.$user) { user in
+            user.with(\.$infos)
+        }
+
+        let page = try await query.paginate(for: req)
+
+        let items = try page.items.map { reservation in
+            try AdminWorkshopReservationListItemOutput(reservation: reservation,
+                                                       user: reservation.user)
         }
 
         return Page(items: items, metadata: page.metadata)

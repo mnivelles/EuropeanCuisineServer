@@ -25,6 +25,11 @@ struct ReservationController: RouteCollection {
         let adminReservations = api.grouped("admin", "reservations")
             .requiring(.admin, .staff)
         adminReservations.get(use: adminTableList)
+
+        adminReservations.group(":id") { reservation in
+            reservation.get(use: adminShow)
+            reservation.patch(use: adminUpdate)
+        }
     }
 
     private func list(req: Request) async throws -> [ReservationOutput] {
@@ -76,6 +81,9 @@ struct ReservationController: RouteCollection {
                     .with(\.$category)
             }
             .with(\.$user)
+            .with(\.$user) { user in
+                user.with(\.$infos)
+            }
 
         if let filter = input.filter {
             switch filter {
@@ -133,6 +141,47 @@ struct ReservationController: RouteCollection {
 
         return Page(items: items,
                     metadata: page.metadata)
+    }
+
+    private func adminShow(req: Request) async throws -> AdminReservationEditOutput {
+        let reservationID = try req.parameters.require("id", as: UUID.self)
+
+        guard let reservation = try await Reservation
+            .query(on: req.db)
+            .filter(\.$id == reservationID)
+            .first()
+        else {
+            throw ReservationError.notFound
+        }
+
+        try await reservation.$workshop.load(on: req.db)
+        try await reservation.$user.load(on: req.db)
+
+        let workshop = reservation.workshop
+
+        try await workshop.$category.load(on: req.db)
+
+        return AdminReservationEditOutput(reservation: reservation,
+                                          workshop: reservation.workshop,
+                                          user: reservation.user)
+    }
+
+    private func adminUpdate(req: Request) async throws -> HTTPStatus {
+        let reservationID = try req.parameters.require("id", as: UUID.self)
+        let input = try req.content.decode(AdminUpdateReservationInput.self)
+
+        guard let reservation = try await Reservation
+            .query(on: req.db)
+            .filter(\.$id == reservationID)
+            .first()
+        else {
+            throw ReservationError.notFound
+        }
+
+        reservation.status = input.status
+        try await reservation.update(on: req.db)
+
+        return .noContent
     }
 
     private func create(req: Request) async throws -> Response {

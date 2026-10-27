@@ -8,6 +8,7 @@
 
 extension Reservation {
     enum Status: String, Codable, CaseIterable {
+        case status
         case confirmed
         case pending
         case cancelled
