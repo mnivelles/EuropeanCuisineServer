@@ -36,6 +36,9 @@ struct WorkshopController: RouteCollection {
         adminWorkshops.get("calendar", use: adminCalendar)
 
         adminWorkshops.group(":id") { workshop in
+            workshop.on(.PUT,
+                        body: .collect(maxSize: Constants.Image.requestMaxSize),
+                        use: adminUpdate)
             workshop.patch("cancel", use: adminCancel)
             workshop.patch("publish", use: adminPublish)
         }
@@ -196,6 +199,66 @@ struct WorkshopController: RouteCollection {
                                                          bookedCapacity: 0)
                 .encodeResponse(status: .created, for: req)
         }
+    }
+
+    private func adminUpdate(req: Request) async throws -> WorkshopOutput {
+        try AdminUpdateWorkshopInput.validate(content: req)
+
+        let input = try req.content.decode(AdminUpdateWorkshopInput.self)
+        try input.validateDateOrder()
+
+        guard let category = try await Category.query(on: req.db)
+            .filter(\.$name == input.category.trimmed)
+            .first()
+        else {
+            throw CategoryError.notFound
+        }
+
+        let workshop = try await findWorkshop(req: req)
+
+        guard let infos = workshop.infos else {
+            throw WorkshopError.infosNotFound
+        }
+
+        let newStartTime = Date.combine(date: input.date, time: input.startTime) ?? .distantPast
+        let newEndTime = Date.combine(date: input.date, time: input.endTime) ?? .distantPast
+
+        var pictureURL = infos.pictureURL
+
+        if let picture = input.picture {
+            let storage = ImageStorage()
+            let url = try await storage.upload(req: req,
+                                               file: picture,
+                                               folder: imageFolder,
+                                               id: workshop.requireID())
+            pictureURL = url.absoluteString
+        }
+
+        workshop.name = input.name.trimmed
+        workshop.startTime = newStartTime
+        workshop.endTime = newEndTime
+        workshop.capacityMax = input.capacityMax
+        workshop.description = input.about.trimmed
+        workshop.$category.id = try category.requireID()
+
+        infos.pictureURL = pictureURL
+        infos.location = input.location.trimmed
+        infos.isVegan = input.isVegan
+        infos.isPRM = input.isPRM
+        infos.isFamilyFriendly = input.isFamilyFriendly
+
+        try await req.db.transaction { db in
+            try await workshop.update(on: db)
+            try await infos.update(on: db)
+            try await workshop.$category.load(on: db)
+        }
+
+        let bookedCapacity = try await calculateBookedCapacity(workshopID: workshop.requireID(),
+                                                               req: req)
+
+        return try WorkshopOutput(workshop: workshop,
+                                  infos: infos,
+                                  bookedCapacity: bookedCapacity)
     }
 
     private func adminPublish(req: Request) async throws -> HTTPStatus {

@@ -240,6 +240,84 @@ extension AdminCreateWorkshopInput {
     }
 }
 
+struct AdminUpdateWorkshopInput: Content {
+    var picture: File?
+    var name: String
+    var category: String
+    var about: String
+    var date: Date
+    var startTime: Date
+    var endTime: Date
+    var capacityMax: UInt16
+    var location: String
+    var isVegan: Bool
+    var isPRM: Bool
+    var isFamilyFriendly: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case picture
+        case name
+        case category
+        case about
+        case date
+        case startTime
+        case endTime
+        case capacityMax
+        case location
+        case isVegan
+        case isPRM
+        case isFamilyFriendly
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        self.picture = try container.decodeIfPresent(File.self, forKey: .picture)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.category = try container.decode(String.self, forKey: .category)
+        self.about = try container.decode(String.self, forKey: .about)
+
+        let dateString = try container.decode(String.self, forKey: .date)
+        self.date = Date.parseUTCDate(dateString) ?? .distantPast
+        self.startTime = try container.decodeISODate(forKey: .startTime)
+        self.endTime = try container.decodeISODate(forKey: .endTime)
+        self.capacityMax = try container.decode(UInt16.self, forKey: .capacityMax)
+        self.location = try container.decode(String.self, forKey: .location)
+        self.isVegan = try container.decode(Bool.self, forKey: .isVegan)
+        self.isPRM = try container.decode(Bool.self, forKey: .isPRM)
+        self.isFamilyFriendly = try container.decode(Bool.self, forKey: .isFamilyFriendly)
+    }
+}
+
+extension AdminUpdateWorkshopInput: Validatable {
+    static func validations(_ validations: inout Validations) {
+        validations.add("name",
+                        as: String.self,
+                        is: Constants.Workshop.Name.validator)
+        validations.add("category",
+                        as: String.self,
+                        is: Constants.Category.Name.validator)
+        validations.add("about",
+                        as: String.self,
+                        is: Constants.Booth.About.validator)
+        validations.add("capacityMax",
+                        as: UInt16.self,
+                        is: Constants.Workshop.CapacityMax.validator)
+        validations.add("location",
+                        as: String.self,
+                        is: Constants.Booth.Location.validator)
+    }
+
+    func validateDateOrder() throws {
+        let newStartTime = Date.combine(date: date, time: startTime) ?? .distantPast
+        let newEndTime = Date.combine(date: date, time: endTime) ?? .distantPast
+
+        guard newEndTime > newStartTime else {
+            throw WorkshopError.invalidTimeOrder
+        }
+    }
+}
+
 struct AdminWorkshopCategoryListOutput: Content {
     let id: UUID
     let name: String
