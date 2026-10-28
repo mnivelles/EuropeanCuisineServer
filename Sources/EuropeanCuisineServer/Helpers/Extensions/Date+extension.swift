@@ -28,16 +28,7 @@ extension Date {
     }
 
     static func hourMinuteUTC(hour: Int, minute: Int) -> Date {
-        var utcCalendar = Calendar(identifier: .gregorian)
-        utcCalendar.timeZone = TimeZone(secondsFromGMT: 0)!
-
-        return fromUTC(year: 2001,
-                       month: 1,
-                       day: 1,
-                       hour: hour,
-                       minute: minute,
-                       second: 0,
-                       calendar: utcCalendar)
+        Date(timeIntervalSince1970: TimeInterval(hour * 3600 + minute * 60))
     }
 
     static func combineUTC(date: Date, time: Date) -> Date? {
