@@ -393,6 +393,7 @@ struct WorkshopController: RouteCollection {
 
         let items = try AdminCalendarOutput.make(from: workshops, categories: categories)
         let days = AdminCalendarOutput.days(from: workshops)
+        let legend = try AdminCalendarOutput.legend(for: categories)
 
         let offset = max(0, (page - 1) * per)
 
@@ -407,7 +408,8 @@ struct WorkshopController: RouteCollection {
                      rangeTitle: AdminCalendarOutput.rangeTitle(for: paginatedDays),
                      metadata: .init(isFirstPage: isFirstPage,
                                      isLastPage: isLastPage,
-                                     page: page))
+                                     page: page),
+                     legends: legend)
     }
 
     private func findWorkshop(req: Request) async throws -> Workshop {

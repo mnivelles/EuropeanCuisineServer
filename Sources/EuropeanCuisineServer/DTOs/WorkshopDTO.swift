@@ -328,6 +328,7 @@ struct AdminCalendarOutput: Content {
     let items: [Item]
     let rangeTitle: String
     let metadata: Metadata
+    let legends: [CategoryLegend]
 
     struct Metadata: Content {
         let isFirstPage: Bool
@@ -349,6 +350,11 @@ struct AdminCalendarOutput: Content {
             let endClass: String
             let themeClass: String
         }
+    }
+
+    struct CategoryLegend: Content {
+        let category: String
+        let theme: String
     }
 }
 
@@ -468,6 +474,17 @@ enum CalendarTheme {
             try themes[category.requireID()] = all[index % all.count]
         }
         return themes
+    }
+}
+
+extension AdminCalendarOutput {
+    static func legend(for categories: [Category]) throws -> [CategoryLegend] {
+        let themes = try CalendarTheme.assign(to: categories)
+
+        return try categories.map { category in
+            try CategoryLegend(category: category.name,
+                               theme: themes[category.requireID()] ?? CalendarTheme.all[0])
+        }
     }
 }
 
