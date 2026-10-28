@@ -22,8 +22,6 @@ struct WorkshopController: RouteCollection {
 
         publicWorkshops.group(":id") { workshop in
             workshop.get(use: show)
-            workshop.put(use: update)
-            workshop.delete(use: delete)
         }
 
         // Admin
@@ -322,44 +320,13 @@ struct WorkshopController: RouteCollection {
                                   infos: infos, bookedCapacity: bookedCapacity)
     }
 
-    private func update(req: Request) async throws -> WorkshopOutput {
-        try WorkshopInput.validate(content: req)
-
-        let input = try req.content.decode(WorkshopInput.self)
-
-        try input.validateDateOrder()
-
-        let workshop = try await findWorkshop(req: req)
-
-        guard let infos = workshop.infos else {
-            throw WorkshopError.infosNotFound
-        }
-
-        apply(input: input, to: workshop)
-        apply(input: input, to: infos)
-
-        return try await req.db.transaction { db in
-            try await workshop.update(on: db)
-            try await infos.update(on: db)
-
-            let bookedCapacity = try await calculateBookedCapacity(workshopID: workshop.requireID(),
-                                                                   req: req)
-
-            return try WorkshopOutput(workshop: workshop,
-                                      infos: infos, bookedCapacity: bookedCapacity)
-        }
-    }
-
-    private func delete(req: Request) async throws -> HTTPStatus {
-        let workshop = try await findWorkshop(req: req)
-
-        try await workshop.delete(on: req.db)
-
-        return .noContent
-    }
-
     private func adminCancel(req: Request) async throws -> HTTPStatus {
         let workshop = try await findWorkshop(req: req)
+
+        guard try await Reservation.query(on: req.db)
+            .filter(\.$workshop.$id == workshop.requireID()).first() == nil else {
+            throw WorkshopError.hasReservations
+        }
 
         guard let infos = workshop.infos else {
             throw WorkshopError.infosNotFound

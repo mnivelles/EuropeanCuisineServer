@@ -30,6 +30,7 @@ extension ReservationOutput {
 }
 
 struct AdminReservationListItemOutput: Content {
+    let id: UUID
     let workshop: String
     let category: String
     let date: String
@@ -46,6 +47,7 @@ extension AdminReservationListItemOutput {
         let dateFormat = Date.FormatStyle(date: .numeric, time: .omitted, locale: locale)
         let timeFormat = Date.FormatStyle(date: .omitted, time: .shortened, locale: locale)
 
+        self.id = try reservation.requireID()
         self.workshop = workshop.name
         self.category = workshop.category.name
         self.date = workshop.startTime.formatted(dateFormat)

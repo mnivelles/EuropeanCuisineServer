@@ -14,6 +14,7 @@ enum WorkshopError: AbortError {
     case invalidTimeOrder
     case infosNotFound
     case invalidAction
+    case hasReservations
 
     var status: HTTPResponseStatus {
         switch self {
@@ -26,6 +27,8 @@ enum WorkshopError: AbortError {
         case .infosNotFound:
             .notFound
         case .invalidAction:
+            .badRequest
+        case .hasReservations:
             .badRequest
         }
     }
@@ -42,6 +45,8 @@ enum WorkshopError: AbortError {
             "Workshop infos not found"
         case .invalidAction:
             "Action is not valid"
+        case .hasReservations:
+            "Workshop has reservations"
         }
     }
 }
