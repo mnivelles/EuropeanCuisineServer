@@ -50,6 +50,7 @@ struct WorkshopController: RouteCollection {
             .query(on: req.db)
             .with(\.$infos)
             .with(\.$category)
+            .sort(\.$name, .ascending)
             .all()
 
         var outputs: [WorkshopOutput] = []
