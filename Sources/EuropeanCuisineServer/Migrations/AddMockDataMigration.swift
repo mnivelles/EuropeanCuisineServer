@@ -874,11 +874,11 @@ struct AddMockDataMigration: AsyncMigration {
         // Workshop with several user
         let reservation2A = try Reservation(status: .confirmed, workshopID: workshop2.requireID(),
                                             userID: userGoerID1)
-        let reservation2B = try Reservation(status: .confirmed, workshopID: workshop2.requireID(),
+        let reservation2B = try Reservation(status: .cancelled, workshopID: workshop2.requireID(),
                                             userID: userGoerID2)
 
         // Workshop full
-        let reservation3A = try Reservation(status: .confirmed, workshopID: workshop3.requireID(),
+        let reservation3A = try Reservation(status: .pending, workshopID: workshop3.requireID(),
                                             userID: userGoerID1)
         let reservation3B = try Reservation(status: .confirmed, workshopID: workshop3.requireID(),
                                             userID: userGoerID2)
@@ -888,6 +888,56 @@ struct AddMockDataMigration: AsyncMigration {
         try await reservation2B.create(on: database)
         try await reservation3A.create(on: database)
         try await reservation3B.create(on: database)
+
+        // Reservation with lots of Users
+
+        let farmToForkCategory = Category(name: "Farm to Fork")
+        try await farmToForkCategory.create(on: database)
+        let farmToForkCategoryID = try farmToForkCategory.requireID()
+
+        let workshopInputDay =
+            WorkshopInput(name: "A Day on the Farm: Seasonal Cooking from Field to Plate",
+                          startTime: .fromUTC(year: 2026, month: 11, day: 2,
+                                              hour: 12, minute: 0),
+                          endTime: .fromUTC(year: 2026, month: 11, day: 2,
+                                            hour: 13, minute: 30),
+                          capacityMax: 20,
+                          description: "Meet a local farmer and learn how to turn fresh seasonal vegetables into a complete meal. Discover how to choose, store and cook produce at its peak, and how to cut food waste by using the whole vegetable, from root to leaf.",
+                          pictureURL: "https://picsum.photos/seed/farmtofork/800",
+                          location: "Kitchen, Hall C",
+                          isVegan: true,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: farmToForkCategoryID)
+
+        let workshopDay = workshopInputDay.toModel()
+        try await workshopDay.create(on: database)
+        let workshopDayID = try workshopDay.requireID()
+
+        let infosDay = workshopInputDay.toInfos(workshopID: workshopDayID)
+        try await infosDay.create(on: database)
+
+        let faker = UserFaker()
+        let usersForDay = faker.getUsers(count: 17)
+
+        for fakeUser in usersForDay {
+            let user = fakeUser.toUser(passwordHash: passwordHash,
+                                       role: .festivalGoer)
+
+            try await user.create(on: database)
+
+            let userID = try user.requireID()
+
+            let infos = fakeUser.toUserInfos(userID: userID,
+                                             status: .active)
+            try await infos.create(on: database)
+
+            let reservation = Reservation(status: .confirmed,
+                                          workshopID: workshopDayID,
+                                          userID: userID)
+
+            try await reservation.create(on: database)
+        }
     }
 
     private func removeReservations(on database: any Database) async throws {
