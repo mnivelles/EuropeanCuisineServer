@@ -29,6 +29,14 @@ extension ReservationOutput {
     }
 }
 
+struct IsReservedWorkshopInput: Content {
+    let workshopID: UUID
+}
+
+struct IsReservedWorkshopOutput: Content {
+    let isReserved: Bool
+}
+
 struct AdminReservationListItemOutput: Content {
     let id: UUID
     let workshop: String

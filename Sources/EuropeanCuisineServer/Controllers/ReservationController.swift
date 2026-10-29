@@ -13,17 +13,19 @@ struct ReservationController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let api = routes.grouped("api", "v0")
 
-        #warning("Delete from public create, update and delete")
-        let publicReservations = api
+        // Authenticated routes
+        let authReservations = api
             .grouped("reservations")
             .authenticated()
-        publicReservations.get(use: list)
-        publicReservations.post(use: create)
+        authReservations.get(use: list)
+        authReservations.post(use: create)
+        authReservations.get("is-reserved", use: isReserved)
 
-        publicReservations.group(":id") { reservation in
+        authReservations.group(":id") { reservation in
             reservation.delete(use: cancel)
         }
 
+        // Admin routes: User is Staff or Admin
         let adminReservations = api.grouped("admin", "reservations")
             .requiring(.admin, .staff)
         adminReservations.get(use: adminTableList)
@@ -185,6 +187,21 @@ struct ReservationController: RouteCollection {
         try await reservation.update(on: req.db)
 
         return .noContent
+    }
+
+    private func isReserved(req: Request) async throws -> IsReservedWorkshopOutput {
+        let user = try req.auth.require(User.self)
+        let input = try req.query.decode(IsReservedWorkshopInput.self)
+
+        if try await Reservation.query(on: req.db)
+            .filter(\.$user.$id == user.requireID())
+            .filter(\.$workshop.$id == input.workshopID)
+            .filter(\.$status == .confirmed)
+            .first() != nil {
+            return IsReservedWorkshopOutput(isReserved: true)
+        } else {
+            return IsReservedWorkshopOutput(isReserved: false)
+        }
     }
 
     private func create(req: Request) async throws -> Response {

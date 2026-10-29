@@ -1,0 +1,22 @@
+info:
+  name: Is Reserved [auth]
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseURL}}/is-reserved?workshopID=0B60DFE8-23C8-4520-B564-526E30BD5B20"
+  params:
+    - name: workshopID
+      value: 0B60DFE8-23C8-4520-B564-526E30BD5B20
+      type: query
+  auth:
+    type: bearer
+    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWJqZWN0IjoiNUFFNThGNzItMUQzRi00NTM3LUJDNTUtOEE1RUZBMDdCRUI0IiwiZXhwaXJhdGlvbiI6MTc5NTcwNzA0MC42MTM1OTc5fQ.UqeoE7JrqpEottx4jm1Q5y-BzeH8SYHxm5ZXFvUyVcQ
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
