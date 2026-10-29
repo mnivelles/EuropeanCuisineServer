@@ -19,6 +19,7 @@ struct ReservationController: RouteCollection {
             .authenticated()
         authReservations.get(use: list)
         authReservations.post(use: create)
+        authReservations.patch("cancel", use: authCancel)
         authReservations.get("is-reserved", use: isReserved)
 
         authReservations.group(":id") { reservation in
@@ -204,6 +205,30 @@ struct ReservationController: RouteCollection {
         }
     }
 
+    private func authCancel(req: Request) async throws -> HTTPStatus {
+        let user = try req.auth.require(User.self)
+        let userID = try user.requireID()
+
+        let input = try req.query.decode(CancelReservationInput.self)
+
+        guard let reservation = try await Reservation
+            .query(on: req.db)
+            .filter(\.$user.$id == userID)
+            .filter(\.$workshop.$id == input.workshopID)
+            .first() else {
+            throw ReservationError.notFound
+        }
+
+        guard reservation.status != .cancelled else {
+            throw ReservationError.invalidStatus
+        }
+
+        reservation.status = .cancelled
+        try await reservation.update(on: req.db)
+
+        return .noContent
+    }
+
     private func create(req: Request) async throws -> Response {
         let user = try req.auth.require(User.self)
         let userID = try user.requireID()
@@ -288,20 +313,6 @@ struct ReservationController: RouteCollection {
             .encodeResponse(status: .created, for: req)
     }
 
-    private func calculateBookedCapacity(workshopID: UUID,
-                                         req: Request) async throws -> UInt16 {
-        let reservations = try await Reservation
-            .query(on: req.db)
-            .filter(\.$workshop.$id == workshopID)
-            .all()
-
-        let activeReservations = reservations.filter {
-            $0.status == .confirmed || $0.status == .pending
-        }
-
-        return UInt16(activeReservations.count)
-    }
-
     private func cancel(req: Request) async throws -> HTTPStatus {
         let user = try req.auth.require(User.self)
         let userID = try user.requireID()
@@ -325,5 +336,19 @@ struct ReservationController: RouteCollection {
         try await reservation.update(on: req.db)
 
         return .noContent
+    }
+
+    private func calculateBookedCapacity(workshopID: UUID,
+                                         req: Request) async throws -> UInt16 {
+        let reservations = try await Reservation
+            .query(on: req.db)
+            .filter(\.$workshop.$id == workshopID)
+            .all()
+
+        let activeReservations = reservations.filter {
+            $0.status == .confirmed || $0.status == .pending
+        }
+
+        return UInt16(activeReservations.count)
     }
 }

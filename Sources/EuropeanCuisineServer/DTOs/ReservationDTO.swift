@@ -37,6 +37,10 @@ struct IsReservedWorkshopOutput: Content {
     let isReserved: Bool
 }
 
+struct CancelReservationInput: Content {
+    let workshopID: UUID
+}
+
 struct AdminReservationListItemOutput: Content {
     let id: UUID
     let workshop: String
