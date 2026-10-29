@@ -104,7 +104,7 @@ struct ReservationController: RouteCollection {
         }
 
         if let searchText = input.query,
-           searchText.trimmed.isEmpty {
+           searchText.trimmed.isNotEmpty {
             query
                 .filter(Workshop.self, \.$name ~~ searchText.trimmed)
         }
