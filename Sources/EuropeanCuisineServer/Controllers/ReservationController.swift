@@ -14,7 +14,9 @@ struct ReservationController: RouteCollection {
         let api = routes.grouped("api", "v0")
 
         #warning("Delete from public create, update and delete")
-        let publicReservations = api.grouped("reservations")
+        let publicReservations = api
+            .grouped("reservations")
+            .authenticated()
         publicReservations.get(use: list)
         publicReservations.post(use: create)
 
@@ -39,6 +41,7 @@ struct ReservationController: RouteCollection {
         let reservations = try await Reservation
             .query(on: req.db)
             .filter(\.$user.$id == userID)
+            .filter(\.$status == .confirmed)
             .all()
 
         var outputs: [ReservationOutput] = []
