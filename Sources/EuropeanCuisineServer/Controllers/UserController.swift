@@ -229,33 +229,16 @@ struct UserController: RouteCollection {
     }
 
     private func adminEnableUser(req: Request) async throws -> HTTPStatus {
-        let id = try req.parameters.require("id", as: UUID.self)
-
-        let authUser = try req.auth.require(User.self)
-
-        guard authUser.id != id else {
-            throw UserError.sameUser
-        }
-
-        guard let user = try await User.find(id, on: req.db) else {
-            throw UserError.notFound
-        }
-
-        try await user.$infos.load(on: req.db)
-
-        guard user.infos?.status == .disabled else {
-            throw UserError.invalidAction
-        }
-
-        user.infos?.status = .active
-        try await user.infos?.update(on: req.db)
-
-        return .ok
+        try await setUserStatus(req: req, from: .disabled, to: .active)
     }
 
     private func adminDisableUser(req: Request) async throws -> HTTPStatus {
-        let id = try req.parameters.require("id", as: UUID.self)
+        try await setUserStatus(req: req, from: .active, to: .disabled)
+    }
 
+    private func setUserStatus(req: Request, from: User.Status,
+                               to: User.Status) async throws -> HTTPStatus {
+        let id = try req.parameters.require("id", as: UUID.self)
         let authUser = try req.auth.require(User.self)
 
         guard authUser.id != id else {
@@ -267,15 +250,15 @@ struct UserController: RouteCollection {
         }
 
         try await user.$infos.load(on: req.db)
-
-        guard user.infos?.status == .active else {
+        guard let infos = user.infos,
+              infos.status == from else {
             throw UserError.invalidAction
         }
 
-        user.infos?.status = .disabled
-        try await user.infos?.update(on: req.db)
+        infos.status = to
+        try await infos.update(on: req.db)
 
-        return .ok
+        return .noContent
     }
 
     private func apply(input: AdminUpdateUserInput, to user: User) {

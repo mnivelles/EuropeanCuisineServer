@@ -12,22 +12,16 @@ import Vapor
 struct AddMockDataMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
         try await addBooths(on: database)
-
         try await addWorkshops(on: database)
-
         try await addUsers(on: database)
-
         try await addReservations(on: database)
     }
 
     func revert(on database: any Database) async throws {
-        try await removeBooths(on: database)
-
-        try await removeWorkshops(on: database)
-
-        try await removeUsers(on: database)
-
         try await removeReservations(on: database)
+        try await removeUsers(on: database)
+        try await removeWorkshops(on: database)
+        try await removeBooths(on: database)
     }
 
     private func addBooths(on database: any Database) async throws {
@@ -246,7 +240,7 @@ struct AddMockDataMigration: AsyncMigration {
             Booth(name: "O Souvlatzis",
                   about: "Grilled pork and chicken souvlaki served in warm pita with tzatziki, tomato, onion and fries.",
                   pictureURL: "https://picsum.photos/seed/souvlaki/800",
-                  location: "Aisle D - Stand 1",
+                  location: "Aisle F - Stand 1",
                   isVegan: false,
                   isPRM: true,
                   isFamilyFriendly: true,
@@ -259,7 +253,7 @@ struct AddMockDataMigration: AsyncMigration {
             Booth(name: "Mamá Moussaka",
                   about: "Homemade moussaka with layers of aubergine, potato and spiced minced beef, topped with creamy béchamel.",
                   pictureURL: "https://picsum.photos/seed/moussaka/800",
-                  location: "Aisle D - Stand 2",
+                  location: "Aisle F - Stand 2",
                   isVegan: false,
                   isPRM: true,
                   isFamilyFriendly: true,
@@ -272,7 +266,7 @@ struct AddMockDataMigration: AsyncMigration {
             Booth(name: "Filo & Feta",
                   about: "Crispy spanakopita and tiropita: golden filo pastry filled with spinach, feta and fresh herbs.",
                   pictureURL: "https://picsum.photos/seed/spanakopita/800",
-                  location: "Aisle D - Stand 3",
+                  location: "Aisle F - Stand 3",
                   isVegan: false,
                   isPRM: false,
                   isFamilyFriendly: true,
@@ -285,7 +279,7 @@ struct AddMockDataMigration: AsyncMigration {
             Booth(name: "Mezze Aegean",
                   about: "Gigantes plaki, dolmades, fava purée and horiatiki salad made with olive oil and fresh vegetables. 100% plant-based.",
                   pictureURL: "https://picsum.photos/seed/mezze/800",
-                  location: "Aisle E - Stand 4",
+                  location: "Aisle G - Stand 4",
                   isVegan: true,
                   isPRM: true,
                   isFamilyFriendly: true,
@@ -298,7 +292,7 @@ struct AddMockDataMigration: AsyncMigration {
             Booth(name: "Loukoumades & Baklava",
                   about: "Hot honey doughnuts with cinnamon and walnuts, plus baklava layered with pistachios and syrup.",
                   pictureURL: "https://picsum.photos/seed/baklava/800",
-                  location: "Aisle E - Stand 5",
+                  location: "Aisle G - Stand 5",
                   isVegan: false,
                   isPRM: true,
                   isFamilyFriendly: true,
@@ -324,19 +318,19 @@ struct AddMockDataMigration: AsyncMigration {
 
     private func addWorkshops(on database: any Database) async throws {
         let recipeCategory = Category(name: "Recipe")
-        let fashionShowCategory = Category(name: "Fashion Show")
+        let cookingShowCategory = Category(name: "Cooking Show")
         let keynoteCategory = Category(name: "Keynote")
         let kidsFamilyCategory = Category(name: "Kids Family")
         let discoveryCategory = Category(name: "Discovery")
 
         try await recipeCategory.create(on: database)
-        try await fashionShowCategory.create(on: database)
+        try await cookingShowCategory.create(on: database)
         try await keynoteCategory.create(on: database)
         try await kidsFamilyCategory.create(on: database)
         try await discoveryCategory.create(on: database)
 
         let recipeCategoryID = try recipeCategory.requireID()
-        let fashionShowCategoryID = try fashionShowCategory.requireID()
+        let cookingShowCategoryID = try cookingShowCategory.requireID()
         let keynoteCategoryID = try keynoteCategory.requireID()
         let kidsFamilyCategoryID = try kidsFamilyCategory.requireID()
         let discoveryCategoryID = try discoveryCategory.requireID()
@@ -397,12 +391,12 @@ struct AddMockDataMigration: AsyncMigration {
                           isPRM: true,
                           isFamilyFriendly: true,
                           categoryID: recipeCategoryID),
-            WorkshopInput(name: "Handmade Japanese Ramen",
+            WorkshopInput(name: "Handmade Polish Pierogi",
                           startTime: .fromUTC(year: 2026, month: 11, day: 7, hour: 11, minute: 0),
                           endTime: .fromUTC(year: 2026, month: 11, day: 7, hour: 12, minute: 30),
                           capacityMax: 20,
-                          description: "Discover the fundamentals of Japanese ramen, from preparing a flavorful broth to assembling noodles and traditional toppings.",
-                          pictureURL: "https://picsum.photos/seed/ramen/800",
+                          description: "Learn to roll, fill and fold traditional Polish pierogi, from the dough to classic fillings like potato and cheese or sauerkraut and mushrooms, then taste your own creations.",
+                          pictureURL: "https://picsum.photos/seed/pierogi/800",
                           location: "Kitchen Room, Hall C",
                           isVegan: false,
                           isPRM: true,
@@ -418,54 +412,54 @@ struct AddMockDataMigration: AsyncMigration {
             try await infos.create(on: database)
         }
 
-        let fashionShowWorkshopInputs: [WorkshopInput] = [
-            WorkshopInput(name: "European Sustainable Fashion Show",
+        let cookingShowWorkshopInputs: [WorkshopInput] = [
+            WorkshopInput(name: "European Sustainable Cooking Show",
                           startTime: .fromUTC(year: 2026, month: 11, day: 2, hour: 16, minute: 0),
                           endTime: .fromUTC(year: 2026, month: 11, day: 2, hour: 17, minute: 0),
                           capacityMax: 200,
-                          description: "Discover contemporary European designers presenting collections made with sustainable materials, ethical production methods and innovative designs.",
-                          pictureURL: "https://picsum.photos/seed/sustainablefashion/800",
-                          location: "Fashion Stage, Hall A",
+                          description: "Watch European chefs cook live on stage with seasonal, plant-based and zero-waste ingredients, and discover sustainable techniques you can easily reuse at home.",
+                          pictureURL: "https://picsum.photos/seed/sustainablecooking/800",
+                          location: "Stage, Hall A",
                           isVegan: true,
                           isPRM: true,
                           isFamilyFriendly: true,
-                          categoryID: fashionShowCategoryID),
-            WorkshopInput(name: "The Art of Mediterranean Couture",
+                          categoryID: cookingShowCategoryID),
+            WorkshopInput(name: "The Art of Mediterranean Gastronomy",
                           startTime: .fromUTC(year: 2026, month: 11, day: 4, hour: 14, minute: 30),
                           endTime: .fromUTC(year: 2026, month: 11, day: 4, hour: 15, minute: 30),
                           capacityMax: 180,
-                          description: "Experience a runway celebration of Mediterranean fashion, combining traditional craftsmanship, elegant silhouettes and contemporary design.",
-                          pictureURL: "https://picsum.photos/seed/couture/800",
-                          location: "Fashion Stage, Hall A",
+                          description: "A live cooking show celebrating Mediterranean cuisine, with vegetable-driven dishes built on olive oil, fresh herbs and sun-ripened produce, and the traditions behind each recipe.",
+                          pictureURL: "https://picsum.photos/seed/mediterranean/800",
+                          location: "Stage, Hall A",
                           isVegan: true,
                           isPRM: true,
                           isFamilyFriendly: true,
-                          categoryID: fashionShowCategoryID),
-            WorkshopInput(name: "Traditional Textiles on the Runway",
+                          categoryID: cookingShowCategoryID),
+            WorkshopInput(name: "Traditional Recipes on Stage",
                           startTime: .fromUTC(year: 2026, month: 11, day: 5, hour: 16, minute: 30),
                           endTime: .fromUTC(year: 2026, month: 11, day: 5, hour: 17, minute: 30),
                           capacityMax: 180,
-                          description: "Explore European textile heritage through a fashion show featuring traditional embroidery, regional fabrics and modern interpretations of historic garments.",
-                          pictureURL: "https://picsum.photos/seed/textilerunway/800",
+                          description: "Regional chefs bring Europe's heritage recipes to the stage, cooking plant-based versions of traditional dishes and sharing the family stories behind them.",
+                          pictureURL: "https://picsum.photos/seed/traditional/800",
                           location: "Fashion Stage, Hall B",
                           isVegan: true,
                           isPRM: true,
                           isFamilyFriendly: true,
-                          categoryID: fashionShowCategoryID),
-            WorkshopInput(name: "Young European Designers",
+                          categoryID: cookingShowCategoryID),
+            WorkshopInput(name: "Young European Chefs",
                           startTime: .fromUTC(year: 2026, month: 11, day: 7, hour: 15, minute: 30),
                           endTime: .fromUTC(year: 2026, month: 11, day: 7, hour: 16, minute: 30),
                           capacityMax: 220,
-                          description: "Meet the next generation of European fashion talent through a runway showcase of bold concepts, experimental materials and original collections.",
-                          pictureURL: "https://picsum.photos/seed/youngdesigners/800",
-                          location: "Fashion Stage, Hall A",
+                          description: "Meet the next generation of European chefs as they present bold plant-based dishes, experimental techniques and original takes on classic recipes.",
+                          pictureURL: "https://picsum.photos/seed/youngchefs/800",
+                          location: "Stage, Hall A",
                           isVegan: true,
                           isPRM: true,
                           isFamilyFriendly: true,
-                          categoryID: fashionShowCategoryID),
+                          categoryID: cookingShowCategoryID),
         ]
 
-        for input in fashionShowWorkshopInputs {
+        for input in cookingShowWorkshopInputs {
             let workshop = input.toModel()
             try await workshop.create(on: database)
 
@@ -583,7 +577,7 @@ struct AddMockDataMigration: AsyncMigration {
                           isVegan: true,
                           isPRM: true,
                           isFamilyFriendly: true,
-                          categoryID: keynoteCategoryID),
+                          categoryID: discoveryCategoryID),
             WorkshopInput(name: "European Coffee Culture and Roasting",
                           startTime: .fromUTC(year: 2026, month: 11, day: 7, hour: 9, minute: 0),
                           endTime: .fromUTC(year: 2026, month: 11, day: 7, hour: 10, minute: 0),
@@ -703,7 +697,7 @@ struct AddMockDataMigration: AsyncMigration {
         let goer1ID = try goer1.requireID()
 
         let goer1Infos = UserInfos(status: .active,
-                                   pictureURL: "https://picsum.photos/seed/taka/800",
+                                   pictureURL: "https://picsum.photos/seed/aka/800",
                                    userID: goer1ID)
 
         try await goer1Infos.create(on: database)
@@ -758,7 +752,7 @@ struct AddMockDataMigration: AsyncMigration {
 
         // Staff 2
         let staff2 = User(name: "Claire Elisabeth de la Chance",
-                          email: "claire.e.d.l.chance@icloud.com",
+                          email: "claire.e.d.l.chance@example.com",
                           passwordHash: passwordHash,
                           role: .staff)
 
@@ -804,11 +798,11 @@ struct AddMockDataMigration: AsyncMigration {
         try await userGoerInfos1.create(on: database)
         try await userGoerInfos2.create(on: database)
 
-        let blogCategory = Category(name: "Blog")
+        let foodTastingCategory = Category(name: "Food Tasting")
 
-        try await blogCategory.create(on: database)
+        try await foodTastingCategory.create(on: database)
 
-        let blogCategoryID = try blogCategory.requireID()
+        let foodTastingCategoryID = try foodTastingCategory.requireID()
 
         let workshopInput1 = WorkshopInput(name: "The Art of French Pastry",
                                            startTime: .fromUTC(year: 2026, month: 11, day: 4,
@@ -823,7 +817,7 @@ struct AddMockDataMigration: AsyncMigration {
                                            isVegan: false,
                                            isPRM: true,
                                            isFamilyFriendly: true,
-                                           categoryID: blogCategoryID)
+                                           categoryID: foodTastingCategoryID)
 
         let workshop1 = workshopInput1.toModel()
         try await workshop1.create(on: database)
@@ -844,7 +838,7 @@ struct AddMockDataMigration: AsyncMigration {
                                            isVegan: false,
                                            isPRM: true,
                                            isFamilyFriendly: true,
-                                           categoryID: blogCategoryID)
+                                           categoryID: foodTastingCategoryID)
 
         let workshop2 = workshopInput2.toModel()
         try await workshop2.create(on: database)
@@ -865,7 +859,7 @@ struct AddMockDataMigration: AsyncMigration {
                                            isVegan: false,
                                            isPRM: true,
                                            isFamilyFriendly: true,
-                                           categoryID: blogCategoryID)
+                                           categoryID: foodTastingCategoryID)
 
         let workshop3 = workshopInput3.toModel()
         try await workshop3.create(on: database)
@@ -878,15 +872,15 @@ struct AddMockDataMigration: AsyncMigration {
                                            userID: userGoerID1)
 
         // Workshop with several user
-        let reservation2A = try Reservation(status: .pending, workshopID: workshop2.requireID(),
+        let reservation2A = try Reservation(status: .confirmed, workshopID: workshop2.requireID(),
                                             userID: userGoerID1)
-        let reservation2B = try Reservation(status: .confirmed, workshopID: workshop2.requireID(),
+        let reservation2B = try Reservation(status: .cancelled, workshopID: workshop2.requireID(),
                                             userID: userGoerID2)
 
         // Workshop full
-        let reservation3A = try Reservation(status: .confirmed, workshopID: workshop3.requireID(),
+        let reservation3A = try Reservation(status: .pending, workshopID: workshop3.requireID(),
                                             userID: userGoerID1)
-        let reservation3B = try Reservation(status: .cancelled, workshopID: workshop3.requireID(),
+        let reservation3B = try Reservation(status: .confirmed, workshopID: workshop3.requireID(),
                                             userID: userGoerID2)
 
         try await reservation1.create(on: database)
@@ -894,6 +888,56 @@ struct AddMockDataMigration: AsyncMigration {
         try await reservation2B.create(on: database)
         try await reservation3A.create(on: database)
         try await reservation3B.create(on: database)
+
+        // Reservation with lots of Users
+
+        let farmToForkCategory = Category(name: "Farm to Fork")
+        try await farmToForkCategory.create(on: database)
+        let farmToForkCategoryID = try farmToForkCategory.requireID()
+
+        let workshopInputDay =
+            WorkshopInput(name: "A Day on the Farm: Seasonal Cooking from Field to Plate",
+                          startTime: .fromUTC(year: 2026, month: 11, day: 2,
+                                              hour: 12, minute: 0),
+                          endTime: .fromUTC(year: 2026, month: 11, day: 2,
+                                            hour: 13, minute: 30),
+                          capacityMax: 20,
+                          description: "Meet a local farmer and learn how to turn fresh seasonal vegetables into a complete meal. Discover how to choose, store and cook produce at its peak, and how to cut food waste by using the whole vegetable, from root to leaf.",
+                          pictureURL: "https://picsum.photos/seed/farmtofork/800",
+                          location: "Kitchen, Hall C",
+                          isVegan: true,
+                          isPRM: true,
+                          isFamilyFriendly: true,
+                          categoryID: farmToForkCategoryID)
+
+        let workshopDay = workshopInputDay.toModel()
+        try await workshopDay.create(on: database)
+        let workshopDayID = try workshopDay.requireID()
+
+        let infosDay = workshopInputDay.toInfos(workshopID: workshopDayID)
+        try await infosDay.create(on: database)
+
+        let faker = UserFaker()
+        let usersForDay = faker.getUsers(count: 17)
+
+        for fakeUser in usersForDay {
+            let user = fakeUser.toUser(passwordHash: passwordHash,
+                                       role: .festivalGoer)
+
+            try await user.create(on: database)
+
+            let userID = try user.requireID()
+
+            let infos = fakeUser.toUserInfos(userID: userID,
+                                             status: .active)
+            try await infos.create(on: database)
+
+            let reservation = Reservation(status: .confirmed,
+                                          workshopID: workshopDayID,
+                                          userID: userID)
+
+            try await reservation.create(on: database)
+        }
     }
 
     private func removeReservations(on database: any Database) async throws {
