@@ -237,7 +237,7 @@ struct ReservationController: RouteCollection {
             return try await ReservationOutput(reservation: existingReservation,
                                                workshop: workshop,
                                                infos: infos, bookedCapacity: bookedCapacity)
-                .encodeResponse(status: .ok, for: req)
+                .encodeResponse(status: .created, for: req)
         }
 
         let workshopReservations = try await Reservation
