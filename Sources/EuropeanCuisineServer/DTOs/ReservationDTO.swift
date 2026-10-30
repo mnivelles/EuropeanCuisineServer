@@ -37,6 +37,14 @@ struct IsReservedWorkshopOutput: Content {
     let isReserved: Bool
 }
 
+struct AreReservedListWorkshopInput: Content {
+    let workshopIDs: [UUID]
+}
+
+struct AreReservedListWorkshopOutput: Content {
+    let reservedWorkshopIDs: [UUID]
+}
+
 struct CancelReservationInput: Content {
     let workshopID: UUID
 }

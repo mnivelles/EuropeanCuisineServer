@@ -21,6 +21,7 @@ struct ReservationController: RouteCollection {
         authReservations.post(use: create)
         authReservations.patch("cancel", use: authCancel)
         authReservations.get("is-reserved", use: isReserved)
+        authReservations.get("are-reserved-list", use: areReservedList)
 
         authReservations.group(":id") { reservation in
             reservation.delete(use: cancel)
@@ -191,11 +192,11 @@ struct ReservationController: RouteCollection {
     }
 
     private func isReserved(req: Request) async throws -> IsReservedWorkshopOutput {
-        let user = try req.auth.require(User.self)
+        let userID = try req.auth.require(User.self).requireID()
         let input = try req.query.decode(IsReservedWorkshopInput.self)
 
         if try await Reservation.query(on: req.db)
-            .filter(\.$user.$id == user.requireID())
+            .filter(\.$user.$id == userID)
             .filter(\.$workshop.$id == input.workshopID)
             .filter(\.$status == .confirmed)
             .first() != nil {
@@ -203,6 +204,23 @@ struct ReservationController: RouteCollection {
         } else {
             return IsReservedWorkshopOutput(isReserved: false)
         }
+    }
+
+    private func areReservedList(req: Request) async throws -> AreReservedListWorkshopOutput {
+        let userID = try req.auth.require(User.self).requireID()
+        let input = try req.query.decode(AreReservedListWorkshopInput.self)
+
+        guard input.workshopIDs.isNotEmpty else {
+            return AreReservedListWorkshopOutput(reservedWorkshopIDs: [])
+        }
+
+        let reservations = try await Reservation.query(on: req.db)
+            .filter(\.$user.$id == userID)
+            .filter(\.$workshop.$id ~~ input.workshopIDs)
+            .filter(\.$status == .confirmed)
+            .all()
+
+        return AreReservedListWorkshopOutput(reservedWorkshopIDs: reservations.map(\.$workshop.id))
     }
 
     private func authCancel(req: Request) async throws -> HTTPStatus {
