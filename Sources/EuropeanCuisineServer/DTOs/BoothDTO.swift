@@ -11,55 +11,6 @@ import Vapor
 
 // MARK: - Public
 
-struct BoothInput: Content {
-    let name: String
-    let about: String
-    let pictureURL: String
-    let location: String
-    let isVegan: Bool
-    let isPRM: Bool
-    let isFamilyFriendly: Bool
-    let allergens: Set<Allergen>
-    let startTime: Date
-    let endTime: Date
-    let countryID: UUID
-}
-
-extension BoothInput: Validatable {
-    static func validations(_ validations: inout Validations) {
-        validations.add("name",
-                        as: String.self,
-                        is: Constants.Booth.Name.validator)
-        validations.add("about",
-                        as: String.self,
-                        is: Constants.Booth.About.validator)
-        validations.add("pictureURL",
-                        as: String.self,
-                        is: Constants.Booth.PictureURL.validator)
-        validations.add("location",
-                        as: String.self,
-                        is: Constants.Booth.Location.validator)
-        validations.add("allergens", as: [String].self, is: .allergens)
-    }
-}
-
-extension BoothInput {
-    func toModel(status: Booth.Status) -> Booth {
-        Booth(name: name.trimmed,
-              about: about.trimmed,
-              pictureURL: pictureURL.trimmed,
-              location: location.trimmed,
-              isVegan: isVegan,
-              isPRM: isPRM,
-              isFamilyFriendly: isFamilyFriendly,
-              allergens: allergens,
-              startTime: startTime,
-              endTime: endTime,
-              status: status,
-              countryID: countryID)
-    }
-}
-
 struct BoothOutput: Content {
     let id: UUID
     let name: String

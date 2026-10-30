@@ -15,17 +15,12 @@ struct BoothController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
         let api = routes.grouped("api", "v0")
 
-        #warning("retirer dans Public : post, put et delete")
-
         // Public
         let publicBooths = api.grouped("booths")
         publicBooths.get(use: list)
-        publicBooths.post(use: create) // FIXME: TO DELETE
 
         publicBooths.group(":id") { booth in
             booth.get(use: show)
-            booth.put(use: update) // FIXME: TO DELETE
-            booth.delete(use: delete) // FIXME: TO DELETE
         }
 
         // Admin site - Role = admin || staff
@@ -136,39 +131,6 @@ struct BoothController: RouteCollection {
         }
     }
 
-    private func create(req: Request) async throws -> Response {
-        let locale = LocalizationUtils.getLocale(req: req)
-
-        try BoothInput.validate(content: req)
-
-        let input = try req.content.decode(BoothInput.self)
-
-        guard try await Booth.query(on: req.db)
-            .filter(\.$name == input.name.trimmed).first() == nil else {
-            throw BoothError.alreadyExists
-        }
-
-        guard try await BoothCountry
-            .query(on: req.db)
-            .filter(\.$id == input.countryID)
-            .first() != nil else {
-            throw BoothCountryError.notFound
-        }
-
-        let booth = input.toModel(status: .active)
-
-        try await booth.create(on: req.db)
-
-        try await booth.$country.load(on: req.db)
-        try await booth.country.$translations.load(on: req.db)
-
-        let countryName = LocalizationUtils.getCountryName(from: booth.country.translations,
-                                                           locale: locale)
-
-        return try await BoothOutput(booth, countryName: countryName)
-            .encodeResponse(status: .created, for: req)
-    }
-
     private func adminCreate(req: Request) async throws -> Response {
         let locale = LocalizationUtils.getLocale(req: req)
 
@@ -235,37 +197,6 @@ struct BoothController: RouteCollection {
         return try BoothOutput(booth, countryName: countryName)
     }
 
-    private func update(req: Request) async throws -> BoothOutput {
-        let locale = LocalizationUtils.getLocale(req: req)
-
-        try BoothInput.validate(content: req)
-
-        let input = try req.content.decode(BoothInput.self)
-
-        let booth = try await findBooth(req: req)
-
-        guard try await Booth.query(on: req.db)
-            .filter(\.$name == input.name.trimmed).first() == nil
-            || (input.name.trimmed == booth.name.trimmed) else {
-            throw BoothError.alreadyExists
-        }
-
-        guard try await BoothCountry.query(on: req.db)
-            .filter(\.$id == input.countryID)
-            .first() != nil else {
-            throw BoothCountryError.notFound
-        }
-
-        apply(input: input, to: booth)
-
-        try await booth.update(on: req.db)
-
-        let countryName = LocalizationUtils.getCountryName(from: booth.country.translations,
-                                                           locale: locale)
-
-        return try BoothOutput(booth, countryName: countryName)
-    }
-
     private func adminShow(req: Request) async throws -> AdminShowBoothOutput {
         let booth = try await findBooth(req: req)
 
@@ -313,14 +244,6 @@ struct BoothController: RouteCollection {
         }
     }
 
-    private func delete(req: Request) async throws -> HTTPStatus {
-        let booth = try await findBooth(req: req)
-
-        try await booth.delete(on: req.db)
-
-        return .noContent
-    }
-
     private func adminDisableBooth(req: Request) async throws -> HTTPStatus {
         let booth = try await findBooth(req: req)
 
@@ -364,20 +287,6 @@ struct BoothController: RouteCollection {
         }
 
         return booth
-    }
-
-    private func apply(input: BoothInput, to booth: Booth) {
-        booth.name = input.name.trimmed
-        booth.about = input.about.trimmed
-        booth.pictureURL = input.pictureURL.trimmed
-        booth.location = input.location.trimmed
-        booth.isVegan = input.isVegan
-        booth.isPRM = input.isPRM
-        booth.isFamilyFriendly = input.isFamilyFriendly
-        booth.allergens = input.allergens
-        booth.startTime = input.startTime
-        booth.endTime = input.endTime
-        booth.$country.id = input.countryID
     }
 
     private func apply(input: AdminUpdateBoothInput, to booth: Booth) {
