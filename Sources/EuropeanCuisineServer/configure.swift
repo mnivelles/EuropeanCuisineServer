@@ -1,5 +1,6 @@
 import Fluent
 import FluentMySQLDriver
+import FluentSQLiteDriver
 import Gatekeeper
 import JWT
 import NIOSSL
@@ -11,22 +12,27 @@ func configure(_ app: Application) async throws {
     // uncomment to serve files from /Public folder
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
 
-    app.databases
-        .use(DatabaseConfigurationFactory
-            .mysql(hostname: Environment.get("DATABASE_HOST") ?? "localhost",
-                   port: Environment.get("DATABASE_PORT")
-                       .flatMap(Int.init(_:)) ??
-                       MySQLConfiguration
-                       .ianaPortNumber,
-                   username: Environment
-                       .get("DATABASE_USERNAME") ??
-                       "vapor_username",
-                   password: Environment
-                       .get("DATABASE_PASSWORD") ??
-                       "vapor_password",
-                   database: Environment
-                       .get("DATABASE_NAME") ?? "vapor_database"),
-            as: .mysql)
+    #warning("Production is missing. There are only testing and development")
+
+    if app.environment == .testing {
+        app.databases.use(.sqlite(.memory), as: .sqlite)
+    } else {
+        app.databases
+            .use(.mysql(hostname: Environment.get("DATABASE_HOST") ?? "localhost",
+                        port: Environment.get("DATABASE_PORT")
+                            .flatMap(Int.init(_:)) ??
+                            MySQLConfiguration
+                            .ianaPortNumber,
+                        username: Environment
+                            .get("DATABASE_USERNAME") ??
+                            "vapor_username",
+                        password: Environment
+                            .get("DATABASE_PASSWORD") ??
+                            "vapor_password",
+                        database: Environment
+                            .get("DATABASE_NAME") ?? "vapor_database"),
+                 as: .mysql)
+    }
 
     app.migrations.add(CreateCategoryMigration())
     app.migrations.add(CreateUserMigration())
@@ -38,8 +44,9 @@ func configure(_ app: Application) async throws {
     app.migrations.add(CreateBoothCountryTranslationMigration())
     app.migrations.add(CreateBoothMigration())
 
-    #warning("retirer ajout des mock data quand en production")
-    app.migrations.add(AddMockDataMigration())
+    if app.environment == .development {
+        app.migrations.add(AddMockDataMigration())
+    }
 
     try await app.autoMigrate()
 
@@ -69,19 +76,29 @@ func configure(_ app: Application) async throws {
     app.middleware.use(corsMiddleware, at: .beginning)
 
     app.caches.use(.memory)
-    app.gatekeeper.config = .init(maxRequests: 100, per: .minute)
-    app.middleware.use(GatekeeperMiddleware())
+    if app.environment != .testing {
+        app.gatekeeper.config = .init(maxRequests: 100, per: .minute)
+        app.middleware.use(GatekeeperMiddleware())
+    }
 
-    let awsClient =
-        AWSClient(credentialProvider: .static(accessKeyId: Environment.get("R2_ACCESS_KEY_ID")!,
-                                              secretAccessKey: Environment
-                                                  .get("R2_SECRET_ACCESS_KEY")!))
-    app.services.awsClient.use { _ in awsClient }
+    if app.environment == .development {
+        let awsClient =
+            AWSClient(credentialProvider: .static(accessKeyId: Environment.get("R2_ACCESS_KEY_ID")!,
+                                                  secretAccessKey: Environment
+                                                      .get("R2_SECRET_ACCESS_KEY")!))
+        app.services.awsClient.use { _ in awsClient }
+    }
 
     // register routes
     try routes(app)
 
-    await app.jwt.keys.add(hmac: .init(from: Environment.get("JWT_SECRET_KEY")!),
-                           digestAlgorithm: .sha256,
-                           kid: "basic")
+    if app.environment == .development {
+        await app.jwt.keys.add(hmac: .init(from: Environment.get("JWT_SECRET_KEY")!),
+                               digestAlgorithm: .sha256,
+                               kid: "basic")
+    } else if app.environment == .testing {
+        await app.jwt.keys.add(hmac: .init(from: "test-only-jwt-secret-key-32-bytes-minimum!"),
+                               digestAlgorithm: .sha256,
+                               kid: "basic")
+    }
 }
