@@ -492,3 +492,22 @@ struct AdminCalendarPaginationInput: Content {
     let page: Int?
     let per: Int?
 }
+
+struct AdminWorkshopReservationListInput: Content {
+    let status: Status?
+
+    enum Status: String, Codable {
+        case confirmed
+        case pending
+        case cancelled
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case status
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.status = try container.decodeIfNotEmpty(Status.self, forKey: .status)
+    }
+}

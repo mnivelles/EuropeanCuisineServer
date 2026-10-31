@@ -92,10 +92,19 @@ struct ReservationController: RouteCollection {
                 user.with(\.$infos)
             }
 
-        if let filter = input.filter {
-            switch filter {
-            case .all:
-                break
+        if let searchText = input.query,
+           searchText.trimmed.isNotEmpty {
+            query
+                .group(.or) { group in
+                    group.filter(Workshop.self,
+                                 \.$name ~~ searchText.trimmed)
+                    group.filter(User.self,
+                                 \.$name ~~ searchText.trimmed)
+                }
+        }
+
+        if let status = input.status {
+            switch status {
             case .confirmed:
                 query.filter(\.$status == .confirmed)
             case .pending:
@@ -105,27 +114,26 @@ struct ReservationController: RouteCollection {
             }
         }
 
-        if let searchText = input.query,
-           searchText.trimmed.isNotEmpty {
-            query
-                .filter(Workshop.self, \.$name ~~ searchText.trimmed)
-        }
-
         if let sort = input.sort {
             switch sort {
             case .name:
-                query.sort(Workshop.self, \.$name, .ascending)
-
+                query
+                    .sort(Workshop.self, \.$name, .ascending)
+                    .sort(User.self, \.$name, .ascending)
             case .category:
-                query.sort(Category.self, \.$name, .ascending)
-                query.sort(Workshop.self, \.$name, .ascending)
-
+                query
+                    .sort(Category.self, \.$name, .ascending)
+                    .sort(Workshop.self, \.$name, .ascending)
+                    .sort(User.self, \.$name, .ascending)
             case .date:
-                query.sort(Workshop.self, \.$startTime, .ascending)
+                query
+                    .sort(Workshop.self, \.$startTime, .ascending)
+                    .sort(User.self, \.$name, .ascending)
             }
         } else {
             query
                 .sort(Workshop.self, \.$name, .ascending)
+                .sort(User.self, \.$name, .ascending)
         }
 
         let page = try await query.paginate(for: req)
@@ -358,15 +366,19 @@ struct ReservationController: RouteCollection {
 
     private func calculateBookedCapacity(workshopID: UUID,
                                          req: Request) async throws -> UInt16 {
-        let reservations = try await Reservation
+        let count = try await Reservation
             .query(on: req.db)
             .filter(\.$workshop.$id == workshopID)
-            .all()
+            .group(.or) { group in
+                group.filter(\.$status == .confirmed)
+                group.filter(\.$status == .pending)
+            }
+            .count()
 
-        let activeReservations = reservations.filter {
-            $0.status == .confirmed || $0.status == .pending
+        guard count <= Int(UInt16.max) else {
+            return 0
         }
 
-        return UInt16(activeReservations.count)
+        return UInt16(count)
     }
 }

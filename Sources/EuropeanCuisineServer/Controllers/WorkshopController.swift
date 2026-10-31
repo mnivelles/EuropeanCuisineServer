@@ -16,7 +16,6 @@ struct WorkshopController: RouteCollection {
         let api = routes.grouped("api", "v0")
 
         // Public
-        #warning("Delete from public create, update and delete")
         let publicWorkshops = api.grouped("workshops")
         publicWorkshops.get(use: list)
 
@@ -128,29 +127,39 @@ struct WorkshopController: RouteCollection {
 
     private func adminWorkshopReservationList(req: Request) async throws
         -> Page<AdminWorkshopReservationListItemOutput> {
-        let workshopID = try req.parameters.require("workshopID", as: UUID.self)
+        let workshopID = try req.parameters.require("workshopID",
+                                                    as: UUID.self)
 
-        let filter = req.query[String.self, at: "filter"] ?? "status"
+        let input = try req.query.decode(AdminWorkshopReservationListInput.self)
 
         let query = Reservation.query(on: req.db)
             .filter(\.$workshop.$id == workshopID)
-        if filter != "status",
-           let status = Reservation.Status(rawValue: filter) {
-            query.filter(\.$status == status)
-        }
+            .join(User.self, on: \Reservation.$user.$id == \User.$id)
+            .with(\.$user) { user in
+                user.with(\.$infos)
+            }
+            .sort(User.self, \.$name, .ascending)
 
-        query.with(\.$user) { user in
-            user.with(\.$infos)
+        if let status = input.status {
+            switch status {
+            case .confirmed:
+                query
+                    .filter(\.$status == .confirmed)
+            case .pending:
+                query
+                    .filter(\.$status == .pending)
+            case .cancelled:
+                query
+                    .filter(\.$status == .cancelled)
+            }
         }
 
         let page = try await query.paginate(for: req)
 
-        let items = try page.items.map { reservation in
+        return try page.map { reservation in
             try AdminWorkshopReservationListItemOutput(reservation: reservation,
                                                        user: reservation.user)
         }
-
-        return Page(items: items, metadata: page.metadata)
     }
 
     private func create(req: Request) async throws -> Response {
