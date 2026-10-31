@@ -8,7 +8,7 @@ struct BoothCountryControllerTests {
     @Suite("GET /api/v0/booth-countries")
     struct List {
         @Test
-        func `The list is empty at the start`() async throws {
+        func `the list is empty at the start`() async throws {
             try await withApp(configure: configure) { app in
                 try await app.testing().test(.GET, "api/v0/booth-countries") { res in
                     #expect(res.status == .ok)
@@ -21,7 +21,7 @@ struct BoothCountryControllerTests {
         }
 
         @Test
-        func `The list contains added countries`() async throws {
+        func `the list contains added countries`() async throws {
             try await withApp(configure: configure) { app in
                 let france = BoothCountry(code: "FRA")
                 try await france.create(on: app.db)
@@ -62,7 +62,7 @@ struct BoothCountryControllerTests {
     @Suite("POST /api/v0/booth-countries")
     struct Create {
         @Test
-        func `Create country then return country with .create (201)`() async throws {
+        func `create country then return country with .create (201)`() async throws {
             try await withApp(configure: configure) { app in
                 let input = BoothCountryInput(code: "JPN")
 
@@ -86,7 +86,7 @@ struct BoothCountryControllerTests {
         }
 
         @Test
-        func `Throw error when a country with same code already exists`() async throws {
+        func `throw error when a country with same code already exists`() async throws {
             try await withApp(configure: configure) { app in
                 let southKorea = BoothCountry(code: "KOR")
                 try await southKorea.create(on: app.db)
@@ -109,7 +109,7 @@ struct BoothCountryControllerTests {
         }
 
         @Test(arguments: ["INVALID", "es", "Portugal", "", "  \t", "--"])
-        func `A invalid code return status .badRequest (400)`(code: String) async throws {
+        func `a invalid code return status .badRequest (400)`(code: String) async throws {
             let input = BoothCountryInput(code: code)
 
             try await withApp(configure: configure) { app in
@@ -129,7 +129,7 @@ struct BoothCountryControllerTests {
     @Suite("GET /api/v0/booth-countries/{id}")
     struct Show {
         @Test
-        func `Show country`() async throws {
+        func `show country`() async throws {
             try await withApp(configure: configure) { app in
                 let portugal = BoothCountry(code: "PRT")
                 try await portugal.create(on: app.db)
@@ -151,7 +151,7 @@ struct BoothCountryControllerTests {
     @Suite("PUT /api/v0/booth-countries/{id}")
     struct Update {
         @Test
-        func `Update country`() async throws {
+        func `update country`() async throws {
             try await withApp(configure: configure) { app in
                 let country = BoothCountry(code: "ARG")
                 try await country.create(on: app.db)
@@ -177,12 +177,37 @@ struct BoothCountryControllerTests {
                 #expect(updated.code == input.code)
             }
         }
+
+        @Test(arguments: ["INVALID", "es", "Portugal", "", "  \t", "--"])
+        func `a invalid code return status .badRequest (400)`(code: String) async throws {
+            try await withApp(configure: configure) { app in
+                let country = BoothCountry(code: "BRA")
+                try await country.create(on: app.db)
+
+                let input = BoothCountryInput(code: code)
+
+                try await app.testing().test(.PUT, "api/v0/booth-countries/\(country.id!)",
+                                             beforeRequest: { req in
+                                                 try req.content.encode(input)
+                                             }, afterResponse: { res in
+                                                 #expect(res.status == .badRequest)
+
+                                                 let body = try res.content.decode(ErrorBody.self)
+                                                 #expect(body.reason.contains("code"))
+                                             })
+
+                let notUpdated = try #require(try await BoothCountry.find(country.id!,
+                                                                          on: app.db))
+
+                #expect(notUpdated.code == country.code)
+            }
+        }
     }
 
     @Suite("DELETE /api/v0/booth-countries/{id}")
     struct Delete {
         @Test
-        func `Delete country`() async throws {
+        func `delete country`() async throws {
             try await withApp(configure: configure) { app in
                 let spain = BoothCountry(code: "ESP")
                 try await spain.create(on: app.db)
