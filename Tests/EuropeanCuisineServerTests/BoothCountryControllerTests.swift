@@ -5,12 +5,19 @@ import VaporTesting
 
 @Suite("BoothCountry routes")
 struct BoothCountryControllerTests {
-    @Suite("GET /api/v0/booth-countries")
+    @Suite("GET /api/v0/admin/booth-countries")
     struct List {
         @Test
         func `the list is empty at the start`() async throws {
             try await withApp(configure: configure) { app in
-                try await app.testing().test(.GET, "api/v0/booth-countries") { res in
+                let token = try await makeToken(app: app,
+                                                role: .staff)
+
+                try await app.testing().test(.GET,
+                                             "api/v0/admin/booth-countries",
+                                             headers: [
+                                                 "Authorization": "Bearer \(token)",
+                                             ]) { res in
                     #expect(res.status == .ok)
 
                     let countries = try res.content.decode([BoothCountryOutput].self)
@@ -24,18 +31,23 @@ struct BoothCountryControllerTests {
         func `the list contains added countries`() async throws {
             try await withApp(configure: configure) { app in
                 let france = BoothCountry(code: "FRA")
-                try await france.create(on: app.db)
 
                 let japan = BoothCountry(code: "JPN")
-                try await japan.create(on: app.db)
 
                 let spain = BoothCountry(code: "ESP")
-                try await spain.create(on: app.db)
 
                 let southKorea = BoothCountry(code: "KOR")
-                try await southKorea.create(on: app.db)
 
-                try await app.testing().test(.GET, "api/v0/booth-countries") { res in
+                try await [france, japan, spain, southKorea].create(on: app.db)
+
+                let token = try await makeToken(app: app,
+                                                role: .staff)
+
+                try await app.testing().test(.GET,
+                                             "api/v0/admin/booth-countries",
+                                             headers: [
+                                                 "Authorization": "Bearer \(token)",
+                                             ]) { res in
                     #expect(res.status == .ok)
 
                     let countries = try res.content.decode([BoothCountryOutput].self)
@@ -59,29 +71,37 @@ struct BoothCountryControllerTests {
         }
     }
 
-    @Suite("POST /api/v0/booth-countries")
+    @Suite("POST /api/v0/admin/booth-countries")
     struct Create {
         @Test
         func `create country then return country with .create (201)`() async throws {
             try await withApp(configure: configure) { app in
                 let input = BoothCountryInput(code: "JPN")
 
+                let token = try await makeToken(app: app,
+                                                role: .staff)
+
                 try await app.testing()
-                    .test(.POST, "api/v0/booth-countries", beforeRequest: { req in
-                        try req.content.encode(input)
-                    }, afterResponse: { res in
-                        #expect(res.status == .created)
+                    .test(.POST,
+                          "api/v0/admin/booth-countries",
+                          headers: [
+                              "Authorization": "Bearer \(token)",
+                          ],
+                          beforeRequest: { req in
+                              try req.content.encode(input)
+                          }, afterResponse: { res in
+                              #expect(res.status == .created)
 
-                        let country = try res.content.decode(BoothCountryOutput.self)
+                              let country = try res.content.decode(BoothCountryOutput.self)
 
-                        #expect(country.code == input.code)
-                        #expect(country.name == "No country name")
+                              #expect(country.code == input.code)
+                              #expect(country.name == "No country name")
 
-                        let found = try #require(try await BoothCountry.find(country.id,
-                                                                             on: app.db))
+                              let found = try #require(try await BoothCountry.find(country.id,
+                                                                                   on: app.db))
 
-                        #expect(found.code == input.code)
-                    })
+                              #expect(found.code == input.code)
+                          })
             }
         }
 
@@ -94,7 +114,15 @@ struct BoothCountryControllerTests {
                 let input = BoothCountryInput(code: "KOR")
 
                 let expected = BoothCountryError.alreadyExists
-                try await app.testing().test(.POST, "api/v0/booth-countries",
+
+                let token = try await makeToken(app: app,
+                                                role: .staff)
+
+                try await app.testing().test(.POST,
+                                             "api/v0/admin/booth-countries",
+                                             headers: [
+                                                 "Authorization": "Bearer \(token)",
+                                             ],
                                              beforeRequest: { req in
                                                  try req.content.encode(input)
                                              }) { res in
@@ -113,7 +141,14 @@ struct BoothCountryControllerTests {
             let input = BoothCountryInput(code: code)
 
             try await withApp(configure: configure) { app in
-                try await app.testing().test(.POST, "api/v0/booth-countries",
+                let token = try await makeToken(app: app,
+                                                role: .staff)
+
+                try await app.testing().test(.POST,
+                                             "api/v0/admin/booth-countries",
+                                             headers: [
+                                                 "Authorization": "Bearer \(token)",
+                                             ],
                                              beforeRequest: { req in
                                                  try req.content.encode(input)
                                              }) { res in
@@ -126,7 +161,7 @@ struct BoothCountryControllerTests {
         }
     }
 
-    @Suite("GET /api/v0/booth-countries/{id}")
+    @Suite("GET /api/v0/admin/booth-countries/{id}")
     struct Show {
         @Test
         func `show country`() async throws {
@@ -134,8 +169,15 @@ struct BoothCountryControllerTests {
                 let portugal = BoothCountry(code: "PRT")
                 try await portugal.create(on: app.db)
 
+                let token = try await makeToken(app: app,
+                                                role: .staff)
+
                 try await app.testing()
-                    .test(.GET, "api/v0/booth-countries/\(portugal.id!)") { res in
+                    .test(.GET,
+                          "api/v0/admin/booth-countries/\(portugal.id!)",
+                          headers: [
+                              "Authorization": "Bearer \(token)",
+                          ]) { res in
                         #expect(res.status == .ok)
 
                         let found = try res.content.decode(BoothCountryOutput.self)
@@ -148,7 +190,7 @@ struct BoothCountryControllerTests {
         }
     }
 
-    @Suite("PUT /api/v0/booth-countries/{id}")
+    @Suite("PUT /api/v0/admin/booth-countries/{id}")
     struct Update {
         @Test
         func `update country`() async throws {
@@ -158,7 +200,14 @@ struct BoothCountryControllerTests {
 
                 let input = BoothCountryInput(code: "FRA")
 
-                try await app.testing().test(.PUT, "api/v0/booth-countries/\(country.id!)",
+                let token = try await makeToken(app: app,
+                                                role: .staff)
+
+                try await app.testing().test(.PUT,
+                                             "api/v0/admin/booth-countries/\(country.id!)",
+                                             headers: [
+                                                 "Authorization": "Bearer \(token)",
+                                             ],
                                              beforeRequest: { req in
                                                  try req.content.encode(input)
                                              }, afterResponse: { res in
@@ -186,7 +235,14 @@ struct BoothCountryControllerTests {
 
                 let input = BoothCountryInput(code: code)
 
-                try await app.testing().test(.PUT, "api/v0/booth-countries/\(country.id!)",
+                let token = try await makeToken(app: app,
+                                                role: .staff)
+
+                try await app.testing().test(.PUT,
+                                             "api/v0/admin/booth-countries/\(country.id!)",
+                                             headers: [
+                                                 "Authorization": "Bearer \(token)",
+                                             ],
                                              beforeRequest: { req in
                                                  try req.content.encode(input)
                                              }, afterResponse: { res in
@@ -204,7 +260,7 @@ struct BoothCountryControllerTests {
         }
     }
 
-    @Suite("DELETE /api/v0/booth-countries/{id}")
+    @Suite("DELETE /api/v0/admin/booth-countries/{id}")
     struct Delete {
         @Test
         func `delete country`() async throws {
@@ -212,14 +268,25 @@ struct BoothCountryControllerTests {
                 let spain = BoothCountry(code: "ESP")
                 try await spain.create(on: app.db)
 
+                let token = try await makeToken(app: app,
+                                                role: .staff)
+
                 try await app.testing()
-                    .test(.DELETE, "api/v0/booth-countries/\(spain.id!)") { res in
+                    .test(.DELETE,
+                          "api/v0/admin/booth-countries/\(spain.id!)",
+                          headers: [
+                              "Authorization": "Bearer \(token)",
+                          ]) { res in
                         #expect(res.status == .noContent)
                     }
 
                 let expected = BoothCountryError.notFound
                 try await app.testing()
-                    .test(.DELETE, "api/v0/booth-countries/\(spain.id!)") { res in
+                    .test(.DELETE,
+                          "api/v0/admin/booth-countries/\(spain.id!)",
+                          headers: [
+                              "Authorization": "Bearer \(token)",
+                          ]) { res in
                         #expect(res.status == .notFound)
 
                         let body = try res.content.decode(ErrorBody.self)
@@ -230,6 +297,50 @@ struct BoothCountryControllerTests {
             }
         }
     }
+}
+
+fileprivate func addUser(app: Application,
+                         name: String = "Tarō Yamada",
+                         email: String = "taro@yamada.jp",
+                         password: String = "secure-password-@1",
+                         role: User.Role) async throws -> User {
+    let user = try User(name: name,
+                        email: email,
+                        passwordHash: Bcrypt.hash(password, cost: 4),
+                        role: .staff)
+    try await user.create(on: app.db)
+
+    let infos = try UserInfos(status: .active,
+                              pictureURL: nil,
+                              userID: user.requireID())
+
+    try await infos.create(on: app.db)
+
+    return user
+}
+
+fileprivate func makeToken(app: Application,
+                           role: User.Role) async throws -> String {
+    let name = "Juan Velaz"
+    let email = "juan@velaz.es"
+    let password = "user-secure-password-0"
+    let _ = try await addUser(app: app,
+                              name: name,
+                              email: email,
+                              password: password,
+                              role: role)
+
+    let logInInput = AuthLogInInput(email: email,
+                                    password: password)
+    var token = ""
+    try await app.testing().test(.POST, "api/v0/auth/log-in",
+                                 beforeRequest: { req in
+                                     try req.content.encode(logInInput)
+                                 }) { res in
+        #expect(res.status == .ok)
+        token = try res.content.decode(LogInOutput.self).token
+    }
+    return token
 }
 
 fileprivate struct ErrorBody: Content {

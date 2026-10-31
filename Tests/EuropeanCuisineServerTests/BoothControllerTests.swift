@@ -40,7 +40,6 @@ struct BoothControllerTests {
                                        endTime: .now,
                                        status: .active,
                                        countryID: franceID)
-                    try await booth1.create(on: app.db)
 
                     let booth2 = Booth(name: "Aspernatur Quaerat Voluptate Aspernatur",
                                        about: "Doloribus Animi Sed",
@@ -54,7 +53,6 @@ struct BoothControllerTests {
                                        endTime: .now,
                                        status: .active,
                                        countryID: franceID)
-                    try await booth2.create(on: app.db)
 
                     let booth3 = Booth(name: "Quos Quisquam Accusantium",
                                        about: "Illum Tempora",
@@ -68,7 +66,8 @@ struct BoothControllerTests {
                                        endTime: .now,
                                        status: .active,
                                        countryID: franceID)
-                    try await booth3.create(on: app.db)
+
+                    try await [booth1, booth2, booth3].create(on: app.db)
 
                     try await app.testing().test(.GET, "api/v0/booths") { res in
                         #expect(res.status == .ok)
@@ -115,7 +114,6 @@ struct BoothControllerTests {
                                        endTime: .now,
                                        status: .active,
                                        countryID: franceID)
-                    try await booth1.create(on: app.db)
 
                     let booth2 = Booth(name: "Aspernatur Quaerat Voluptate Aspernatur",
                                        about: "Doloribus Animi Sed",
@@ -129,7 +127,6 @@ struct BoothControllerTests {
                                        endTime: .now,
                                        status: .disabled,
                                        countryID: franceID)
-                    try await booth2.create(on: app.db)
 
                     let booth3 = Booth(name: "Quos Quisquam Accusantium",
                                        about: "Illum Tempora",
@@ -143,7 +140,8 @@ struct BoothControllerTests {
                                        endTime: .now,
                                        status: .active,
                                        countryID: franceID)
-                    try await booth3.create(on: app.db)
+
+                    try await [booth1, booth2, booth3].create(on: app.db)
 
                     try await app.testing().test(.GET, "api/v0/booths") { res in
                         #expect(res.status == .ok)
@@ -323,7 +321,6 @@ struct BoothControllerTests {
                                        endTime: .now,
                                        status: .active,
                                        countryID: franceID)
-                    try await booth1.create(on: app.db)
 
                     let booth2 = Booth(name: "Aspernatur Quaerat Voluptate Aspernatur",
                                        about: "Doloribus Animi Sed",
@@ -337,7 +334,6 @@ struct BoothControllerTests {
                                        endTime: .now,
                                        status: .active,
                                        countryID: franceID)
-                    try await booth2.create(on: app.db)
 
                     let booth3 = Booth(name: "Quos Quisquam Accusantium",
                                        about: "Illum Tempora",
@@ -351,7 +347,8 @@ struct BoothControllerTests {
                                        endTime: .now,
                                        status: .active,
                                        countryID: franceID)
-                    try await booth3.create(on: app.db)
+
+                    try await [booth1, booth2, booth3].create(on: app.db)
 
                     let token = try await makeToken(app: app,
                                                     role: .staff)
@@ -405,7 +402,6 @@ struct BoothControllerTests {
                                        endTime: .now,
                                        status: .active,
                                        countryID: franceID)
-                    try await booth1.create(on: app.db)
 
                     let booth2 = Booth(name: "Aspernatur Quaerat Voluptate Aspernatur",
                                        about: "Doloribus Animi Sed",
@@ -419,7 +415,6 @@ struct BoothControllerTests {
                                        endTime: .now,
                                        status: .active,
                                        countryID: franceID)
-                    try await booth2.create(on: app.db)
 
                     let booth3 = Booth(name: "Quos Quisquam Accusantium",
                                        about: "Illum Tempora",
@@ -433,7 +428,8 @@ struct BoothControllerTests {
                                        endTime: .now,
                                        status: .disabled,
                                        countryID: franceID)
-                    try await booth3.create(on: app.db)
+
+                    try await [booth1, booth2, booth3].create(on: app.db)
 
                     let token = try await makeToken(app: app,
                                                     role: .staff)

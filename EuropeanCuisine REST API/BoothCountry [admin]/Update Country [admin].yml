@@ -1,0 +1,31 @@
+info:
+  name: Update Country [admin]
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{baseAdminURL}}/:id"
+  headers:
+    - name: Content-Type
+      value: application/json
+  params:
+    - name: id
+      value: 8287DB0F-4494-4FA1-A6A7-4F82C99FDCB8
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "code": "PRT"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoiNUQyQzI4NjktNEE1Ni00NUM1LTkyNjItNENFOEMwNEM2RDk0IiwiZXhwaXJhdGlvbiI6MTc5NTg4MjA0NC4zNDUwOX0.Ym7z4NHYzRf_mAemRN6uYgTty6191hNSugvSjHFQJFA
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

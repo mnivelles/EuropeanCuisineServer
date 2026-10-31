@@ -1,0 +1,18 @@
+info:
+  name: List Translations [admin]
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{baseAdminURL}}"
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoiNUQyQzI4NjktNEE1Ni00NUM1LTkyNjItNENFOEMwNEM2RDk0IiwiZXhwaXJhdGlvbiI6MTc5NTg4MjA0NC4zNDUwOX0.Ym7z4NHYzRf_mAemRN6uYgTty6191hNSugvSjHFQJFA
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -5,14 +5,14 @@ info:
 
 http:
   method: GET
-  url: "{{baseURL}}/is-reserved?workshopID=0B60DFE8-23C8-4520-B564-526E30BD5B20"
+  url: "{{baseURL}}/is-reserved?workshopID=8D73991D-F049-48E8-8771-15DC3B97F76F"
   params:
     - name: workshopID
-      value: 0B60DFE8-23C8-4520-B564-526E30BD5B20
+      value: 8D73991D-F049-48E8-8771-15DC3B97F76F
       type: query
   auth:
     type: bearer
-    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWJqZWN0IjoiNUFFNThGNzItMUQzRi00NTM3LUJDNTUtOEE1RUZBMDdCRUI0IiwiZXhwaXJhdGlvbiI6MTc5NTcwNzA0MC42MTM1OTc5fQ.UqeoE7JrqpEottx4jm1Q5y-BzeH8SYHxm5ZXFvUyVcQ
+    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHBpcmF0aW9uIjoxNzk1NzI3NjY0LjQ4NDA5Miwic3ViamVjdCI6IkFBNTdDNDkyLUREOUItNDg1RC05NDI0LTE2RkVFQ0ZBQkQwOCJ9.NowUdbYkcxhaqOO3n54_NeawPnLRjgdToO9GMP3Da8k
 
 settings:
   encodeUrl: true
