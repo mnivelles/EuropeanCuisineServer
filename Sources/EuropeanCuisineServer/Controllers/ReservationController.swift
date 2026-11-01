@@ -284,7 +284,7 @@ struct ReservationController: RouteCollection {
                 .all()
 
             let activeReservations = workshopReservations.filter {
-                $0.status == .confirmed || $0.status == .pending
+                $0.status == .confirmed
             }
 
             guard activeReservations.count < Int(workshop.capacityMax) else {
@@ -309,7 +309,7 @@ struct ReservationController: RouteCollection {
             .all()
 
         let activeReservations = workshopReservations.filter {
-            $0.status == .confirmed || $0.status == .pending
+            $0.status == .confirmed
         }
 
         guard activeReservations.count < Int(workshop.capacityMax) else {
@@ -363,10 +363,10 @@ struct ReservationController: RouteCollection {
             .filter(\.$workshop.$id == workshopID)
             .all()
 
-        let activeReservations = reservations.filter {
-            $0.status == .confirmed || $0.status == .pending
+        let confirmedReservations = reservations.filter {
+            $0.status == .confirmed
         }
 
-        return UInt16(activeReservations.count)
+        return UInt16(confirmedReservations.count)
     }
 }
