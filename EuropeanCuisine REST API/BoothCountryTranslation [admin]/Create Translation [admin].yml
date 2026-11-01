@@ -1,0 +1,29 @@
+info:
+  name: Create Translation [admin]
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseAdminURL}}"
+  headers:
+    - name: Content-Type
+      value: application/json
+  body:
+    type: json
+    data: |-
+      {
+        "locale": "ja",
+        "name": "SUPEIN",
+        "countryID": "640D6CC8-29DB-4AF5-8074-3E5F40D3043D"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoiNUQyQzI4NjktNEE1Ni00NUM1LTkyNjItNENFOEMwNEM2RDk0IiwiZXhwaXJhdGlvbiI6MTc5NTg4MjA0NC4zNDUwOX0.Ym7z4NHYzRf_mAemRN6uYgTty6191hNSugvSjHFQJFA
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

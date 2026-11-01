@@ -11,6 +11,7 @@ import Vapor
 
 struct AddMockDataMigration: AsyncMigration {
     func prepare(on database: any Database) async throws {
+        try await addBoothCountries(on: database)
         try await addBooths(on: database)
         try await addWorkshops(on: database)
         try await addUsers(on: database)
@@ -22,51 +23,86 @@ struct AddMockDataMigration: AsyncMigration {
         try await removeUsers(on: database)
         try await removeWorkshops(on: database)
         try await removeBooths(on: database)
+        try await removeBoothCountries(on: database)
+    }
+
+    private func addBoothCountries(on database: any Database) async throws {
+        let countries: [(code: String, en: String, fr: String)] = [
+            ("ALB", "Albania", "Albanie"),
+            ("AND", "Andorra", "Andorre"),
+            ("AUT", "Austria", "Autriche"),
+            ("BEL", "Belgium", "Belgique"),
+            ("BGR", "Bulgaria", "Bulgarie"),
+            ("BIH", "Bosnia and Herzegovina", "Bosnie-Herzégovine"),
+//            ("BLR", "Belarus", "Biélorussie"),
+            ("CHE", "Switzerland", "Suisse"),
+            ("CYP", "Cyprus", "Chypre"),
+            ("CZE", "Czechia", "Tchéquie"),
+            ("DEU", "Germany", "Allemagne"),
+            ("DNK", "Denmark", "Danemark"),
+            ("ESP", "Spain", "Espagne"),
+            ("EST", "Estonia", "Estonie"),
+            ("FIN", "Finland", "Finlande"),
+            ("FRA", "France", "France"),
+            ("GBR", "United Kingdom", "Royaume-Uni"),
+            ("GRC", "Greece", "Grèce"),
+            ("HRV", "Croatia", "Croatie"),
+            ("HUN", "Hungary", "Hongrie"),
+            ("IRL", "Ireland", "Irlande"),
+            ("ISL", "Iceland", "Islande"),
+            ("ITA", "Italy", "Italie"),
+            ("LIE", "Liechtenstein", "Liechtenstein"),
+            ("LTU", "Lithuania", "Lituanie"),
+            ("LUX", "Luxembourg", "Luxembourg"),
+            ("LVA", "Latvia", "Lettonie"),
+            ("MCO", "Monaco", "Monaco"),
+            ("MDA", "Moldova", "Moldavie"),
+            ("MKD", "North Macedonia", "Macédoine du Nord"),
+            ("MLT", "Malta", "Malte"),
+            ("MNE", "Montenegro", "Monténégro"),
+            ("NLD", "Netherlands", "Pays-Bas"),
+            ("NOR", "Norway", "Norvège"),
+            ("POL", "Poland", "Pologne"),
+            ("PRT", "Portugal", "Portugal"),
+            ("ROU", "Romania", "Roumanie"),
+//            ("RUS", "Russia", "Russie"),
+            ("SMR", "San Marino", "Saint-Marin"),
+            ("SRB", "Serbia", "Serbie"),
+            ("SVK", "Slovakia", "Slovaquie"),
+            ("SVN", "Slovenia", "Slovénie"),
+            ("SWE", "Sweden", "Suède"),
+            ("UKR", "Ukraine", "Ukraine"),
+            ("VAT", "Vatican City", "Vatican"),
+            ("XKX", "Kosovo", "Kosovo"),
+        ]
+
+        for country in countries {
+            try await addBoothCountriesWithTranslations(on: database,
+                                                        code: country.code,
+                                                        enTranslation: country.en,
+                                                        frTranslation: country.fr)
+        }
     }
 
     private func addBooths(on database: any Database) async throws {
-        let france = BoothCountry(code: "FRA")
-        let spain = BoothCountry(code: "ESP")
-        let greece = BoothCountry(code: "GRC")
+        let france = try await BoothCountry
+            .query(on: database)
+            .filter(\.$code == "FRA")
+            .first()!
 
-        try await france.create(on: database)
-        try await spain.create(on: database)
-        try await greece.create(on: database)
+        let spain = try await BoothCountry
+            .query(on: database)
+            .filter(\.$code == "ESP")
+            .first()!
+
+        let greece = try await BoothCountry
+            .query(on: database)
+            .filter(\.$code == "GRC")
+            .first()!
 
         let frCountryID = try france.requireID()
         let esCountryID = try spain.requireID()
         let grCountryID = try greece.requireID()
-
-        let franceInFrench = BoothCountryTranslation(locale: "fr",
-                                                     name: "France",
-                                                     countryID: frCountryID)
-
-        let franceInEnglish = BoothCountryTranslation(locale: "en",
-                                                      name: "France",
-                                                      countryID: frCountryID)
-
-        let spainInFrench = BoothCountryTranslation(locale: "fr",
-                                                    name: "Espagne",
-                                                    countryID: esCountryID)
-
-        let spainInEnglish = BoothCountryTranslation(locale: "en",
-                                                     name: "Spain",
-                                                     countryID: esCountryID)
-
-        let greeceInFrench = BoothCountryTranslation(locale: "fr",
-                                                     name: "Grèce",
-                                                     countryID: grCountryID)
-
-        let greeceInEnglish = BoothCountryTranslation(locale: "en",
-                                                      name: "Greece",
-                                                      countryID: grCountryID)
-
-        try await franceInFrench.create(on: database)
-        try await franceInEnglish.create(on: database)
-        try await spainInFrench.create(on: database)
-        try await spainInEnglish.create(on: database)
-        try await greeceInFrench.create(on: database)
-        try await greeceInEnglish.create(on: database)
 
         let frenchBooths: [Booth] = [
             Booth(name: "La Crêperie Bretonne",
@@ -310,7 +346,9 @@ struct AddMockDataMigration: AsyncMigration {
 
     private func removeBooths(on database: any Database) async throws {
         try await Booth.query(on: database).delete()
+    }
 
+    private func removeBoothCountries(on database: any Database) async throws {
         try await BoothCountryTranslation.query(on: database).delete()
 
         try await BoothCountry.query(on: database).delete()
@@ -942,5 +980,25 @@ struct AddMockDataMigration: AsyncMigration {
 
     private func removeReservations(on database: any Database) async throws {
         try await Reservation.query(on: database).delete()
+    }
+
+    private func addBoothCountriesWithTranslations(on database: any Database,
+                                                   code: String,
+                                                   enTranslation: String,
+                                                   frTranslation: String) async throws {
+        let country = BoothCountry(code: code)
+        try await country.create(on: database)
+
+        let countryID = try country.requireID()
+
+        let english = BoothCountryTranslation(locale: "en",
+                                              name: enTranslation,
+                                              countryID: countryID)
+        let french = BoothCountryTranslation(locale: "fr",
+                                             name: frTranslation,
+                                             countryID: countryID)
+
+        try await english.create(on: database)
+        try await french.create(on: database)
     }
 }

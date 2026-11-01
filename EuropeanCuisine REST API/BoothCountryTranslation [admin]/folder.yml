@@ -1,0 +1,10 @@
+info:
+  name: BoothCountryTranslation [admin]
+  type: folder
+  seq: 3
+
+request:
+  auth: inherit
+  variables:
+    - name: baseAdminURL
+      value: "{{apiBaseURL}}/admin/booth-country-translations"

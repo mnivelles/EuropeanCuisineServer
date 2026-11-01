@@ -5,18 +5,20 @@ info:
 
 http:
   method: GET
-  url: "{{baseAdminURL}}?query=&sort=name&per=5"
+  url: "{{baseAdminURL}}?query=secret&sort=name&per=25"
   params:
     - name: query
-      value: ""
+      value: secret
       type: query
     - name: sort
       value: name
       type: query
     - name: per
-      value: "5"
+      value: "25"
       type: query
-  auth: inherit
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmF0aW9uIjoxNzk1NzMzNDEwLjAxNzQzNSwic3ViamVjdCI6IjVEMkMyODY5LTRBNTYtNDVDNS05MjYyLTRDRThDMDRDNkQ5NCJ9.KvnHn2Epj0SLCOqio-_7W4QfmpnGmByE1O5DReNbhn4
 
 settings:
   encodeUrl: true

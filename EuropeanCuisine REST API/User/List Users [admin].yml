@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: "{{apiBaseURL}}/admin/users?role=&page=1&per=2&sort=created_at&status=disabled"
+  url: "{{apiBaseURL}}/admin/users?role=&page=1&per=20&sort=created_at&status=enabled"
   params:
     - name: role
       value: ""
@@ -14,17 +14,17 @@ http:
       value: "1"
       type: query
     - name: per
-      value: "2"
+      value: "20"
       type: query
     - name: sort
       value: created_at
       type: query
     - name: status
-      value: disabled
+      value: enabled
       type: query
   auth:
     type: bearer
-    token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHBpcmF0aW9uIjoxNzk1Mjc0OTY1LjYyNDIwMSwic3ViamVjdCI6IkE0ODE0NzU0LTNCMDQtNDk0My04NjRELTQyODQ5QzZDNUY3RCJ9.22-dqFIF38M7w-hRs_3Er53ovKLEe1FU0coEgAPTRac
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHBpcmF0aW9uIjoxNzk1NzI2Njg5LjI1NjM4Miwic3ViamVjdCI6IjVEMkMyODY5LTRBNTYtNDVDNS05MjYyLTRDRThDMDRDNkQ5NCJ9.3pzgQxHaJ7AmlgqAHZqBak1GkqAB9da5JsDzGRkofJA
 
 settings:
   encodeUrl: true

@@ -11,12 +11,17 @@ import Vapor
 
 struct BoothCountryTranslationController: RouteCollection {
     func boot(routes: any RoutesBuilder) throws {
-        let translations = routes.grouped("api", "v0", "booth-country-translations")
+        let api = routes.grouped("api", "v0")
 
-        translations.get(use: list)
-        translations.post(use: create)
+        // Admin: staff or admin
+        let adminTranslations = api
+            .grouped("admin", "booth-country-translations")
+            .requiring(.admin, .staff)
 
-        translations.group(":id") { translation in
+        adminTranslations.get(use: list)
+        adminTranslations.post(use: create)
+
+        adminTranslations.group(":id") { translation in
             translation.get(use: show)
             translation.put(use: update)
             translation.delete(use: delete)

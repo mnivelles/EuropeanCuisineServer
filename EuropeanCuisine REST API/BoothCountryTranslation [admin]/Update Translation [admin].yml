@@ -1,0 +1,33 @@
+info:
+  name: Update Translation [admin]
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{baseAdminURL}}/:id"
+  headers:
+    - name: Content-Type
+      value: application/json
+  params:
+    - name: id
+      value: 60AD9BEF-FAA2-4B25-AFDE-B9D96184BFDB
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "locale": "ja",
+        "name": "ESUPANIA",
+        "countryID": "640D6CC8-29DB-4AF5-8074-3E5F40D3043D"
+      }
+  auth:
+    type: bearer
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoiNUQyQzI4NjktNEE1Ni00NUM1LTkyNjItNENFOEMwNEM2RDk0IiwiZXhwaXJhdGlvbiI6MTc5NTg4MjA0NC4zNDUwOX0.Ym7z4NHYzRf_mAemRN6uYgTty6191hNSugvSjHFQJFA
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

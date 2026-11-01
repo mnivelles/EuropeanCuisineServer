@@ -81,7 +81,7 @@ extension AdminReservationListItemOutput {
 struct AdminReservationListSortSearchInput: Content {
     let query: String?
     let sort: Sort?
-    let filter: Filter?
+    let status: Status?
 
     enum Sort: String, Codable {
         case name
@@ -89,11 +89,21 @@ struct AdminReservationListSortSearchInput: Content {
         case date
     }
 
-    enum Filter: String, Codable {
-        case all
+    enum Status: String, Codable {
         case confirmed
         case pending
         case cancelled
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case query, sort, status
+    }
+
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.query = try container.decodeIfNotEmpty(String.self, forKey: .query)
+        self.sort = try container.decodeIfNotEmpty(Sort.self, forKey: .sort)
+        self.status = try container.decodeIfNotEmpty(Status.self, forKey: .status)
     }
 }
 

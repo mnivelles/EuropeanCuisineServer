@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "513447DF-B355-4BB5-9A75-96BBC9825B91",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "EuropeanCuisineServerTests",
+        "name" : "EuropeanCuisineServerTests"
+      }
+    }
+  ],
+  "version" : 1
+}
