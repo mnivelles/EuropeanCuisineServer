@@ -333,11 +333,6 @@ struct WorkshopController: RouteCollection {
     private func adminCancel(req: Request) async throws -> HTTPStatus {
         let workshop = try await findWorkshop(req: req)
 
-        guard try await Reservation.query(on: req.db)
-            .filter(\.$workshop.$id == workshop.requireID()).first() == nil else {
-            throw WorkshopError.hasReservations
-        }
-
         guard let infos = workshop.infos else {
             throw WorkshopError.infosNotFound
         }
@@ -346,8 +341,32 @@ struct WorkshopController: RouteCollection {
             throw WorkshopError.invalidAction
         }
 
-        infos.status = .cancelled
-        try await infos.update(on: req.db)
+        let workshopID = try workshop.requireID()
+
+        let confirmedReservationsCount = try await Reservation
+            .query(on: req.db)
+            .filter(\.$workshop.$id == workshopID)
+            .filter(\.$status == .confirmed)
+            .count()
+
+        guard confirmedReservationsCount == 0 else {
+            throw WorkshopError.invalidAction
+        }
+
+        try await req.db.transaction { db in
+            try await Reservation.query(on: db)
+                .filter(\.$workshop.$id == workshopID)
+                .filter(\.$status == .pending)
+                .delete()
+
+            try await Reservation.query(on: db)
+                .filter(\.$workshop.$id == workshopID)
+                .filter(\.$status == .cancelled)
+                .delete()
+
+            infos.status = .cancelled
+            try await infos.update(on: db)
+        }
 
         return .noContent
     }
