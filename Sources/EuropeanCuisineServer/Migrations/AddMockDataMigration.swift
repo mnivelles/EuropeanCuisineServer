@@ -717,10 +717,26 @@ struct AddMockDataMigration: AsyncMigration {
         let adminUserID = try adminUser.requireID()
 
         let adminUserInfos = UserInfos(status: .active,
-                                       pictureURL: "https://picsum.photos/id/189/800",
+                                       pictureURL: "https://api.dicebear.com/10.x/blobs/svg?seed=Hiroyuki&size=500",
                                        userID: adminUserID)
 
         try await adminUserInfos.create(on: database)
+
+        // Staff
+        let staffUser = User(name: "Takahiro Moriuchi",
+                             email: "takahiro@moriuchi.jp",
+                             passwordHash: passwordHash,
+                             role: .staff)
+
+        try await staffUser.create(on: database)
+
+        let staffUserID = try staffUser.requireID()
+
+        let staffUserInfos = UserInfos(status: .active,
+                                       pictureURL: "https://api.dicebear.com/10.x/glyphs/png?seed=Taka&size=500",
+                                       userID: staffUserID)
+
+        try await staffUserInfos.create(on: database)
 
         // Other users
 

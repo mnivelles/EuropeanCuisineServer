@@ -11,11 +11,12 @@ class UserFaker {
         let firstName = firstNames.randomElement() ?? "error"
         let lastName = lastNames.randomElement() ?? "error"
         let domainTLD = domainSuffixes.randomElement() ?? "error"
+        let avatarStyle = avatarStyles.randomElement() ?? "blobs"
 
         let fullName = "\(firstName) \(lastName)"
         let email = "\(firstName)@\(lastName).\(domainTLD)".lowercased()
         let seed = "\(firstName)\(lastName)".lowercased()
-        let pictureURL = "https://picsum.photos/seed/\(seed)/800"
+        let pictureURL = "https://api.dicebear.com/10.x/\(avatarStyle)/png?seed=\(seed)&size=500"
 
         return FakeUser(fullName: fullName,
                         email: email,
@@ -3580,5 +3581,24 @@ class UserFaker {
         "ua",
         "uk",
         "va",
+    ]
+
+    private let avatarStyles: [String] = [
+        "blobs",
+        "disco",
+        "glyphs",
+        "initial-face",
+        "loops",
+        "patchwork",
+        "shapes",
+        "stack",
+        "stripes",
+        "triangles",
+        "waves",
+        "weave",
+        "constellation",
+        "landscape",
+        "planets",
+        "line-face",
     ]
 }
