@@ -100,9 +100,39 @@ struct AddMockDataMigration: AsyncMigration {
             .filter(\.$code == "GRC")
             .first()!
 
+        let portugal = try await BoothCountry
+            .query(on: database)
+            .filter(\.$code == "PRT")
+            .first()!
+
+        let italy = try await BoothCountry
+            .query(on: database)
+            .filter(\.$code == "ITA")
+            .first()!
+
+        let latvia = try await BoothCountry
+            .query(on: database)
+            .filter(\.$code == "LVA")
+            .first()!
+
+        let sweden = try await BoothCountry
+            .query(on: database)
+            .filter(\.$code == "SWE")
+            .first()!
+
+        let croatia = try await BoothCountry
+            .query(on: database)
+            .filter(\.$code == "HRV")
+            .first()!
+
         let frCountryID = try france.requireID()
         let esCountryID = try spain.requireID()
         let grCountryID = try greece.requireID()
+        let ptCountryID = try portugal.requireID()
+        let itCountryID = try italy.requireID()
+        let lvCountryID = try latvia.requireID()
+        let seCountryID = try sweden.requireID()
+        let hrCountryID = try croatia.requireID()
 
         let frenchBooths: [Booth] = [
             Booth(name: "La Crêperie Bretonne",
@@ -340,6 +370,192 @@ struct AddMockDataMigration: AsyncMigration {
         ]
 
         for booth in greekBooths {
+            try await booth.create(on: database)
+        }
+
+        let portugueseBooths: [Booth] = [
+            Booth(name: "Pastéis de Nata Lisboa",
+                  about: "Warm Portuguese custard tarts with flaky pastry, dusted with cinnamon.",
+                  pictureURL: "https://picsum.photos/seed/pasteisnata/800",
+                  location: "Aisle H - Stand 1",
+                  isVegan: false,
+                  isPRM: true,
+                  isFamilyFriendly: true,
+                  allergens: [.cerealsContainingGluten, .milk, .eggs],
+                  startTime: .hourMinuteUTC(hour: 8, minute: 30),
+                  endTime: .hourMinuteUTC(hour: 17, minute: 0),
+                  status: .active,
+                  countryID: ptCountryID),
+
+            Booth(name: "Bacalhau à Brás",
+                  about: "Shredded salted cod sautéed with thin fries, onions and scrambled eggs, topped with olives and parsley.",
+                  pictureURL: "https://picsum.photos/seed/bacalhau/800",
+                  location: "Aisle H - Stand 2",
+                  isVegan: false,
+                  isPRM: true,
+                  isFamilyFriendly: true,
+                  allergens: [.fish, .eggs],
+                  startTime: .hourMinuteUTC(hour: 11, minute: 30),
+                  endTime: .hourMinuteUTC(hour: 16, minute: 30),
+                  status: .active,
+                  countryID: ptCountryID),
+        ]
+
+        for booth in portugueseBooths {
+            try await booth.create(on: database)
+        }
+
+        let italianBooths: [Booth] = [
+            Booth(name: "Pizzeria Napoletana",
+                  about: "Wood-fired Neapolitan pizzas: margherita, marinara and prosciutto e funghi.",
+                  pictureURL: "https://picsum.photos/seed/napoletana/800",
+                  location: "Aisle H - Stand 3",
+                  isVegan: false,
+                  isPRM: true,
+                  isFamilyFriendly: true,
+                  allergens: [.cerealsContainingGluten, .milk],
+                  startTime: .hourMinuteUTC(hour: 10, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 18, minute: 30),
+                  status: .active,
+                  countryID: itCountryID),
+
+            Booth(name: "Gelato Artigianale",
+                  about: "Creamy handmade gelato: pistachio, hazelnut, stracciatella and lemon sorbet.",
+                  pictureURL: "https://picsum.photos/seed/gelato/800",
+                  location: "Aisle H - Stand 4",
+                  isVegan: false,
+                  isPRM: true,
+                  isFamilyFriendly: true,
+                  allergens: [.milk, .nuts, .eggs],
+                  startTime: .hourMinuteUTC(hour: 12, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 19, minute: 0),
+                  status: .active,
+                  countryID: itCountryID),
+
+            Booth(name: "L'Orto Italiano",
+                  about: "Tuscan bruschetta, caponata and ribollita made with seasonal vegetables and extra virgin olive oil. 100% plant-based.",
+                  pictureURL: "https://picsum.photos/seed/ribollita/800",
+                  location: "Aisle I - Stand 5",
+                  isVegan: true,
+                  isPRM: true,
+                  isFamilyFriendly: true,
+                  allergens: [.cerealsContainingGluten, .celery],
+                  startTime: .hourMinuteUTC(hour: 9, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 15, minute: 30),
+                  status: .active,
+                  countryID: itCountryID),
+        ]
+
+        for booth in italianBooths {
+            try await booth.create(on: database)
+        }
+
+        let latvianBooths: [Booth] = [
+            Booth(name: "Pīrāgi Rīga",
+                  about: "Traditional Latvian bacon and onion buns, baked fresh and served warm.",
+                  pictureURL: "https://picsum.photos/seed/piragi/800",
+                  location: "Aisle I - Stand 6",
+                  isVegan: false,
+                  isPRM: true,
+                  isFamilyFriendly: true,
+                  allergens: [.cerealsContainingGluten, .milk, .eggs],
+                  startTime: .hourMinuteUTC(hour: 9, minute: 30),
+                  endTime: .hourMinuteUTC(hour: 16, minute: 0),
+                  status: .active,
+                  countryID: lvCountryID),
+
+            Booth(name: "Aukstā Zupa",
+                  about: "Refreshing cold beetroot soup with kefir, cucumber and dill, served with boiled potatoes and egg.",
+                  pictureURL: "https://picsum.photos/seed/aukstazupa/800",
+                  location: "Aisle I - Stand 7",
+                  isVegan: false,
+                  isPRM: false,
+                  isFamilyFriendly: true,
+                  allergens: [.milk, .eggs],
+                  startTime: .hourMinuteUTC(hour: 11, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 14, minute: 30),
+                  status: .active,
+                  countryID: lvCountryID),
+        ]
+
+        for booth in latvianBooths {
+            try await booth.create(on: database)
+        }
+
+        let swedishBooths: [Booth] = [
+            Booth(name: "Köttbullar & Lingonberries",
+                  about: "Swedish meatballs with creamy gravy, mashed potatoes, pickled cucumber and lingonberry jam.",
+                  pictureURL: "https://picsum.photos/seed/kottbullar/800",
+                  location: "Aisle I - Stand 8",
+                  isVegan: false,
+                  isPRM: true,
+                  isFamilyFriendly: true,
+                  allergens: [.cerealsContainingGluten, .milk, .eggs],
+                  startTime: .hourMinuteUTC(hour: 10, minute: 30),
+                  endTime: .hourMinuteUTC(hour: 17, minute: 30),
+                  status: .active,
+                  countryID: seCountryID),
+
+            Booth(name: "Fika & Kanelbullar",
+                  about: "Cinnamon and cardamom buns baked every hour, served with freshly brewed filter coffee.",
+                  pictureURL: "https://picsum.photos/seed/kanelbullar/800",
+                  location: "Aisle J - Stand 9",
+                  isVegan: false,
+                  isPRM: true,
+                  isFamilyFriendly: true,
+                  allergens: [.cerealsContainingGluten, .milk, .eggs],
+                  startTime: .hourMinuteUTC(hour: 8, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 18, minute: 0),
+                  status: .active,
+                  countryID: seCountryID),
+
+            Booth(name: "Gravlax Stockholm",
+                  about: "Dill-cured salmon served on rye bread with mustard-dill sauce and boiled potatoes.",
+                  pictureURL: "https://picsum.photos/seed/gravlax/800",
+                  location: "Aisle J - Stand 10",
+                  isVegan: false,
+                  isPRM: false,
+                  isFamilyFriendly: false,
+                  allergens: [.fish, .mustard, .cerealsContainingGluten],
+                  startTime: .hourMinuteUTC(hour: 12, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 16, minute: 30),
+                  status: .active,
+                  countryID: seCountryID),
+        ]
+
+        for booth in swedishBooths {
+            try await booth.create(on: database)
+        }
+
+        let croatianBooths: [Booth] = [
+            Booth(name: "Ćevapi Zagreb",
+                  about: "Grilled minced-meat ćevapi served in warm flatbread with raw onion, ajvar and kajmak.",
+                  pictureURL: "https://picsum.photos/seed/cevapi/800",
+                  location: "Aisle J - Stand 11",
+                  isVegan: false,
+                  isPRM: true,
+                  isFamilyFriendly: true,
+                  allergens: [.cerealsContainingGluten, .milk],
+                  startTime: .hourMinuteUTC(hour: 10, minute: 0),
+                  endTime: .hourMinuteUTC(hour: 18, minute: 0),
+                  status: .active,
+                  countryID: hrCountryID),
+
+            Booth(name: "Crni Rižot Dalmacija",
+                  about: "Dalmatian black risotto with cuttlefish ink, finished with olive oil and white wine.",
+                  pictureURL: "https://picsum.photos/seed/crnirizot/800",
+                  location: "Aisle J - Stand 12",
+                  isVegan: false,
+                  isPRM: true,
+                  isFamilyFriendly: false,
+                  allergens: [.molluscs, .sulphurDioxideAndSulphites],
+                  startTime: .hourMinuteUTC(hour: 11, minute: 30),
+                  endTime: .hourMinuteUTC(hour: 15, minute: 30),
+                  status: .active,
+                  countryID: hrCountryID),
+        ]
+
+        for booth in croatianBooths {
             try await booth.create(on: database)
         }
     }

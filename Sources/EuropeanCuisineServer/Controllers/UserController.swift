@@ -21,6 +21,11 @@ struct UserController: RouteCollection {
             .authenticated()
         authenticatedUsers.get("infos", use: infos)
 
+        let restrictedUsers = api
+            .grouped("admin", "users")
+            .requiring(.admin, .staff)
+            .get("can-manage-users", use: canManageUsers)
+
         // Admin : only an admin can see list of users
         let adminUsers = api
             .grouped("admin", "users")
@@ -234,6 +239,16 @@ struct UserController: RouteCollection {
 
     private func adminDisableUser(req: Request) async throws -> HTTPStatus {
         try await setUserStatus(req: req, from: .active, to: .disabled)
+    }
+
+    private func canManageUsers(req: Request) async throws -> AdminCanManageUsers {
+        let authUser = try req.auth.require(User.self)
+
+        if authUser.role == .admin {
+            return AdminCanManageUsers(canManageUsers: true)
+        } else {
+            return AdminCanManageUsers(canManageUsers: false)
+        }
     }
 
     private func setUserStatus(req: Request, from: User.Status,

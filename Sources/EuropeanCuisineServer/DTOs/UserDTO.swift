@@ -145,3 +145,7 @@ extension AdminUpdateUserInput: Validatable {
                         is: Constants.User.Email.validator)
     }
 }
+
+struct AdminCanManageUsers: Content {
+    let canManageUsers: Bool
+}
